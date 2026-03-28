@@ -19,8 +19,21 @@ const QUICK_AMOUNTS = [
   { label: "10 Juta", value: 10_000_000 },
   { label: "100 Juta", value: 100_000_000 },
 ];
+// ─── Slider log scale helpers ───
+const SLIDER_MAX = 100;
+const LOG_MAX = 12; // 10^12 = 1 Trillion
 
-// ─── Utility functions ───
+function sliderToRupiah(pos: number): number {
+  if (pos <= 0) return 0;
+  return Math.round(Math.pow(10, (pos / SLIDER_MAX) * LOG_MAX));
+}
+
+function rupiahToSlider(rupiah: number): number {
+  if (rupiah <= 0) return 0;
+  const pos = (Math.log10(rupiah) / LOG_MAX) * SLIDER_MAX;
+  return Math.min(Math.max(pos, 0), SLIDER_MAX);
+}
+
 function formatRupiah(num: number): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
