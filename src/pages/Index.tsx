@@ -303,6 +303,27 @@ export default function Index() {
             )}
           </div>
 
+          {/* Slider */}
+          <div className="mt-3 px-1">
+            <Slider
+              value={[rupiahToSlider(rupiah)]}
+              onValueChange={([pos]) => {
+                const val = sliderToRupiah(pos);
+                setActiveQuick(null);
+                setRawInput(val > 0 ? formatRupiah(val) : "");
+              }}
+              max={SLIDER_MAX}
+              step={0.5}
+              className="w-full"
+            />
+            <div className="flex justify-between mt-1 text-[10px] text-muted-foreground select-none">
+              <span>Rp 0</span>
+              <span>1 Jt</span>
+              <span>1 M</span>
+              <span>1 T</span>
+            </div>
+          </div>
+
           {/* Quick buttons */}
           <div className="flex gap-2 mt-3">
             {QUICK_AMOUNTS.map((q) => (
