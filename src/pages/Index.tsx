@@ -103,16 +103,19 @@ const ResultCard = React.memo(function ResultCard({
   totalMs: number;
   inputFormatted: string;
 }) {
-  const primary = getPrimaryResult(totalMs);
-  const breakdown = getBreakdown(totalMs);
+  const animatedMs = useAnimatedNumber(totalMs, 400);
+  const primary = getPrimaryResult(animatedMs);
+  const breakdown = getBreakdown(animatedMs);
   const [copied, setCopied] = useState(false);
 
+  const actualPrimary = getPrimaryResult(totalMs);
+
   const handleCopy = useCallback(() => {
-    const text = `Rp ${inputFormatted} = ${primary.value} ${primary.unit} MBG`;
+    const text = `Rp ${inputFormatted} = ${actualPrimary.value} ${actualPrimary.unit} MBG`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
-  }, [inputFormatted, primary]);
+  }, [inputFormatted, actualPrimary]);
 
   if (rupiah <= 0) return null;
 
@@ -133,7 +136,7 @@ const ResultCard = React.memo(function ResultCard({
       )}
 
       <div className="text-center mb-4">
-        <span className="text-3xl font-bold text-result">{primary.value}</span>
+        <span className="text-3xl font-bold text-result tabular-nums">{primary.value}</span>
         <span className="text-lg font-semibold text-result ml-1.5">{primary.unit} MBG</span>
       </div>
 
@@ -141,7 +144,7 @@ const ResultCard = React.memo(function ResultCard({
         {breakdown.map((b) => (
           <div key={b.label} className="flex justify-between text-sm">
             <span className="text-muted-foreground">{b.label}</span>
-            <span className="font-medium">{b.value}</span>
+            <span className="font-medium tabular-nums">{b.value}</span>
           </div>
         ))}
       </div>
