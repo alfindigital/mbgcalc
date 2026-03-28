@@ -1,45 +1,48 @@
 
-# Kalkulator MBG — Konversi Rupiah ke Waktu MBG
 
-A single-page calculator that converts Indonesian Rupiah into "MBG Time" based on the BGN daily projection of Rp 1.2 Trillion/day.
+# Plan: Counting-Up Animation + Slider Input
 
-## Pages & Layout
-Single page, mobile-first (max-width 420px centered), with dark/light mode toggle.
+## 1. Counting-Up Animation (Animated Counter)
 
-## Features
+**Approach:** Create a custom `useAnimatedNumber` hook that uses `requestAnimationFrame` to interpolate from old value to new value over ~400ms with ease-out.
 
-### Header & Theme
-- "Kalkulator MBG" title with subtitle showing the daily projection
-- Sun/moon dark mode toggle (system preference default, persisted to localStorage)
-- Brand colors: navy blue primary (#003366), orange results (#FF6600)
+### New hook: `useAnimatedNumber(target, duration)`
+- Tracks previous value via `useRef`
+- On target change, animates from previous → new using `requestAnimationFrame`
+- Returns current interpolated number
+- Uses ease-out curve: `1 - (1-t)^3`
 
-### Rupiah Input
-- Large input with inline "Rp" prefix, auto-formatted with dot separators (e.g., 13.900.000)
-- Clear button (X), numeric-only with paste sanitization, auto-focus on load
-- 3 quick amount buttons: 1 Juta, 10 Juta, 100 Juta (active = filled navy, inactive = outlined)
+### Changes to `ResultCard`
+- Use `useAnimatedNumber` for the primary result value
+- Use it for each breakdown row value
+- Format the animated number the same way (sig digits, rupiah format)
+- Since the unit label can change (e.g., "Detik" → "Menit"), handle unit transitions by resetting animation when unit changes
 
-### Result Card (appears when input > 0)
-- Primary result: largest meaningful unit in bold orange (e.g., "1 Detik MBG")
-- Full breakdown: Hari, Jam, Menit, Detik, Milidetik
-- Copy button (top-right) → copies formatted text, shows "Tersalin!" toast
-- Fade-in + slide-up animation on appear
+### Implementation detail
+- The hook works on raw numeric values (pre-format)
+- Pass `totalMs` into the hook, then derive display values from the animated ms value
+- This way all breakdown rows animate in sync from a single animated source
 
-### Save as Image
-- "Simpan Gambar" button below results
-- Lazy-loads html2canvas, renders branded 1080×1080 card (navy gradient bg, white card with result, footer credits) off-screen, downloads as PNG
+## 2. Slider Input
 
-### Reverse Mode (expanded by default)
-- "Mode Terbalik" section: number input + unit dropdown (Hari/Jam/Menit/Detik/Milidetik)
-- Shows "= Rp X" result in real-time
+**Approach:** Add a styled range slider below the input field using the existing Radix `Slider` component.
 
-### Footer
-- "made by M. Alfin" + data source note
+### Changes to `Index` component
+- Add a `<Slider>` component between the input field and the quick amount buttons
+- Range: 0 to 1,000,000,000,000 (1 Trillion)
+- Use logarithmic scale for usability (linear scale would make small values impossible to select)
+  - Slider position 0-100 maps to `10^(position/100 * 12)` (0 → 1, 100 → 1T)
+  - Minimum meaningful value: when slider > ~threshold, otherwise 0
+- Sync bidirectionally: typing updates slider position, sliding updates input
+- Show formatted tick labels: "0", "1Jt", "1M", "1T" at key positions
 
-## Performance
-- Debounced input (150ms), React.memo on result components
-- System font stack, no web fonts
-- html2canvas lazy-loaded on demand
-- All inline, zero network requests after load
+### Slider styling
+- Use existing `Slider` component from `src/components/ui/slider.tsx`
+- Override track color to use brand primary (#003366)
+- Add subtle labels below: "Rp 0" on left, "Rp 1T" on right
+- Thumb gets a pulse animation on first render to hint interactivity
 
-## Edge Cases
-- Handles very large numbers (scientific notation if days > 9999), very small numbers (milliseconds), paste sanitization, max safe integer warning
+### Files to modify
+1. **`src/pages/Index.tsx`** — Add `useAnimatedNumber` hook, integrate slider, update ResultCard
+2. **`src/index.css`** — Add any needed animation keyframes for the counter (digit transition)
+
