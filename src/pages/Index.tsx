@@ -291,9 +291,9 @@ export default function Index() {
               <button
                 key={q.value}
                 onClick={() => handleQuick(q.value)}
-                className={`flex-1 h-11 rounded-lg text-sm font-semibold transition-all active:scale-[0.97] ${
+                className={`flex-1 h-11 rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.95] hover:scale-[1.03] hover:shadow-md ${
                   activeQuick === q.value
-                    ? "bg-primary text-primary-foreground shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-md"
                     : "border border-primary text-primary hover:bg-primary/10"
                 }`}
               >
