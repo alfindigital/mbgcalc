@@ -70,7 +70,7 @@ function useTheme() {
     if (typeof window === "undefined") return false;
     const stored = localStorage.getItem("mbg-theme");
     if (stored) return stored === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return false;
   });
 
   useEffect(() => {
@@ -115,7 +115,7 @@ const ResultCard = React.memo(function ResultCard({
   if (rupiah <= 0) return null;
 
   return (
-    <div className="relative rounded-xl border bg-card text-card-foreground shadow-sm p-5 animate-fade-in-up">
+    <div className="relative rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg p-5 animate-fade-in-up transition-shadow duration-300">
       <button
         onClick={handleCopy}
         className="absolute top-3 right-3 p-2 rounded-lg hover:bg-muted transition-colors"
@@ -243,22 +243,17 @@ export default function Index() {
   const breakdown = useMemo(() => (debouncedRupiah > 0 ? getBreakdown(totalMs) : []), [debouncedRupiah, totalMs]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col transition-colors duration-300">
       <div className="w-full max-w-[420px] mx-auto px-4 py-6 flex-1 flex flex-col">
         {/* Header */}
-        <header className="flex items-start justify-between mb-1">
-          <div>
-            <h1 className="text-2xl font-bold text-primary">Kalkulator MBG</h1>
-            <p className="text-[13px] text-muted-foreground mt-0.5">
-              Proyeksi biaya harian (resmi BGN): Rp 1,2T/hari
-            </p>
-          </div>
+        <header className="flex items-center justify-between mb-1">
+          <h1 className="text-2xl font-bold text-primary">Kalkulator MBG</h1>
           <button
             onClick={toggleDark}
-            className="p-2.5 rounded-lg hover:bg-muted transition-colors mt-0.5"
+            className="p-2.5 rounded-xl hover:bg-muted transition-all duration-200 hover:scale-110 active:scale-95"
             aria-label="Toggle tema"
           >
-            {dark ? <Sun size={20} /> : <Moon size={20} />}
+            {dark ? <Sun size={20} className="transition-transform duration-300 rotate-0 hover:rotate-90" /> : <Moon size={20} className="transition-transform duration-300 hover:-rotate-12" />}
           </button>
         </header>
 
@@ -276,7 +271,7 @@ export default function Index() {
               onChange={handleInput}
               onPaste={handlePaste}
               placeholder="Ketik jumlah..."
-              className="w-full h-14 pl-10 pr-10 rounded-xl border bg-card text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-accent transition-shadow"
+              className="w-full h-14 pl-10 pr-10 rounded-xl border bg-card text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 hover:shadow-md focus:shadow-lg focus:scale-[1.01]"
               style={{ fontSize: "18px" }}
             />
             {rawInput && (
@@ -296,9 +291,9 @@ export default function Index() {
               <button
                 key={q.value}
                 onClick={() => handleQuick(q.value)}
-                className={`flex-1 h-11 rounded-lg text-sm font-semibold transition-all active:scale-[0.97] ${
+                className={`flex-1 h-11 rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.95] hover:scale-[1.03] hover:shadow-md ${
                   activeQuick === q.value
-                    ? "bg-primary text-primary-foreground shadow-sm"
+                    ? "bg-primary text-primary-foreground shadow-md"
                     : "border border-primary text-primary hover:bg-primary/10"
                 }`}
               >
@@ -316,7 +311,7 @@ export default function Index() {
             <button
               onClick={handleSaveImage}
               disabled={saving}
-              className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-60"
+              className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 hover:shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 disabled:opacity-60"
             >
               <Download size={16} />
               {saving ? "Menyimpan..." : "Simpan Gambar"}
@@ -325,7 +320,7 @@ export default function Index() {
         )}
 
         {/* Reverse Mode */}
-        <div className="mt-6 rounded-xl border bg-card p-4">
+        <div className="mt-6 rounded-xl border bg-card p-4 hover:shadow-md transition-shadow duration-300">
           <button
             onClick={() => setReverseOpen((o) => !o)}
             className="flex items-center justify-between w-full text-left"
