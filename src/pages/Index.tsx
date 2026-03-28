@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 
 // ─── Constants ───
 const MBG_DAILY_COST = 1_200_000_000_000;
