@@ -320,7 +320,7 @@ export default function Index() {
         )}
 
         {/* Reverse Mode */}
-        <div className="mt-6 rounded-xl border bg-card p-4">
+        <div className="mt-6 rounded-xl border bg-card p-4 hover:shadow-md transition-shadow duration-300">
           <button
             onClick={() => setReverseOpen((o) => !o)}
             className="flex items-center justify-between w-full text-left"
