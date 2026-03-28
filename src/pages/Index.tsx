@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 
 // ─── Constants ───
 const MBG_DAILY_COST = 1_200_000_000_000;
@@ -17,8 +19,21 @@ const QUICK_AMOUNTS = [
   { label: "10 Juta", value: 10_000_000 },
   { label: "100 Juta", value: 100_000_000 },
 ];
+// ─── Slider log scale helpers ───
+const SLIDER_MAX = 100;
+const LOG_MAX = 12; // 10^12 = 1 Trillion
 
-// ─── Utility functions ───
+function sliderToRupiah(pos: number): number {
+  if (pos <= 0) return 0;
+  return Math.round(Math.pow(10, (pos / SLIDER_MAX) * LOG_MAX));
+}
+
+function rupiahToSlider(rupiah: number): number {
+  if (rupiah <= 0) return 0;
+  const pos = (Math.log10(rupiah) / LOG_MAX) * SLIDER_MAX;
+  return Math.min(Math.max(pos, 0), SLIDER_MAX);
+}
+
 function formatRupiah(num: number): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
@@ -101,16 +116,19 @@ const ResultCard = React.memo(function ResultCard({
   totalMs: number;
   inputFormatted: string;
 }) {
-  const primary = getPrimaryResult(totalMs);
-  const breakdown = getBreakdown(totalMs);
+  const animatedMs = useAnimatedNumber(totalMs, 400);
+  const primary = getPrimaryResult(animatedMs);
+  const breakdown = getBreakdown(animatedMs);
   const [copied, setCopied] = useState(false);
 
+  const actualPrimary = getPrimaryResult(totalMs);
+
   const handleCopy = useCallback(() => {
-    const text = `Rp ${inputFormatted} = ${primary.value} ${primary.unit} MBG`;
+    const text = `Rp ${inputFormatted} = ${actualPrimary.value} ${actualPrimary.unit} MBG`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
-  }, [inputFormatted, primary]);
+  }, [inputFormatted, actualPrimary]);
 
   if (rupiah <= 0) return null;
 
@@ -131,7 +149,7 @@ const ResultCard = React.memo(function ResultCard({
       )}
 
       <div className="text-center mb-4">
-        <span className="text-3xl font-bold text-result">{primary.value}</span>
+        <span className="text-3xl font-bold text-result tabular-nums">{primary.value}</span>
         <span className="text-lg font-semibold text-result ml-1.5">{primary.unit} MBG</span>
       </div>
 
@@ -139,7 +157,7 @@ const ResultCard = React.memo(function ResultCard({
         {breakdown.map((b) => (
           <div key={b.label} className="flex justify-between text-sm">
             <span className="text-muted-foreground">{b.label}</span>
-            <span className="font-medium">{b.value}</span>
+            <span className="font-medium tabular-nums">{b.value}</span>
           </div>
         ))}
       </div>
@@ -283,6 +301,27 @@ export default function Index() {
                 <X size={18} className="text-muted-foreground" />
               </button>
             )}
+          </div>
+
+          {/* Slider */}
+          <div className="mt-3 px-1">
+            <Slider
+              value={[rupiahToSlider(rupiah)]}
+              onValueChange={([pos]) => {
+                const val = sliderToRupiah(pos);
+                setActiveQuick(null);
+                setRawInput(val > 0 ? formatRupiah(val) : "");
+              }}
+              max={SLIDER_MAX}
+              step={0.5}
+              className="w-full"
+            />
+            <div className="flex justify-between mt-1 text-[10px] text-muted-foreground select-none">
+              <span>Rp 0</span>
+              <span>1 Jt</span>
+              <span>1 M</span>
+              <span>1 T</span>
+            </div>
           </div>
 
           {/* Quick buttons */}
