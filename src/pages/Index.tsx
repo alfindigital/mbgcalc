@@ -311,7 +311,7 @@ export default function Index() {
             <button
               onClick={handleSaveImage}
               disabled={saving}
-              className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors disabled:opacity-60"
+              className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/90 hover:shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 disabled:opacity-60"
             >
               <Download size={16} />
               {saving ? "Menyimpan..." : "Simpan Gambar"}
