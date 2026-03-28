@@ -246,19 +246,14 @@ export default function Index() {
     <div className="min-h-screen flex flex-col">
       <div className="w-full max-w-[420px] mx-auto px-4 py-6 flex-1 flex flex-col">
         {/* Header */}
-        <header className="flex items-start justify-between mb-1">
-          <div>
-            <h1 className="text-2xl font-bold text-primary">Kalkulator MBG</h1>
-            <p className="text-[13px] text-muted-foreground mt-0.5">
-              Proyeksi biaya harian (resmi BGN): Rp 1,2T/hari
-            </p>
-          </div>
+        <header className="flex items-center justify-between mb-1">
+          <h1 className="text-2xl font-bold text-primary">Kalkulator MBG</h1>
           <button
             onClick={toggleDark}
-            className="p-2.5 rounded-lg hover:bg-muted transition-colors mt-0.5"
+            className="p-2.5 rounded-xl hover:bg-muted transition-all duration-200 hover:scale-110 active:scale-95"
             aria-label="Toggle tema"
           >
-            {dark ? <Sun size={20} /> : <Moon size={20} />}
+            {dark ? <Sun size={20} className="transition-transform duration-300 rotate-0 hover:rotate-90" /> : <Moon size={20} className="transition-transform duration-300 hover:-rotate-12" />}
           </button>
         </header>
 
