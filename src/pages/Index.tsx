@@ -243,7 +243,7 @@ export default function Index() {
   const breakdown = useMemo(() => (debouncedRupiah > 0 ? getBreakdown(totalMs) : []), [debouncedRupiah, totalMs]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col transition-colors duration-300">
       <div className="w-full max-w-[420px] mx-auto px-4 py-6 flex-1 flex flex-col">
         {/* Header */}
         <header className="flex items-center justify-between mb-1">
