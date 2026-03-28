@@ -115,7 +115,7 @@ const ResultCard = React.memo(function ResultCard({
   if (rupiah <= 0) return null;
 
   return (
-    <div className="relative rounded-xl border bg-card text-card-foreground shadow-sm p-5 animate-fade-in-up">
+    <div className="relative rounded-xl border bg-card text-card-foreground shadow-sm hover:shadow-lg p-5 animate-fade-in-up transition-shadow duration-300">
       <button
         onClick={handleCopy}
         className="absolute top-3 right-3 p-2 rounded-lg hover:bg-muted transition-colors"
