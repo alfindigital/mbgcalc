@@ -271,7 +271,7 @@ export default function Index() {
               onChange={handleInput}
               onPaste={handlePaste}
               placeholder="Ketik jumlah..."
-              className="w-full h-14 pl-10 pr-10 rounded-xl border bg-card text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-accent transition-shadow"
+              className="w-full h-14 pl-10 pr-10 rounded-xl border bg-card text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 hover:shadow-md focus:shadow-lg focus:scale-[1.01]"
               style={{ fontSize: "18px" }}
             />
             {rawInput && (
