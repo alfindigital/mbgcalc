@@ -192,6 +192,7 @@ export default function Index() {
   const [compareMode, setCompareMode] = useState(false);
   const [rawInput2, setRawInput2] = useState("");
   const [activeQuick2, setActiveQuick2] = useState<number | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // History
   const { history, addToHistory, clearHistory } = useHistory();
@@ -558,35 +559,46 @@ export default function Index() {
 
         {/* History */}
         {history.length > 0 && (
-          <div className="mt-4 rounded-xl border bg-card p-4 animate-fade-in-up">
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold text-sm">Riwayat</span>
-              <button
-                onClick={clearHistory}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
-              >
-                <Trash2 size={13} />
-                Hapus Semua
-              </button>
-            </div>
-            <div className="space-y-1.5">
-              {history.map((entry) => {
-                const ms = rupiahToMs(entry.rupiah);
-                const res = getPrimaryResult(ms);
-                return (
-                  <button
-                    key={entry.timestamp}
-                    onClick={() => handleHistoryTap(entry.rupiah)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
+          <div className="mt-4 rounded-xl border bg-card p-4 hover:shadow-md transition-shadow duration-300">
+            <button
+              onClick={() => setHistoryOpen((o) => !o)}
+              className="flex items-center justify-between w-full text-left"
+            >
+              <span className="font-semibold text-sm">Riwayat ({history.length})</span>
+              <div className="flex items-center gap-2">
+                {historyOpen && (
+                  <span
+                    role="button"
+                    onClick={(e) => { e.stopPropagation(); clearHistory(); }}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
                   >
-                    <span className="font-medium">Rp {formatRupiah(entry.rupiah)}</span>
-                    <span className="text-result font-semibold text-xs">
-                      {res.value} {res.unit}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                    <Trash2 size={13} />
+                    Hapus
+                  </span>
+                )}
+                {historyOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </div>
+            </button>
+            {historyOpen && (
+              <div className="mt-3 space-y-1.5 animate-fade-in-up">
+                {history.map((entry) => {
+                  const ms = rupiahToMs(entry.rupiah);
+                  const res = getPrimaryResult(ms);
+                  return (
+                    <button
+                      key={entry.timestamp}
+                      onClick={() => handleHistoryTap(entry.rupiah)}
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
+                    >
+                      <span className="font-medium">Rp {formatRupiah(entry.rupiah)}</span>
+                      <span className="text-result font-semibold text-xs">
+                        {res.value} {res.unit}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
