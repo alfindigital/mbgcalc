@@ -192,6 +192,7 @@ export default function Index() {
   const [compareMode, setCompareMode] = useState(false);
   const [rawInput2, setRawInput2] = useState("");
   const [activeQuick2, setActiveQuick2] = useState<number | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // History
   const { history, addToHistory, clearHistory } = useHistory();
