@@ -198,7 +198,19 @@ const ResultCard = React.memo(function ResultCard({
         ))}
       </div>
 
-      {rupiah > Number.MAX_SAFE_INTEGER && (
+      {!compact && contextual.length > 0 && (
+        <div className="border-t pt-3 mt-1">
+          <p className="text-xs text-muted-foreground mb-2">Setara dengan:</p>
+          <div className="flex flex-wrap gap-2">
+            {contextual.map((c, i) => (
+              <span key={i} className="inline-flex items-center gap-1 text-xs bg-muted px-2.5 py-1.5 rounded-full font-medium">
+                {c.emoji} {c.text}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
         <p className="text-xs text-destructive mt-3">⚠ Angka melebihi batas presisi JavaScript</p>
       )}
     </div>
