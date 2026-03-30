@@ -56,7 +56,8 @@ function msToRupiah(ms: number): number {
 function formatSigDigits(n: number, sig = 7): string {
   if (n === 0) return "0";
   const s = parseFloat(n.toPrecision(sig));
-  return formatRupiah(s);
+  if (Number.isInteger(s) && s >= 1) return formatRupiah(s);
+  return s.toLocaleString("id-ID", { maximumSignificantDigits: sig });
 }
 
 function getPrimaryResult(totalMs: number): { value: string; unit: string } {
