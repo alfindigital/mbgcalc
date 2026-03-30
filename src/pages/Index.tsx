@@ -13,6 +13,8 @@ const UNITS = [
   { key: "menit", label: "Menit", ms: 60_000 },
   { key: "detik", label: "Detik", ms: 1_000 },
   { key: "milidetik", label: "Milidetik", ms: 1 },
+  { key: "mikrodetik", label: "Mikrodetik", ms: 0.001 },
+  { key: "nanodetik", label: "Nanodetik", ms: 0.000_001 },
 ] as const;
 
 const QUICK_AMOUNTS = [
