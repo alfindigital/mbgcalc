@@ -82,6 +82,33 @@ function getBreakdown(totalMs: number): { label: string; value: string }[] {
   }));
 }
 
+// ─── Contextual comparisons ───
+const COMPARISONS = [
+  { emoji: "☕", label: "kopi", price: 25_000 },
+  { emoji: "🍚", label: "nasi padang", price: 18_000 },
+  { emoji: "⛽", label: "liter bensin", price: 12_500 },
+  { emoji: "🎬", label: "tiket bioskop", price: 50_000 },
+  { emoji: "💰", label: "bulan UMR Jakarta", price: 5_067_381 },
+  { emoji: "🏠", label: "bulan kos Jakarta", price: 2_500_000 },
+  { emoji: "📱", label: "iPhone 16", price: 16_499_000 },
+  { emoji: "🏍️", label: "Honda Beat", price: 18_000_000 },
+  { emoji: "🏠", label: "rumah subsidi", price: 150_000_000 },
+];
+
+function getContextualComparisons(rupiah: number): { emoji: string; text: string }[] {
+  if (rupiah <= 0) return [];
+  const results: { emoji: string; text: string }[] = [];
+  for (const c of COMPARISONS) {
+    const count = rupiah / c.price;
+    if (count >= 0.1 && count <= 999_999) {
+      const display = count >= 10 ? Math.round(count).toLocaleString("id-ID") : parseFloat(count.toFixed(1)).toLocaleString("id-ID");
+      results.push({ emoji: c.emoji, text: `${display} ${c.label}` });
+    }
+    if (results.length >= 3) break;
+  }
+  return results;
+}
+
 // ─── Theme hook ───
 function useTheme() {
   const [dark, setDark] = useState(() => {
@@ -121,6 +148,7 @@ const ResultCard = React.memo(function ResultCard({
   inputFormatted: string;
   compact?: boolean;
 }) {
+  const contextual = useMemo(() => getContextualComparisons(rupiah), [rupiah]);
   const animatedMs = useAnimatedNumber(totalMs, 400);
   const primary = getPrimaryResult(animatedMs);
   const breakdown = getBreakdown(animatedMs);
@@ -169,6 +197,19 @@ const ResultCard = React.memo(function ResultCard({
           </div>
         ))}
       </div>
+
+      {!compact && contextual.length > 0 && (
+        <div className="border-t pt-3 mt-1">
+          <p className="text-xs text-muted-foreground mb-2">Setara dengan:</p>
+          <div className="flex flex-wrap gap-2">
+            {contextual.map((c, i) => (
+              <span key={i} className="inline-flex items-center gap-1 text-xs bg-muted px-2.5 py-1.5 rounded-full font-medium">
+                {c.emoji} {c.text}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {rupiah > Number.MAX_SAFE_INTEGER && (
         <p className="text-xs text-destructive mt-3">⚠ Angka melebihi batas presisi JavaScript</p>
