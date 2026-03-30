@@ -211,6 +211,7 @@ const ResultCard = React.memo(function ResultCard({
         </div>
       )}
 
+      {rupiah > Number.MAX_SAFE_INTEGER && (
         <p className="text-xs text-destructive mt-3">⚠ Angka melebihi batas presisi JavaScript</p>
       )}
     </div>
