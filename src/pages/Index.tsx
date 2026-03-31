@@ -511,7 +511,7 @@ export default function Index() {
             <button
               onClick={() => {
                 const p = getPrimaryResult(totalMs);
-                const text = `Rp ${inputFormatted} = ${p.value} ${p.unit} MBG\n\nDihitung di kalkulatormbg`;
+                const text = `Rp ${inputFormatted} = ${p.value} ${p.unit} MBG`;
                 navigator.clipboard.writeText(text);
               }}
               className="w-full h-10 rounded-lg border border-primary/30 text-primary font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 active:scale-[0.98] transition-all duration-200"
