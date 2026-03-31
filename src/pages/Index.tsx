@@ -164,6 +164,47 @@ const ResultCard = React.memo(function ResultCard({
   );
 });
 
+// ─── History List (lazy load) ───
+const HistoryList = React.memo(function HistoryList({
+  history,
+  onTap,
+}: {
+  history: { rupiah: number; timestamp: number }[];
+  onTap: (val: number) => void;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? history : history.slice(0, 5);
+
+  return (
+    <div className="mt-3 space-y-1.5 animate-fade-in-up">
+      {visible.map((entry) => {
+        const ms = rupiahToMs(entry.rupiah);
+        const res = getPrimaryResult(ms);
+        return (
+          <button
+            key={entry.timestamp}
+            onClick={() => onTap(entry.rupiah)}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
+          >
+            <span className="font-medium">Rp {formatRupiah(entry.rupiah)}</span>
+            <span className="text-result font-semibold text-xs">
+              {res.value} {res.unit}
+            </span>
+          </button>
+        );
+      })}
+      {!showAll && history.length > 5 && (
+        <button
+          onClick={() => setShowAll(true)}
+          className="w-full text-center text-xs text-primary font-medium py-2 hover:bg-muted rounded-lg transition-colors"
+        >
+          Selengkapnya ({history.length - 5} lagi)
+        </button>
+      )}
+    </div>
+  );
+});
+
 // ─── Main Page ───
 export default function Index() {
   const [dark, toggleDark] = useTheme();
