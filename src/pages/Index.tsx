@@ -77,39 +77,6 @@ function getPrimaryResult(totalMs: number): { value: string; unit: string } {
   return { value: "0", unit: "Milidetik" };
 }
 
-function getBreakdown(totalMs: number): { label: string; value: string }[] {
-  return UNITS.map((u) => ({
-    label: u.label,
-    value: formatSigDigits(totalMs / u.ms),
-  }));
-}
-
-// ─── Contextual comparisons ───
-const COMPARISONS = [
-  { emoji: "☕", label: "kopi", price: 25_000 },
-  { emoji: "🍚", label: "nasi padang", price: 18_000 },
-  { emoji: "⛽", label: "liter bensin", price: 12_500 },
-  { emoji: "🎬", label: "tiket bioskop", price: 50_000 },
-  { emoji: "💰", label: "bulan UMR Jakarta", price: 5_067_381 },
-  { emoji: "🏠", label: "bulan kos Jakarta", price: 2_500_000 },
-  { emoji: "📱", label: "iPhone 16", price: 16_499_000 },
-  { emoji: "🏍️", label: "Honda Beat", price: 18_000_000 },
-  { emoji: "🏠", label: "rumah subsidi", price: 150_000_000 },
-];
-
-function getContextualComparisons(rupiah: number): { emoji: string; text: string }[] {
-  if (rupiah <= 0) return [];
-  const results: { emoji: string; text: string }[] = [];
-  for (const c of COMPARISONS) {
-    const count = rupiah / c.price;
-    if (count >= 0.1 && count <= 999_999) {
-      const display = count >= 10 ? Math.round(count).toLocaleString("id-ID") : parseFloat(count.toFixed(1)).toLocaleString("id-ID");
-      results.push({ emoji: c.emoji, text: `${display} ${c.label}` });
-    }
-    if (results.length >= 3) break;
-  }
-  return results;
-}
 
 // ─── Theme hook ───
 function useTheme() {
