@@ -164,6 +164,47 @@ const ResultCard = React.memo(function ResultCard({
   );
 });
 
+// ─── History List (lazy load) ───
+const HistoryList = React.memo(function HistoryList({
+  history,
+  onTap,
+}: {
+  history: { rupiah: number; timestamp: number }[];
+  onTap: (val: number) => void;
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const visible = showAll ? history : history.slice(0, 5);
+
+  return (
+    <div className="mt-3 space-y-1.5 animate-fade-in-up">
+      {visible.map((entry) => {
+        const ms = rupiahToMs(entry.rupiah);
+        const res = getPrimaryResult(ms);
+        return (
+          <button
+            key={entry.timestamp}
+            onClick={() => onTap(entry.rupiah)}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
+          >
+            <span className="font-medium">Rp {formatRupiah(entry.rupiah)}</span>
+            <span className="text-result font-semibold text-xs">
+              {res.value} {res.unit}
+            </span>
+          </button>
+        );
+      })}
+      {!showAll && history.length > 5 && (
+        <button
+          onClick={() => setShowAll(true)}
+          className="w-full text-center text-xs text-primary font-medium py-2 hover:bg-muted rounded-lg transition-colors"
+        >
+          Selengkapnya ({history.length - 5} lagi)
+        </button>
+      )}
+    </div>
+  );
+});
+
 // ─── Main Page ───
 export default function Index() {
   const [dark, toggleDark] = useTheme();
@@ -465,8 +506,19 @@ export default function Index() {
 
         {/* Result */}
         {!compareMode && debouncedRupiah > 0 && (
-          <div className="mt-5 space-y-3">
+          <div className="mt-5 space-y-2">
             <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} />
+            <button
+              onClick={() => {
+                const p = getPrimaryResult(totalMs);
+                const text = `Rp ${inputFormatted} = ${p.value} ${p.unit} MBG\n\nDihitung di kalkulatormbg`;
+                navigator.clipboard.writeText(text);
+              }}
+              className="w-full h-10 rounded-lg border border-primary/30 text-primary font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 active:scale-[0.98] transition-all duration-200"
+            >
+              <Copy size={15} />
+              Salin Teks
+            </button>
             <button
               onClick={handleSaveImage}
               disabled={saving}
@@ -567,24 +619,7 @@ export default function Index() {
               </div>
             </button>
             {historyOpen && (
-              <div className="mt-3 space-y-1.5 animate-fade-in-up">
-                {history.map((entry) => {
-                  const ms = rupiahToMs(entry.rupiah);
-                  const res = getPrimaryResult(ms);
-                  return (
-                    <button
-                      key={entry.timestamp}
-                      onClick={() => handleHistoryTap(entry.rupiah)}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
-                    >
-                      <span className="font-medium">Rp {formatRupiah(entry.rupiah)}</span>
-                      <span className="text-result font-semibold text-xs">
-                        {res.value} {res.unit}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <HistoryList history={history} onTap={handleHistoryTap} />
             )}
           </div>
         )}
