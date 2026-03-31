@@ -625,15 +625,6 @@ export default function Index() {
               {primary.value} {primary.unit} MBG
             </div>
           )}
-          <div style={{ borderTop: "1px solid #e5e7eb", margin: "24px 0" }} />
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 18, color: "#374151" }}>
-            {breakdown.map((b) => (
-              <div key={b.label} style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>{b.label}</span>
-                <span style={{ fontWeight: 600 }}>{b.value}</span>
-              </div>
-            ))}
-          </div>
         </div>
         <div style={{ color: "white", textAlign: "center", marginTop: 36, fontSize: 14 }}>
           <div style={{ opacity: 0.9 }}>Proyeksi biaya harian program MBG: Rp 1,2 Triliun/hari</div>
