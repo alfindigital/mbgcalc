@@ -150,10 +150,8 @@ const ResultCard = React.memo(function ResultCard({
   inputFormatted: string;
   compact?: boolean;
 }) {
-  const contextual = useMemo(() => getContextualComparisons(rupiah), [rupiah]);
   const animatedMs = useAnimatedNumber(totalMs, 400);
   const primary = getPrimaryResult(animatedMs);
-  const breakdown = getBreakdown(animatedMs);
   const [copied, setCopied] = useState(false);
 
   const actualPrimary = getPrimaryResult(totalMs);
