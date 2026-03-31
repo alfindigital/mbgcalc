@@ -290,7 +290,6 @@ export default function Index() {
   }, [saving]);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
-  const breakdown = useMemo(() => (debouncedRupiah > 0 ? getBreakdown(totalMs) : []), [debouncedRupiah, totalMs]);
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300">
