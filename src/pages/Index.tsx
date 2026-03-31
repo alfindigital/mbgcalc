@@ -77,39 +77,6 @@ function getPrimaryResult(totalMs: number): { value: string; unit: string } {
   return { value: "0", unit: "Milidetik" };
 }
 
-function getBreakdown(totalMs: number): { label: string; value: string }[] {
-  return UNITS.map((u) => ({
-    label: u.label,
-    value: formatSigDigits(totalMs / u.ms),
-  }));
-}
-
-// ─── Contextual comparisons ───
-const COMPARISONS = [
-  { emoji: "☕", label: "kopi", price: 25_000 },
-  { emoji: "🍚", label: "nasi padang", price: 18_000 },
-  { emoji: "⛽", label: "liter bensin", price: 12_500 },
-  { emoji: "🎬", label: "tiket bioskop", price: 50_000 },
-  { emoji: "💰", label: "bulan UMR Jakarta", price: 5_067_381 },
-  { emoji: "🏠", label: "bulan kos Jakarta", price: 2_500_000 },
-  { emoji: "📱", label: "iPhone 16", price: 16_499_000 },
-  { emoji: "🏍️", label: "Honda Beat", price: 18_000_000 },
-  { emoji: "🏠", label: "rumah subsidi", price: 150_000_000 },
-];
-
-function getContextualComparisons(rupiah: number): { emoji: string; text: string }[] {
-  if (rupiah <= 0) return [];
-  const results: { emoji: string; text: string }[] = [];
-  for (const c of COMPARISONS) {
-    const count = rupiah / c.price;
-    if (count >= 0.1 && count <= 999_999) {
-      const display = count >= 10 ? Math.round(count).toLocaleString("id-ID") : parseFloat(count.toFixed(1)).toLocaleString("id-ID");
-      results.push({ emoji: c.emoji, text: `${display} ${c.label}` });
-    }
-    if (results.length >= 3) break;
-  }
-  return results;
-}
 
 // ─── Theme hook ───
 function useTheme() {
@@ -150,10 +117,8 @@ const ResultCard = React.memo(function ResultCard({
   inputFormatted: string;
   compact?: boolean;
 }) {
-  const contextual = useMemo(() => getContextualComparisons(rupiah), [rupiah]);
   const animatedMs = useAnimatedNumber(totalMs, 400);
   const primary = getPrimaryResult(animatedMs);
-  const breakdown = getBreakdown(animatedMs);
   const [copied, setCopied] = useState(false);
 
   const actualPrimary = getPrimaryResult(totalMs);
@@ -191,27 +156,6 @@ const ResultCard = React.memo(function ResultCard({
         <span className={`${compact ? "text-sm" : "text-lg"} font-semibold text-result ml-1.5`}>{primary.unit} MBG</span>
       </div>
 
-      <div className="border-t pt-3 space-y-1">
-        {breakdown.map((b) => (
-          <div key={b.label} className="flex justify-between text-sm">
-            <span className="text-muted-foreground">{b.label}</span>
-            <span className="font-medium tabular-nums">{b.value}</span>
-          </div>
-        ))}
-      </div>
-
-      {!compact && contextual.length > 0 && (
-        <div className="border-t pt-3 mt-1">
-          <p className="text-xs text-muted-foreground mb-2">Setara dengan:</p>
-          <div className="flex flex-wrap gap-2">
-            {contextual.map((c, i) => (
-              <span key={i} className="inline-flex items-center gap-1 text-xs bg-muted px-2.5 py-1.5 rounded-full font-medium">
-                {c.emoji} {c.text}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
 
       {rupiah > Number.MAX_SAFE_INTEGER && (
         <p className="text-xs text-destructive mt-3">⚠ Angka melebihi batas presisi JavaScript</p>
@@ -346,7 +290,6 @@ export default function Index() {
   }, [saving]);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
-  const breakdown = useMemo(() => (debouncedRupiah > 0 ? getBreakdown(totalMs) : []), [debouncedRupiah, totalMs]);
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300">
@@ -682,15 +625,6 @@ export default function Index() {
               {primary.value} {primary.unit} MBG
             </div>
           )}
-          <div style={{ borderTop: "1px solid #e5e7eb", margin: "24px 0" }} />
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 18, color: "#374151" }}>
-            {breakdown.map((b) => (
-              <div key={b.label} style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>{b.label}</span>
-                <span style={{ fontWeight: 600 }}>{b.value}</span>
-              </div>
-            ))}
-          </div>
         </div>
         <div style={{ color: "white", textAlign: "center", marginTop: 36, fontSize: 14 }}>
           <div style={{ opacity: 0.9 }}>Proyeksi biaya harian program MBG: Rp 1,2 Triliun/hari</div>
