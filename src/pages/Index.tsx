@@ -578,24 +578,7 @@ export default function Index() {
               </div>
             </button>
             {historyOpen && (
-              <div className="mt-3 space-y-1.5 animate-fade-in-up">
-                {history.map((entry) => {
-                  const ms = rupiahToMs(entry.rupiah);
-                  const res = getPrimaryResult(ms);
-                  return (
-                    <button
-                      key={entry.timestamp}
-                      onClick={() => handleHistoryTap(entry.rupiah)}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted transition-colors text-sm"
-                    >
-                      <span className="font-medium">Rp {formatRupiah(entry.rupiah)}</span>
-                      <span className="text-result font-semibold text-xs">
-                        {res.value} {res.unit}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <HistoryList history={history} onTap={handleHistoryTap} />
             )}
           </div>
         )}
