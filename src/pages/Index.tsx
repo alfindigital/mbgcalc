@@ -191,27 +191,6 @@ const ResultCard = React.memo(function ResultCard({
         <span className={`${compact ? "text-sm" : "text-lg"} font-semibold text-result ml-1.5`}>{primary.unit} MBG</span>
       </div>
 
-      <div className="border-t pt-3 space-y-1">
-        {breakdown.map((b) => (
-          <div key={b.label} className="flex justify-between text-sm">
-            <span className="text-muted-foreground">{b.label}</span>
-            <span className="font-medium tabular-nums">{b.value}</span>
-          </div>
-        ))}
-      </div>
-
-      {!compact && contextual.length > 0 && (
-        <div className="border-t pt-3 mt-1">
-          <p className="text-xs text-muted-foreground mb-2">Setara dengan:</p>
-          <div className="flex flex-wrap gap-2">
-            {contextual.map((c, i) => (
-              <span key={i} className="inline-flex items-center gap-1 text-xs bg-muted px-2.5 py-1.5 rounded-full font-medium">
-                {c.emoji} {c.text}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
 
       {rupiah > Number.MAX_SAFE_INTEGER && (
         <p className="text-xs text-destructive mt-3">⚠ Angka melebihi batas presisi JavaScript</p>
