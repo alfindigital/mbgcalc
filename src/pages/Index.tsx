@@ -465,8 +465,19 @@ export default function Index() {
 
         {/* Result */}
         {!compareMode && debouncedRupiah > 0 && (
-          <div className="mt-5 space-y-3">
+          <div className="mt-5 space-y-2">
             <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} />
+            <button
+              onClick={() => {
+                const p = getPrimaryResult(totalMs);
+                const text = `Rp ${inputFormatted} = ${p.value} ${p.unit} MBG\n\nDihitung di kalkulatormbg`;
+                navigator.clipboard.writeText(text);
+              }}
+              className="w-full h-10 rounded-lg border border-primary/30 text-primary font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/10 active:scale-[0.98] transition-all duration-200"
+            >
+              <Copy size={15} />
+              Salin Teks
+            </button>
             <button
               onClick={handleSaveImage}
               disabled={saving}
