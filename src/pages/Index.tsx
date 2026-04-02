@@ -518,8 +518,8 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Result */}
-        {!compareMode && debouncedRupiah > 0 && (
+        {/* Result — Normal mode */}
+        <div className={`transition-all duration-300 ease-out ${!compareMode && debouncedRupiah > 0 ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 translate-y-4 max-h-0 overflow-hidden pointer-events-none"}`}>
           <div className="mt-6 space-y-3">
             <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} />
 
@@ -545,10 +545,10 @@ export default function Index() {
               </button>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Compare Results */}
-        {compareMode && (debouncedRupiah > 0 || debouncedRupiah2 > 0) && (
+        {/* Result — Compare mode */}
+        <div className={`transition-all duration-300 ease-out ${compareMode && (debouncedRupiah > 0 || debouncedRupiah2 > 0) ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 translate-y-4 max-h-0 overflow-hidden pointer-events-none"}`}>
           <div className="mt-5 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               {debouncedRupiah > 0 && (
