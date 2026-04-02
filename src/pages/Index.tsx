@@ -569,7 +569,7 @@ export default function Index() {
               </Section>
             )}
           </div>
-        )}
+        </div>
 
         {/* Reverse Mode */}
         <Section className="mt-6">
