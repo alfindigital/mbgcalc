@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
 import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
@@ -18,12 +18,11 @@ const UNITS = [
 ] as const;
 
 const QUICK_AMOUNTS = [
-  { label: "1 Juta", value: 1_000_000 },
-  { label: "10 Juta", value: 10_000_000 },
-  { label: "100 Juta", value: 100_000_000 },
+  { label: "1 Jt", value: 1_000_000 },
+  { label: "10 Jt", value: 10_000_000 },
+  { label: "100 Jt", value: 100_000_000 },
 ];
 
-// ─── Slider log scale helpers ───
 const SLIDER_MAX = 100;
 const LOG_MAX = 12;
 
@@ -34,8 +33,7 @@ function sliderToRupiah(pos: number): number {
 
 function rupiahToSlider(rupiah: number): number {
   if (rupiah <= 0) return 0;
-  const pos = (Math.log10(rupiah) / LOG_MAX) * SLIDER_MAX;
-  return Math.min(Math.max(pos, 0), SLIDER_MAX);
+  return Math.min((Math.log10(rupiah) / LOG_MAX) * SLIDER_MAX, SLIDER_MAX);
 }
 
 function formatRupiah(num: number): string {
@@ -55,46 +53,32 @@ function msToRupiah(ms: number): number {
   return (ms / MS_PER_DAY) * MBG_DAILY_COST;
 }
 
-function formatSigDigits(n: number, sig = 7): string {
-  if (n === 0) return "0";
-  const s = parseFloat(n.toPrecision(sig));
-  if (Number.isInteger(s) && s >= 1) return formatRupiah(s);
-  return s.toLocaleString("id-ID", { maximumSignificantDigits: sig });
-}
-
 function getPrimaryResult(totalMs: number): { value: string; unit: string } {
   for (const u of UNITS) {
     const val = totalMs / u.ms;
     if (val >= 0.01) {
-      const days = totalMs / MS_PER_DAY;
-      if (u.key === "hari" && days > 9999) {
-        return { value: days.toExponential(2), unit: u.label };
+      if (u.key === "hari" && val > 9999) {
+        return { value: val.toExponential(2), unit: u.label };
       }
-      const display = parseFloat(val.toFixed(2));
-      return { value: formatRupiah(display), unit: u.label };
+      return { value: formatRupiah(parseFloat(val.toFixed(2))), unit: u.label };
     }
   }
   return { value: "0", unit: "Milidetik" };
 }
 
-// ─── Theme hook ───
+// ─── Hooks ───
 function useTheme() {
   const [dark, setDark] = useState(() => {
     if (typeof window === "undefined") return false;
-    const stored = localStorage.getItem("mbg-theme");
-    if (stored) return stored === "dark";
-    return false;
+    return localStorage.getItem("mbg-theme") === "dark";
   });
-
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
     localStorage.setItem("mbg-theme", dark ? "dark" : "light");
   }, [dark]);
-
-  return [dark, () => setDark((d) => !d)] as const;
+  return [dark, useCallback(() => setDark((d) => !d), [])] as const;
 }
 
-// ─── Debounce hook ───
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
@@ -104,17 +88,11 @@ function useDebounce<T>(value: T, delay: number): T {
   return debounced;
 }
 
-// ─── Result Card (memoized) ───
+// ─── Result Card ───
 const ResultCard = React.memo(function ResultCard({
-  rupiah,
-  totalMs,
-  inputFormatted,
-  compact,
+  rupiah, totalMs, inputFormatted, compact,
 }: {
-  rupiah: number;
-  totalMs: number;
-  inputFormatted: string;
-  compact?: boolean;
+  rupiah: number; totalMs: number; inputFormatted: string; compact?: boolean;
 }) {
   const animatedMs = useAnimatedNumber(totalMs, 400);
   const primary = getPrimaryResult(animatedMs);
@@ -122,8 +100,7 @@ const ResultCard = React.memo(function ResultCard({
   const actualPrimary = getPrimaryResult(totalMs);
 
   const handleCopy = useCallback(() => {
-    const text = `Rp ${inputFormatted} = ${actualPrimary.value} ${actualPrimary.unit} MBG`;
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(`Rp ${inputFormatted} = ${actualPrimary.value} ${actualPrimary.unit} MBG`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }, [inputFormatted, actualPrimary]);
@@ -131,98 +108,113 @@ const ResultCard = React.memo(function ResultCard({
   if (rupiah <= 0) return null;
 
   return (
-    <div className={`relative card-elevated rounded-2xl border ${compact ? "p-4" : "p-6"} animate-fade-in-up ${!compact ? "result-glow" : ""}`}>
+    <div className={`relative card-elevated rounded-2xl border animate-fade-in-up ${compact ? "p-3 sm:p-4" : "p-4 sm:p-6 result-glow"}`}>
       <button
         onClick={handleCopy}
-        className="absolute top-3 right-3 p-2 rounded-xl hover:bg-muted/80 transition-all duration-200 hover:scale-110 active:scale-95"
+        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-xl hover:bg-muted/80 transition-colors active:scale-95"
         aria-label="Salin hasil"
       >
-        <Copy size={compact ? 14 : 16} className="text-muted-foreground" />
+        <Copy size={compact ? 13 : 15} className="text-muted-foreground" />
       </button>
-
       {copied && (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-1 bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-lg shadow-lg animate-slide-down font-medium">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full bg-primary text-primary-foreground text-xs px-2.5 py-1 rounded-lg shadow-lg animate-slide-down font-medium">
           Tersalin!
         </div>
       )}
-
       <div className="text-center">
-        {compact && (
-          <div className="text-xs text-muted-foreground mb-2 font-medium">Rp {inputFormatted}</div>
-        )}
-        <div className="flex items-baseline justify-center gap-1.5">
-          <span className={`${compact ? "text-2xl" : "text-4xl"} font-extrabold text-result-glow tabular-nums tracking-tight`}>
+        {compact && <div className="text-[11px] text-muted-foreground mb-1.5 font-medium truncate">Rp {inputFormatted}</div>}
+        <div className="flex items-baseline justify-center gap-1">
+          <span className={`${compact ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl"} font-extrabold text-result-glow tabular-nums tracking-tight`}>
             {primary.value}
           </span>
-          <span className={`${compact ? "text-sm" : "text-lg"} font-bold text-result opacity-80`}>
-            {primary.unit} MBG
+          <span className={`${compact ? "text-xs sm:text-sm" : "text-sm sm:text-lg"} font-bold text-result opacity-80`}>
+            {primary.unit}
           </span>
         </div>
+        <span className={`${compact ? "text-[10px]" : "text-xs"} font-semibold text-result/60`}>MBG</span>
       </div>
-
       {rupiah > Number.MAX_SAFE_INTEGER && (
-        <p className="text-xs text-destructive mt-3 text-center">⚠ Angka melebihi batas presisi JavaScript</p>
+        <p className="text-[10px] text-destructive mt-2 text-center">⚠ Melebihi batas presisi</p>
       )}
     </div>
   );
 });
 
-// ─── History List (lazy load) ───
+// ─── History List ───
 const HistoryList = React.memo(function HistoryList({
-  history,
-  onTap,
+  history, onTap,
 }: {
-  history: { rupiah: number; timestamp: number }[];
-  onTap: (val: number) => void;
+  history: { rupiah: number; timestamp: number }[]; onTap: (val: number) => void;
 }) {
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? history : history.slice(0, 5);
 
   return (
-    <div className="mt-3 space-y-1 animate-fade-in-up">
+    <div className="mt-2 space-y-0.5 animate-fade-in-up">
       {visible.map((entry) => {
-        const ms = rupiahToMs(entry.rupiah);
-        const res = getPrimaryResult(ms);
+        const res = getPrimaryResult(rupiahToMs(entry.rupiah));
         return (
           <button
             key={entry.timestamp}
             onClick={() => onTap(entry.rupiah)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-muted/60 transition-all duration-200 text-sm group"
+            className="w-full flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-muted/60 transition-colors text-sm group active:scale-[0.98]"
           >
-            <span className="font-semibold group-hover:text-primary transition-colors">Rp {formatRupiah(entry.rupiah)}</span>
-            <span className="text-result font-bold text-xs">
-              {res.value} {res.unit}
-            </span>
+            <span className="font-semibold group-hover:text-primary transition-colors text-xs sm:text-sm">Rp {formatRupiah(entry.rupiah)}</span>
+            <span className="text-result font-bold text-[11px] sm:text-xs">{res.value} {res.unit}</span>
           </button>
         );
       })}
       {!showAll && history.length > 5 && (
         <button
           onClick={() => setShowAll(true)}
-          className="w-full text-center text-xs text-accent font-semibold py-2.5 hover:bg-muted/60 rounded-xl transition-all duration-200"
+          className="w-full text-center text-xs text-accent font-semibold py-2 hover:bg-muted/60 rounded-xl transition-colors"
         >
-          Selengkapnya ({history.length - 5} lagi)
+          +{history.length - 5} lagi
         </button>
       )}
     </div>
   );
 });
 
-// ─── Section wrapper ───
-function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+// ─── Section ───
+const Section = React.memo(function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`card-elevated rounded-2xl border p-4 sm:p-5 ${className}`}>{children}</div>;
+});
+
+// ─── Quick Buttons ───
+const QuickButtons = React.memo(function QuickButtons({
+  amounts, active, onSelect, compact, disabled,
+}: {
+  amounts: typeof QUICK_AMOUNTS; active: number | null; onSelect: (v: number) => void; compact?: boolean; disabled?: boolean;
+}) {
   return (
-    <div className={`card-elevated rounded-2xl border p-5 ${className}`}>
-      {children}
+    <div className={`flex ${compact ? "gap-1" : "gap-2"}`}>
+      {amounts.map((q) => (
+        <button
+          key={q.value}
+          onClick={() => onSelect(q.value)}
+          tabIndex={disabled ? -1 : 0}
+          className={`flex-1 ${compact ? "h-7 rounded-lg text-[10px]" : "h-10 sm:h-11 rounded-xl text-xs sm:text-sm"} font-bold transition-colors active:scale-[0.95] ${
+            active === q.value
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : compact
+                ? "border border-primary/30 text-primary hover:bg-primary/5"
+                : "border-2 border-primary/20 text-primary hover:border-primary/40 hover:bg-primary/5"
+          }`}
+        >
+          {q.label}
+        </button>
+      ))}
     </div>
   );
-}
+});
 
-// ─── Main Page ───
+// ─── Main ───
 export default function Index() {
   const [dark, toggleDark] = useTheme();
   const [rawInput, setRawInput] = useState("");
   const [activeQuick, setActiveQuick] = useState<number | null>(null);
-  const [reverseOpen, setReverseOpen] = useState(true);
+  const [reverseOpen, setReverseOpen] = useState(false);
   const [reverseValue, setReverseValue] = useState("");
   const [reverseUnit, setReverseUnit] = useState("detik");
   const [saving, setSaving] = useState(false);
@@ -259,15 +251,13 @@ export default function Index() {
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "");
     setActiveQuick(null);
-    if (!digits) { setRawInput(""); return; }
-    setRawInput(formatRupiah(parseInt(digits, 10)));
+    setRawInput(digits ? formatRupiah(parseInt(digits, 10)) : "");
   }, []);
 
   const handleInput2 = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "");
     setActiveQuick2(null);
-    if (!digits) { setRawInput2(""); return; }
-    setRawInput2(formatRupiah(parseInt(digits, 10)));
+    setRawInput2(digits ? formatRupiah(parseInt(digits, 10)) : "");
   }, []);
 
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
@@ -286,8 +276,7 @@ export default function Index() {
     const num = parseFloat(reverseValue);
     if (!num || num < 0) return 0;
     const unit = UNITS.find((u) => u.key === reverseUnit);
-    if (!unit) return 0;
-    return msToRupiah(num * unit.ms);
+    return unit ? msToRupiah(num * unit.ms) : 0;
   }, [reverseValue, reverseUnit]);
 
   const diffMs = useMemo(() => Math.abs(totalMs - totalMs2), [totalMs, totalMs2]);
@@ -314,65 +303,58 @@ export default function Index() {
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
 
+  const modeTransition = "transition-all duration-300 ease-out will-change-[opacity,transform]";
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="w-full max-w-[440px] mx-auto px-5 py-8 flex-1 flex flex-col">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col">
+      <div className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
         {/* Header */}
-        <header className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
-              <Calculator size={18} className="text-primary-foreground" />
+        <header className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
+              <Calculator size={16} className="text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-extrabold text-primary tracking-tight">Kalkulator MBG</h1>
+            <h1 className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">Kalkulator MBG</h1>
           </div>
           <button
             onClick={toggleDark}
-            className="p-2.5 rounded-xl border bg-card hover:bg-muted transition-all duration-200 hover:scale-105 active:scale-95 shadow-sm"
+            className="p-2 sm:p-2.5 rounded-xl border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
             aria-label="Toggle tema"
           >
-            {dark ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-muted-foreground" />}
+            {dark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-muted-foreground" />}
           </button>
         </header>
 
         {/* Mode Toggle */}
-        <div className="flex items-center justify-center mb-5">
-          <div className="inline-flex rounded-xl border bg-muted/50 p-1 text-sm backdrop-blur-sm">
+        <div className="flex items-center justify-center mb-4 sm:mb-5">
+          <div className="inline-flex rounded-xl border bg-muted/50 p-0.5 sm:p-1 text-sm">
             <button
               onClick={() => setCompareMode(false)}
-              className={`px-5 py-2 rounded-lg font-semibold transition-all duration-200 ${
-                !compareMode
-                  ? "bg-card text-foreground shadow-md"
-                  : "text-muted-foreground hover:text-foreground"
+              className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
+                !compareMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
               }`}
             >
               Normal
             </button>
             <button
               onClick={() => setCompareMode(true)}
-              className={`px-5 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center gap-1.5 ${
-                compareMode
-                  ? "bg-card text-foreground shadow-md"
-                  : "text-muted-foreground hover:text-foreground"
+              className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all flex items-center gap-1 text-xs sm:text-sm ${
+                compareMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
               }`}
             >
-              <ArrowLeftRight size={14} />
+              <ArrowLeftRight size={13} />
               Bandingkan
             </button>
           </div>
         </div>
 
-        {/* Input Area — both always rendered, animated transitions */}
+        {/* Input Area */}
         <div className="relative">
-          <div
-            className={`transition-all duration-300 ease-out ${
-              !compareMode
-                ? "opacity-100 translate-y-0 scale-100"
-                : "opacity-0 translate-y-2 scale-[0.97] pointer-events-none absolute inset-0"
-            }`}
-          >
-            <div className="space-y-4">
+          {/* Normal mode */}
+          <div className={`${modeTransition} ${!compareMode ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none absolute inset-0"}`}>
+            <div className="space-y-3 sm:space-y-4">
               <div className="relative flex items-center group">
-                <span className="absolute left-4 text-muted-foreground font-bold text-base select-none pointer-events-none transition-colors group-focus-within:text-primary">
+                <span className="absolute left-3.5 sm:left-4 text-muted-foreground font-bold text-sm sm:text-base select-none pointer-events-none transition-colors group-focus-within:text-primary">
                   Rp
                 </span>
                 <input
@@ -383,187 +365,118 @@ export default function Index() {
                   onChange={handleInput}
                   onPaste={handlePaste}
                   placeholder="Ketik jumlah..."
-                  className="w-full h-14 pl-11 pr-11 rounded-2xl border-2 border-border bg-card text-lg font-bold focus:outline-none focus:border-accent input-glow transition-all duration-200 hover:border-muted-foreground/30 placeholder:text-muted-foreground/50 placeholder:font-normal"
-                  style={{ fontSize: "18px" }}
+                  className="w-full h-12 sm:h-14 pl-10 sm:pl-11 pr-10 sm:pr-11 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-muted-foreground/50 placeholder:font-normal"
                   tabIndex={compareMode ? -1 : 0}
                 />
                 {rawInput && (
-                  <button
-                    onClick={handleClear}
-                    className="absolute right-3 p-1.5 rounded-xl hover:bg-muted transition-all duration-200 hover:scale-110 active:scale-90"
-                    aria-label="Hapus"
-                    tabIndex={compareMode ? -1 : 0}
-                  >
-                    <X size={16} className="text-muted-foreground" />
+                  <button onClick={handleClear} className="absolute right-2.5 sm:right-3 p-1.5 rounded-xl hover:bg-muted transition-colors active:scale-90" aria-label="Hapus" tabIndex={compareMode ? -1 : 0}>
+                    <X size={15} className="text-muted-foreground" />
                   </button>
                 )}
               </div>
-              <div className="px-1">
+              <div className="px-0.5 sm:px-1">
                 <Slider
                   value={[rupiahToSlider(rupiah)]}
                   onValueChange={([pos]) => {
-                    const val = sliderToRupiah(pos);
                     setActiveQuick(null);
+                    const val = sliderToRupiah(pos);
                     setRawInput(val > 0 ? formatRupiah(val) : "");
                   }}
                   max={SLIDER_MAX}
                   step={0.5}
-                  className="w-full"
+                  className="w-full touch-pan-y"
                 />
-                <div className="flex justify-between mt-1.5 text-[10px] text-muted-foreground font-medium select-none">
+                <div className="flex justify-between mt-1 text-[9px] sm:text-[10px] text-muted-foreground font-medium select-none">
                   <span>Rp 0</span><span>1 Jt</span><span>1 M</span><span>1 T</span>
                 </div>
               </div>
-              <div className="flex gap-2.5">
-                {QUICK_AMOUNTS.map((q) => (
-                  <button
-                    key={q.value}
-                    onClick={() => handleQuick(q.value)}
-                    tabIndex={compareMode ? -1 : 0}
-                    className={`flex-1 h-11 rounded-xl text-sm font-bold transition-all duration-200 active:scale-[0.95] hover:scale-[1.02] ${
-                      activeQuick === q.value
-                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                        : "border-2 border-primary/20 text-primary hover:border-primary/40 hover:bg-primary/5"
-                    }`}
-                  >
-                    {q.label}
-                  </button>
-                ))}
-              </div>
+              <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick} onSelect={handleQuick} disabled={compareMode} />
             </div>
           </div>
-          <div
-            className={`transition-all duration-300 ease-out ${
-              compareMode
-                ? "opacity-100 translate-y-0 scale-100"
-                : "opacity-0 -translate-y-2 scale-[0.97] pointer-events-none absolute inset-0"
-            }`}
-          >
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
+
+          {/* Compare mode */}
+          <div className={`${modeTransition} ${compareMode ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none absolute inset-0"}`}>
+            <div className="space-y-2 sm:space-y-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                <div className="space-y-1.5 sm:space-y-2">
                   <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-muted-foreground font-bold text-xs select-none pointer-events-none">Rp</span>
+                    <span className="absolute left-2 sm:left-2.5 text-muted-foreground font-bold text-[11px] sm:text-xs select-none pointer-events-none">Rp</span>
                     <input
                       ref={compareMode ? inputRef : undefined}
-                      type="text"
-                      inputMode="numeric"
-                      value={rawInput}
-                      onChange={handleInput}
-                      onPaste={handlePaste}
+                      type="text" inputMode="numeric" value={rawInput} onChange={handleInput} onPaste={handlePaste}
                       placeholder="Jumlah 1"
-                      className="w-full h-11 pl-8 pr-7 rounded-xl border-2 border-border bg-card text-sm font-bold focus:outline-none focus:border-accent input-glow transition-all duration-200"
+                      className="w-full h-10 sm:h-11 pl-7 sm:pl-8 pr-6 sm:pr-7 rounded-xl border-2 border-border bg-card text-xs sm:text-sm font-bold focus:outline-none focus:border-accent input-glow transition-colors"
                       tabIndex={!compareMode ? -1 : 0}
                     />
                     {rawInput && (
-                      <button onClick={handleClear} className="absolute right-2 p-0.5 rounded-lg hover:bg-muted transition-colors" aria-label="Hapus" tabIndex={!compareMode ? -1 : 0}>
-                        <X size={14} className="text-muted-foreground" />
+                      <button onClick={handleClear} className="absolute right-1.5 sm:right-2 p-0.5 rounded-lg hover:bg-muted transition-colors" aria-label="Hapus" tabIndex={!compareMode ? -1 : 0}>
+                        <X size={13} className="text-muted-foreground" />
                       </button>
                     )}
                   </div>
-                  <div className="flex gap-1">
-                    {QUICK_AMOUNTS.map((q) => (
-                      <button
-                        key={q.value}
-                        onClick={() => handleQuick(q.value)}
-                        tabIndex={!compareMode ? -1 : 0}
-                        className={`flex-1 h-7 rounded-lg text-[10px] font-bold transition-all ${
-                          activeQuick === q.value
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : "border border-primary/30 text-primary hover:bg-primary/5"
-                        }`}
-                      >
-                        {q.label}
-                      </button>
-                    ))}
-                  </div>
+                  <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick} onSelect={handleQuick} compact disabled={!compareMode} />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   <div className="relative flex items-center">
-                    <span className="absolute left-2.5 text-muted-foreground font-bold text-xs select-none pointer-events-none">Rp</span>
+                    <span className="absolute left-2 sm:left-2.5 text-muted-foreground font-bold text-[11px] sm:text-xs select-none pointer-events-none">Rp</span>
                     <input
-                      type="text"
-                      inputMode="numeric"
-                      value={rawInput2}
-                      onChange={handleInput2}
+                      type="text" inputMode="numeric" value={rawInput2} onChange={handleInput2}
                       placeholder="Jumlah 2"
-                      className="w-full h-11 pl-8 pr-7 rounded-xl border-2 border-border bg-card text-sm font-bold focus:outline-none focus:border-accent input-glow transition-all duration-200"
+                      className="w-full h-10 sm:h-11 pl-7 sm:pl-8 pr-6 sm:pr-7 rounded-xl border-2 border-border bg-card text-xs sm:text-sm font-bold focus:outline-none focus:border-accent input-glow transition-colors"
                       tabIndex={!compareMode ? -1 : 0}
                     />
                     {rawInput2 && (
-                      <button onClick={handleClear2} className="absolute right-2 p-0.5 rounded-lg hover:bg-muted transition-colors" aria-label="Hapus" tabIndex={!compareMode ? -1 : 0}>
-                        <X size={14} className="text-muted-foreground" />
+                      <button onClick={handleClear2} className="absolute right-1.5 sm:right-2 p-0.5 rounded-lg hover:bg-muted transition-colors" aria-label="Hapus" tabIndex={!compareMode ? -1 : 0}>
+                        <X size={13} className="text-muted-foreground" />
                       </button>
                     )}
                   </div>
-                  <div className="flex gap-1">
-                    {QUICK_AMOUNTS.map((q) => (
-                      <button
-                        key={q.value}
-                        onClick={() => handleQuick2(q.value)}
-                        tabIndex={!compareMode ? -1 : 0}
-                        className={`flex-1 h-7 rounded-lg text-[10px] font-bold transition-all ${
-                          activeQuick2 === q.value
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : "border border-primary/30 text-primary hover:bg-primary/5"
-                        }`}
-                      >
-                        {q.label}
-                      </button>
-                    ))}
-                  </div>
+                  <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick2} onSelect={handleQuick2} compact disabled={!compareMode} />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Result — Normal mode */}
-        <div className={`transition-all duration-300 ease-out ${!compareMode && debouncedRupiah > 0 ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 translate-y-4 max-h-0 overflow-hidden pointer-events-none"}`}>
-          <div className="mt-6 space-y-3">
+        {/* Result — Normal */}
+        <div className={`${modeTransition} ${!compareMode && debouncedRupiah > 0 ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
+          <div className="mt-4 sm:mt-6 space-y-2.5 sm:space-y-3">
             <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} />
-
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
                   const p = getPrimaryResult(totalMs);
-                  const text = `Rp ${inputFormatted} = ${p.value} ${p.unit} MBG`;
-                  navigator.clipboard.writeText(text);
+                  navigator.clipboard.writeText(`Rp ${inputFormatted} = ${p.value} ${p.unit} MBG`);
                 }}
-                className="h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-sm flex items-center justify-center gap-2 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-all duration-200"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
               >
-                <Copy size={15} />
+                <Copy size={14} />
                 Salin Teks
               </button>
               <button
                 onClick={handleSaveImage}
                 disabled={saving}
-                className="h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-2 hover:bg-accent shadow-md shadow-primary/15 hover:shadow-lg hover:scale-[1.01] active:scale-[0.97] transition-all duration-200 disabled:opacity-60"
+                className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60"
               >
-                <Download size={15} />
+                <Download size={14} />
                 {saving ? "Menyimpan..." : "Simpan Gambar"}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Result — Compare mode */}
-        <div className={`transition-all duration-300 ease-out ${compareMode && (debouncedRupiah > 0 || debouncedRupiah2 > 0) ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 translate-y-4 max-h-0 overflow-hidden pointer-events-none"}`}>
-          <div className="mt-5 space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              {debouncedRupiah > 0 && (
-                <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} compact />
-              )}
-              {debouncedRupiah2 > 0 && (
-                <ResultCard rupiah={debouncedRupiah2} totalMs={totalMs2} inputFormatted={inputFormatted2} compact />
-              )}
+        {/* Result — Compare */}
+        <div className={`${modeTransition} ${compareMode && (debouncedRupiah > 0 || debouncedRupiah2 > 0) ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
+          <div className="mt-4 sm:mt-5 space-y-2.5 sm:space-y-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              {debouncedRupiah > 0 && <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} compact />}
+              {debouncedRupiah2 > 0 && <ResultCard rupiah={debouncedRupiah2} totalMs={totalMs2} inputFormatted={inputFormatted2} compact />}
             </div>
-
             {debouncedRupiah > 0 && debouncedRupiah2 > 0 && (
               <Section>
-                <p className="text-xs text-muted-foreground mb-1 text-center font-medium">Selisih</p>
-                <p className="text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
-                <p className="text-sm font-bold text-result text-center">
+                <p className="text-[11px] text-muted-foreground mb-0.5 text-center font-medium">Selisih</p>
+                <p className="text-xs sm:text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
+                <p className="text-xs sm:text-sm font-bold text-result text-center">
                   = {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} MBG
                 </p>
               </Section>
@@ -572,41 +485,31 @@ export default function Index() {
         </div>
 
         {/* Reverse Mode */}
-        <Section className="mt-6">
-          <button
-            onClick={() => setReverseOpen((o) => !o)}
-            className="flex items-center justify-between w-full text-left group"
-          >
-            <span className="font-bold text-sm group-hover:text-primary transition-colors">Mode Terbalik</span>
-            <div className={`p-1 rounded-lg transition-all duration-200 ${reverseOpen ? "bg-muted" : ""}`}>
-              {reverseOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        <Section className="mt-4 sm:mt-6">
+          <button onClick={() => setReverseOpen((o) => !o)} className="flex items-center justify-between w-full text-left group">
+            <span className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">Mode Terbalik</span>
+            <div className={`p-1 rounded-lg transition-colors ${reverseOpen ? "bg-muted" : ""}`}>
+              {reverseOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
             </div>
           </button>
-
           {reverseOpen && (
-            <div className="mt-4 space-y-3 animate-fade-in-up">
+            <div className="mt-3 sm:mt-4 space-y-2.5 animate-fade-in-up">
               <div className="flex gap-2">
                 <input
-                  type="text"
-                  inputMode="decimal"
-                  value={reverseValue}
+                  type="text" inputMode="decimal" value={reverseValue}
                   onChange={(e) => setReverseValue(e.target.value.replace(/[^0-9.]/g, ""))}
                   placeholder="Jumlah"
-                  className="flex-1 h-11 px-3 rounded-xl border-2 border-border bg-background text-base font-semibold focus:outline-none focus:border-accent input-glow transition-all duration-200"
-                  style={{ fontSize: "16px" }}
+                  className="flex-1 h-10 sm:h-11 px-3 rounded-xl border-2 border-border bg-background text-sm sm:text-base font-semibold focus:outline-none focus:border-accent input-glow transition-colors"
                 />
                 <select
-                  value={reverseUnit}
-                  onChange={(e) => setReverseUnit(e.target.value)}
-                  className="h-11 px-3 rounded-xl border-2 border-border bg-background text-sm font-semibold focus:outline-none focus:border-accent input-glow transition-all duration-200"
+                  value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
+                  className="h-10 sm:h-11 px-2 sm:px-3 rounded-xl border-2 border-border bg-background text-xs sm:text-sm font-semibold focus:outline-none focus:border-accent transition-colors"
                 >
-                  {UNITS.map((u) => (
-                    <option key={u.key} value={u.key}>{u.label}</option>
-                  ))}
+                  {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
                 </select>
               </div>
               {reverseRupiah > 0 && (
-                <p className="text-lg font-extrabold text-result-glow animate-fade-in-up">
+                <p className="text-base sm:text-lg font-extrabold text-result-glow animate-fade-in-up">
                   = Rp {formatRupiah(Math.round(reverseRupiah))}
                 </p>
               )}
@@ -616,49 +519,40 @@ export default function Index() {
 
         {/* History */}
         {history.length > 0 && (
-          <Section className="mt-4">
-            <button
-              onClick={() => setHistoryOpen((o) => !o)}
-              className="flex items-center justify-between w-full text-left group"
-            >
-              <span className="font-bold text-sm group-hover:text-primary transition-colors">
+          <Section className="mt-3 sm:mt-4">
+            <button onClick={() => setHistoryOpen((o) => !o)} className="flex items-center justify-between w-full text-left group">
+              <span className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">
                 Riwayat
-                <span className="ml-1.5 text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                <span className="ml-1.5 text-[10px] sm:text-xs font-semibold text-muted-foreground bg-muted px-1.5 sm:px-2 py-0.5 rounded-full">
                   {history.length}
                 </span>
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {historyOpen && (
-                  <span
-                    role="button"
-                    onClick={(e) => { e.stopPropagation(); clearHistory(); }}
-                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors font-medium"
-                  >
-                    <Trash2 size={12} />
-                    Hapus
+                  <span role="button" onClick={(e) => { e.stopPropagation(); clearHistory(); }}
+                    className="flex items-center gap-0.5 text-[11px] sm:text-xs text-muted-foreground hover:text-destructive transition-colors font-medium">
+                    <Trash2 size={11} /> Hapus
                   </span>
                 )}
-                <div className={`p-1 rounded-lg transition-all duration-200 ${historyOpen ? "bg-muted" : ""}`}>
-                  {historyOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                <div className={`p-1 rounded-lg transition-colors ${historyOpen ? "bg-muted" : ""}`}>
+                  {historyOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
                 </div>
               </div>
             </button>
-            {historyOpen && (
-              <HistoryList history={history} onTap={handleHistoryTap} />
-            )}
+            {historyOpen && <HistoryList history={history} onTap={handleHistoryTap} />}
           </Section>
         )}
 
         {/* Footer */}
-        <footer className="mt-auto pt-10 pb-5 text-center space-y-1">
-          <p className="text-xs text-muted-foreground font-medium">made by M. Alfin</p>
-          <p className="text-[11px] text-muted-foreground/70">
+        <footer className="mt-auto pt-8 sm:pt-10 pb-4 sm:pb-5 text-center space-y-0.5">
+          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">made by M. Alfin</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground/70">
             Sumber data: Anggaran program MBG — Rp 71T/tahun ≈ Rp 1,2T/hari
           </p>
         </footer>
       </div>
 
-      {/* Off-screen capture template */}
+      {/* Off-screen capture */}
       <div
         ref={captureRef}
         style={{
