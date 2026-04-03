@@ -178,7 +178,7 @@ const HistoryList = React.memo(function HistoryList({
 
 // ─── Section ───
 const Section = React.memo(function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`card-elevated rounded-2xl border p-4 sm:p-5 ${className}`}>{children}</div>;
+  return <div className={`card-elevated rounded-2xl border-2 border-border p-4 sm:p-5 ${className}`}>{children}</div>;
 });
 
 // ─── Quick Buttons ───
