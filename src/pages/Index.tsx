@@ -108,7 +108,7 @@ const ResultCard = React.memo(function ResultCard({
   if (rupiah <= 0) return null;
 
   return (
-    <div className={`relative card-elevated rounded-2xl border animate-fade-in-up ${compact ? "p-3 sm:p-4" : "p-4 sm:p-6 result-glow"}`}>
+    <div className={`relative card-elevated rounded-2xl border-2 border-border animate-fade-in-up ${compact ? "p-3 sm:p-4" : "p-4 sm:p-6 result-glow"}`}>
       <button
         onClick={handleCopy}
         className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-xl hover:bg-muted/80 transition-colors active:scale-95"
@@ -178,7 +178,7 @@ const HistoryList = React.memo(function HistoryList({
 
 // ─── Section ───
 const Section = React.memo(function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`card-elevated rounded-2xl border p-4 sm:p-5 ${className}`}>{children}</div>;
+  return <div className={`card-elevated rounded-2xl border-2 border-border p-4 sm:p-5 ${className}`}>{children}</div>;
 });
 
 // ─── Quick Buttons ───
@@ -307,9 +307,9 @@ export default function Index() {
 
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col">
-      <div className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between mb-4 sm:mb-6">
+      {/* Header */}
+      <header className="sticky top-0 z-10 border-b border-border/60" style={{ background: "hsl(var(--header-bg))", backdropFilter: "blur(12px)" }}>
+        <div className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
               <Calculator size={16} className="text-primary-foreground" />
@@ -318,12 +318,15 @@ export default function Index() {
           </div>
           <button
             onClick={toggleDark}
-            className="p-2 sm:p-2.5 rounded-xl border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
+            className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
             aria-label="Toggle tema"
           >
             {dark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-muted-foreground" />}
           </button>
-        </header>
+        </div>
+      </header>
+
+      <div className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
 
         {/* Mode Toggle */}
         <div className="flex items-center justify-center mb-4 sm:mb-5">
@@ -544,13 +547,13 @@ export default function Index() {
         )}
 
         {/* Footer */}
-        <footer className="mt-auto pt-8 sm:pt-10 pb-4 sm:pb-5 text-center space-y-0.5">
+        </div>
+        <footer className="border-t border-border/60 py-4 sm:py-5 text-center space-y-0.5" style={{ background: "hsl(var(--footer-bg))" }}>
           <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">made by M. Alfin</p>
           <p className="text-[10px] sm:text-[11px] text-muted-foreground/70">
             Sumber data: Anggaran program MBG — Rp 71T/tahun ≈ Rp 1,2T/hari
           </p>
         </footer>
-      </div>
 
       {/* Off-screen capture */}
       <div
