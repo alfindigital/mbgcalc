@@ -547,13 +547,13 @@ export default function Index() {
         )}
 
         {/* Footer */}
-        <footer className="mt-auto pt-8 sm:pt-10 pb-4 sm:pb-5 text-center space-y-0.5">
+        </div>
+        <footer className="border-t border-border/60 py-4 sm:py-5 text-center space-y-0.5" style={{ background: "hsl(var(--footer-bg))" }}>
           <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">made by M. Alfin</p>
           <p className="text-[10px] sm:text-[11px] text-muted-foreground/70">
             Sumber data: Anggaran program MBG — Rp 71T/tahun ≈ Rp 1,2T/hari
           </p>
         </footer>
-      </div>
 
       {/* Off-screen capture */}
       <div
