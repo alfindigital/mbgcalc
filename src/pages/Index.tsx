@@ -307,9 +307,9 @@ export default function Index() {
 
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col">
-      <div className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between mb-4 sm:mb-6">
+      {/* Header */}
+      <header className="sticky top-0 z-10 border-b border-border/60" style={{ background: "hsl(var(--header-bg))", backdropFilter: "blur(12px)" }}>
+        <div className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
               <Calculator size={16} className="text-primary-foreground" />
@@ -318,12 +318,15 @@ export default function Index() {
           </div>
           <button
             onClick={toggleDark}
-            className="p-2 sm:p-2.5 rounded-xl border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
+            className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
             aria-label="Toggle tema"
           >
             {dark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-muted-foreground" />}
           </button>
-        </header>
+        </div>
+      </header>
+
+      <div className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
 
         {/* Mode Toggle */}
         <div className="flex items-center justify-center mb-4 sm:mb-5">
