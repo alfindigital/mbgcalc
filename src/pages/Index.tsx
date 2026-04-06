@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
+import { toast } from "sonner";
 import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
