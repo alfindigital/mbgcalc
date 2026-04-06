@@ -300,7 +300,7 @@ export default function Index() {
       link.click();
       if (debouncedRupiah > 0) addToHistory(debouncedRupiah);
     } catch { /* silently fail */ } finally { setSaving(false); }
-  }, [saving]);
+  }, [saving, debouncedRupiah, addToHistory]);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
 
