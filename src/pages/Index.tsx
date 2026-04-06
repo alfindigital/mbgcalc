@@ -144,7 +144,8 @@ const ResultCard = React.memo(function ResultCard({
 const HistoryList = React.memo(function HistoryList({
   history, onTap,
 }: {
-  history: { rupiah: number; timestamp: number }[]; onTap: (val: number) => void;
+  history: { rupiah: number; rupiah2?: number; type: "single" | "compare"; timestamp: number }[];
+  onTap: (val: number, val2?: number, type?: "single" | "compare") => void;
 }) {
   const [showAll, setShowAll] = useState(false);
   const visible = showAll ? history : history.slice(0, 5);
@@ -153,14 +154,25 @@ const HistoryList = React.memo(function HistoryList({
     <div className="mt-2 space-y-0.5 animate-fade-in-up">
       {visible.map((entry) => {
         const res = getPrimaryResult(rupiahToMs(entry.rupiah));
+        const isCompare = entry.type === "compare";
+        const res2 = isCompare && entry.rupiah2 ? getPrimaryResult(rupiahToMs(entry.rupiah2)) : null;
         return (
           <button
             key={entry.timestamp}
-            onClick={() => onTap(entry.rupiah)}
+            onClick={() => onTap(entry.rupiah, entry.rupiah2, entry.type)}
             className="w-full flex items-center justify-between px-2.5 py-2 rounded-xl hover:bg-muted/60 transition-colors text-sm group active:scale-[0.98]"
           >
-            <span className="font-semibold group-hover:text-primary transition-colors text-xs sm:text-sm">Rp {formatRupiah(entry.rupiah)}</span>
-            <span className="text-result font-bold text-[11px] sm:text-xs">{res.value} {res.unit}</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className={`shrink-0 text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-md ${isCompare ? "bg-accent/15 text-accent" : "bg-primary/10 text-primary"}`}>
+                {isCompare ? "VS" : "1x"}
+              </span>
+              <span className="font-semibold group-hover:text-primary transition-colors text-xs sm:text-sm truncate">
+                {isCompare ? `${formatRupiah(entry.rupiah)} vs ${formatRupiah(entry.rupiah2!)}` : `Rp ${formatRupiah(entry.rupiah)}`}
+              </span>
+            </div>
+            <span className="text-result font-bold text-[11px] sm:text-xs shrink-0 ml-2">
+              {isCompare && res2 ? `${res.value} ${res.unit} / ${res2.value} ${res2.unit}` : `${res.value} ${res.unit}`}
+            </span>
           </button>
         );
       })}
