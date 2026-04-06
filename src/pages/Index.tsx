@@ -289,7 +289,19 @@ export default function Index() {
   const handleQuick2 = useCallback((val: number) => { setActiveQuick2(val); setRawInput2(formatRupiah(val)); }, []);
   const handleClear = useCallback(() => { setRawInput(""); setActiveQuick(null); inputRef.current?.focus(); }, []);
   const handleClear2 = useCallback(() => { setRawInput2(""); setActiveQuick2(null); }, []);
-  const handleHistoryTap = useCallback((val: number) => { setRawInput(formatRupiah(val)); setActiveQuick(null); inputRef.current?.focus(); }, []);
+  const handleHistoryTap = useCallback((val: number, val2?: number, type?: "single" | "compare") => {
+    if (type === "compare" && val2) {
+      setCompareMode(true);
+      setRawInput(formatRupiah(val));
+      setRawInput2(formatRupiah(val2));
+      setActiveQuick(null);
+      setActiveQuick2(null);
+    } else {
+      setRawInput(formatRupiah(val));
+      setActiveQuick(null);
+      inputRef.current?.focus();
+    }
+  }, []);
 
   const reverseRupiah = useMemo(() => {
     const num = parseFloat(reverseValue);
