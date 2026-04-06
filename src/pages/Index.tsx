@@ -103,6 +103,7 @@ const ResultCard = React.memo(function ResultCard({
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(`Rp ${inputFormatted} = ${actualPrimary.value} ${actualPrimary.unit} MBG`);
     setCopied(true);
+    toast.success("Teks berhasil disalin!");
     setTimeout(() => setCopied(false), 1500);
   }, [inputFormatted, actualPrimary]);
 
