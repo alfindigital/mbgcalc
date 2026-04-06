@@ -252,13 +252,20 @@ export default function Index() {
   const totalMs2 = useMemo(() => rupiahToMs(debouncedRupiah2), [debouncedRupiah2]);
   const inputFormatted2 = useMemo(() => (rupiah2 > 0 ? formatRupiah(rupiah2) : ""), [rupiah2]);
 
-  const prevDebouncedRef = useRef(0);
+  const prevDebouncedRef = useRef("");
   useEffect(() => {
-    if (debouncedRupiah > 0 && debouncedRupiah !== prevDebouncedRef.current) {
-      prevDebouncedRef.current = debouncedRupiah;
-      addToHistory(debouncedRupiah);
+    const key = compareMode
+      ? (debouncedRupiah > 0 && debouncedRupiah2 > 0 ? `${debouncedRupiah}-${debouncedRupiah2}` : "")
+      : (debouncedRupiah > 0 ? `${debouncedRupiah}` : "");
+    if (key && key !== prevDebouncedRef.current) {
+      prevDebouncedRef.current = key;
+      if (compareMode) {
+        addToHistory(debouncedRupiah, debouncedRupiah2);
+      } else {
+        addToHistory(debouncedRupiah);
+      }
     }
-  }, [debouncedRupiah, addToHistory]);
+  }, [debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
 
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "");
