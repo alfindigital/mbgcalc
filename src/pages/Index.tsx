@@ -329,9 +329,13 @@ export default function Index() {
       link.download = `kalkulator-mbg-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
-      if (debouncedRupiah > 0) addToHistory(debouncedRupiah);
+      if (compareMode && debouncedRupiah > 0 && debouncedRupiah2 > 0) {
+        addToHistory(debouncedRupiah, debouncedRupiah2);
+      } else if (debouncedRupiah > 0) {
+        addToHistory(debouncedRupiah);
+      }
     } catch { /* silently fail */ } finally { setSaving(false); }
-  }, [saving, debouncedRupiah, addToHistory]);
+  }, [saving, debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
 
