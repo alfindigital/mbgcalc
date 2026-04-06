@@ -298,6 +298,7 @@ export default function Index() {
       link.download = `kalkulator-mbg-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
+      if (debouncedRupiah > 0) addToHistory(debouncedRupiah);
     } catch { /* silently fail */ } finally { setSaving(false); }
   }, [saving]);
 
