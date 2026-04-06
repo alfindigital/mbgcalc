@@ -488,6 +488,7 @@ export default function Index() {
                 onClick={() => {
                   const p = getPrimaryResult(totalMs);
                   navigator.clipboard.writeText(`Rp ${inputFormatted} = ${p.value} ${p.unit} MBG`);
+                  toast.success("Teks berhasil disalin!");
                   if (debouncedRupiah > 0) addToHistory(debouncedRupiah);
                 }}
                 className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
