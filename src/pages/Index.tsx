@@ -336,7 +336,10 @@ export default function Index() {
       } else if (debouncedRupiah > 0) {
         addToHistory(debouncedRupiah);
       }
-    } catch { /* silently fail */ } finally { setSaving(false); }
+      toast.success("Gambar berhasil diunduh!");
+    } catch {
+      toast.error("Gagal mengunduh gambar");
+    } finally { setSaving(false); }
   }, [saving, debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
