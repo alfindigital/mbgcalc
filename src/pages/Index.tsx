@@ -367,7 +367,8 @@ export default function Index() {
         </div>
       </header>
 
-      <div className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
+      <main className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
+        <h2 className="sr-only">Kalkulator Konversi Rupiah ke Waktu MBG</h2>
 
         {/* Mode Toggle */}
         <div className="flex items-center justify-center mb-4 sm:mb-5">
@@ -409,7 +410,8 @@ export default function Index() {
                   onChange={handleInput}
                   onPaste={handlePaste}
                   placeholder="Ketik jumlah..."
-                  className="w-full h-12 sm:h-14 pl-10 sm:pl-11 pr-10 sm:pr-11 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-muted-foreground/50 placeholder:font-normal"
+                  aria-label="Jumlah Rupiah"
+                  className="w-full h-12 sm:h-14 pl-10 sm:pl-11 pr-10 sm:pr-11 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-foreground/40 placeholder:font-normal"
                   tabIndex={compareMode ? -1 : 0}
                 />
                 {rawInput && (
@@ -449,6 +451,7 @@ export default function Index() {
                       ref={compareMode ? inputRef : undefined}
                       type="text" inputMode="numeric" value={rawInput} onChange={handleInput} onPaste={handlePaste}
                       placeholder="Jumlah 1"
+                      aria-label="Jumlah Rupiah pertama"
                       className="w-full h-10 sm:h-11 pl-7 sm:pl-8 pr-6 sm:pr-7 rounded-xl border-2 border-border bg-card text-xs sm:text-sm font-bold focus:outline-none focus:border-accent input-glow transition-colors"
                       tabIndex={!compareMode ? -1 : 0}
                     />
@@ -466,6 +469,7 @@ export default function Index() {
                     <input
                       type="text" inputMode="numeric" value={rawInput2} onChange={handleInput2}
                       placeholder="Jumlah 2"
+                      aria-label="Jumlah Rupiah kedua"
                       className="w-full h-10 sm:h-11 pl-7 sm:pl-8 pr-6 sm:pr-7 rounded-xl border-2 border-border bg-card text-xs sm:text-sm font-bold focus:outline-none focus:border-accent input-glow transition-colors"
                       tabIndex={!compareMode ? -1 : 0}
                     />
@@ -532,8 +536,8 @@ export default function Index() {
 
         {/* Reverse Mode */}
         <Section className="mt-4 sm:mt-6">
-          <button onClick={() => setReverseOpen((o) => !o)} className="flex items-center justify-between w-full text-left group">
-            <span className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">Mode Terbalik</span>
+          <button onClick={() => setReverseOpen((o) => !o)} className="flex items-center justify-between w-full text-left group" aria-expanded={reverseOpen}>
+            <h2 className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">Mode Terbalik</h2>
             <div className={`p-1 rounded-lg transition-colors ${reverseOpen ? "bg-muted" : ""}`}>
               {reverseOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
             </div>
@@ -545,10 +549,12 @@ export default function Index() {
                   type="text" inputMode="decimal" value={reverseValue}
                   onChange={(e) => setReverseValue(e.target.value.replace(/[^0-9.]/g, ""))}
                   placeholder="Jumlah"
+                  aria-label="Jumlah waktu"
                   className="flex-1 h-10 sm:h-11 px-3 rounded-xl border-2 border-border bg-background text-sm sm:text-base font-semibold focus:outline-none focus:border-accent input-glow transition-colors"
                 />
                 <select
                   value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
+                  aria-label="Satuan waktu"
                   className="h-10 sm:h-11 px-2 sm:px-3 rounded-xl border-2 border-border bg-background text-xs sm:text-sm font-semibold focus:outline-none focus:border-accent transition-colors"
                 >
                   {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
@@ -566,13 +572,13 @@ export default function Index() {
         {/* History */}
         {history.length > 0 && (
           <Section className="mt-3 sm:mt-4">
-            <button onClick={() => setHistoryOpen((o) => !o)} className="flex items-center justify-between w-full text-left group">
-              <span className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">
+            <button onClick={() => setHistoryOpen((o) => !o)} className="flex items-center justify-between w-full text-left group" aria-expanded={historyOpen}>
+              <h2 className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">
                 Riwayat
                 <span className="ml-1.5 text-[10px] sm:text-xs font-semibold text-muted-foreground bg-muted px-1.5 sm:px-2 py-0.5 rounded-full">
                   {history.length}
                 </span>
-              </span>
+              </h2>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 {historyOpen && (
                   <span role="button" onClick={(e) => { e.stopPropagation(); clearHistory(); }}
@@ -590,7 +596,7 @@ export default function Index() {
         )}
 
         {/* Footer */}
-        </div>
+        </main>
         <footer className="border-t border-border/60 py-4 sm:py-5 text-center space-y-0.5" style={{ background: "hsl(var(--footer-bg))" }}>
           <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">made by M. Alfin</p>
           <p className="text-[10px] sm:text-[11px] text-muted-foreground/70">
