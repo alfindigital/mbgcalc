@@ -44,6 +44,7 @@ const NotFound = () => {
 
     let robots = document.head.querySelector<HTMLMetaElement>('meta[name="robots"]');
     const createdRobots = !robots;
+    const prevRobots = robots?.getAttribute("content") ?? null;
     if (!robots) {
       robots = document.createElement("meta");
       robots.setAttribute("name", "robots");
@@ -55,6 +56,7 @@ const NotFound = () => {
       document.title = prevTitle;
       if (prevCanonical) canonical?.setAttribute("href", prevCanonical);
       if (createdRobots) robots?.remove();
+      else if (prevRobots !== null) robots?.setAttribute("content", prevRobots);
     };
   }, [location.pathname]);
 
