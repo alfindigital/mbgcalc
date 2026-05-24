@@ -7,6 +7,8 @@ import { useHistory } from "@/hooks/useHistory";
 
 // ─── Constants ───
 const MBG_DAILY_COST = 1_200_000_000_000;
+const MBG_ANNUAL_BUDGET = 71_000_000_000_000; // Rp 71 T / tahun
+const MBG_COST_PER_PORSI = 10_000; // Rp 10rb / porsi (standar BGN)
 const MS_PER_DAY = 86_400_000;
 const UNITS = [
   { key: "hari", label: "Hari", ms: MS_PER_DAY },
@@ -44,6 +46,61 @@ function formatRupiah(num: number): string {
 function parseRupiahInput(str: string): number {
   const digits = str.replace(/\D/g, "");
   return digits ? parseInt(digits, 10) : 0;
+}
+
+// Format angka besar jadi ringkas: 1.250.000 → "1,25 Jt"
+function formatCompact(num: number): string {
+  if (!isFinite(num) || num <= 0) return "0";
+  const tiers = [
+    { v: 1e15, s: "Kuadriliun" },
+    { v: 1e12, s: "T" },
+    { v: 1e9, s: "M" },
+    { v: 1e6, s: "Jt" },
+    { v: 1e3, s: "Rb" },
+  ];
+  for (const t of tiers) {
+    if (num >= t.v) {
+      const val = num / t.v;
+      const fixed = val >= 100 ? val.toFixed(0) : val >= 10 ? val.toFixed(1) : val.toFixed(2);
+      return `${fixed.replace(".", ",").replace(/,?0+$/, "")} ${t.s}`;
+    }
+  }
+  return formatRupiah(Math.round(num));
+}
+
+// Terbilang Indonesia (mendukung sampai kuadriliun)
+const SATUAN = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+function _terbilangSub(n: number): string {
+  if (n < 12) return SATUAN[n];
+  if (n < 20) return `${_terbilangSub(n - 10)} belas`;
+  if (n < 100) return `${_terbilangSub(Math.floor(n / 10))} puluh${n % 10 ? " " + _terbilangSub(n % 10) : ""}`;
+  if (n < 200) return `seratus${n - 100 ? " " + _terbilangSub(n - 100) : ""}`;
+  if (n < 1000) return `${_terbilangSub(Math.floor(n / 100))} ratus${n % 100 ? " " + _terbilangSub(n % 100) : ""}`;
+  if (n < 2000) return `seribu${n - 1000 ? " " + _terbilangSub(n - 1000) : ""}`;
+  return "";
+}
+function terbilang(num: number): string {
+  if (!isFinite(num) || num <= 0) return "";
+  if (num > Number.MAX_SAFE_INTEGER) return "angka terlalu besar";
+  const scales = [
+    { v: 1e15, s: "kuadriliun" },
+    { v: 1e12, s: "triliun" },
+    { v: 1e9, s: "miliar" },
+    { v: 1e6, s: "juta" },
+    { v: 1e3, s: "ribu" },
+  ];
+  let rest = Math.floor(num);
+  const parts: string[] = [];
+  for (const { v, s } of scales) {
+    if (rest >= v) {
+      const q = Math.floor(rest / v);
+      rest = rest % v;
+      if (v === 1e3 && q === 1) parts.push("seribu");
+      else parts.push(`${_terbilangSub(q)} ${s}`);
+    }
+  }
+  if (rest > 0) parts.push(_terbilangSub(rest));
+  return `${parts.join(" ")} rupiah`.replace(/\s+/g, " ").trim();
 }
 
 function rupiahToMs(rupiah: number): number {
@@ -96,16 +153,26 @@ const ResultCard = React.memo(function ResultCard({
   rupiah: number; totalMs: number; inputFormatted: string; compact?: boolean;
 }) {
   const animatedMs = useAnimatedNumber(totalMs, 400);
+  const animatedRupiah = useAnimatedNumber(rupiah, 400);
   const primary = getPrimaryResult(animatedMs);
   const [copied, setCopied] = useState(false);
   const actualPrimary = getPrimaryResult(totalMs);
 
+  const porsi = animatedRupiah / MBG_COST_PER_PORSI;
+  const hariOperasional = animatedRupiah / MBG_DAILY_COST;
+  const pctOfAnnual = (animatedRupiah / MBG_ANNUAL_BUDGET) * 100;
+  const barPct = Math.min(pctOfAnnual, 100);
+
   const handleCopy = useCallback(() => {
-    navigator.clipboard.writeText(`Rp ${inputFormatted} = ${actualPrimary.value} ${actualPrimary.unit} MBG`);
+    const porsiTxt = formatCompact(rupiah / MBG_COST_PER_PORSI);
+    const hariTxt = formatCompact(rupiah / MBG_DAILY_COST);
+    navigator.clipboard.writeText(
+      `Rp ${inputFormatted} = ${porsiTxt} porsi MBG = ${hariTxt} hari operasional (${actualPrimary.value} ${actualPrimary.unit})`
+    );
     setCopied(true);
     toast.success("Teks berhasil disalin!");
     setTimeout(() => setCopied(false), 1500);
-  }, [inputFormatted, actualPrimary]);
+  }, [inputFormatted, actualPrimary, rupiah]);
 
   if (rupiah <= 0) return null;
 
@@ -113,7 +180,7 @@ const ResultCard = React.memo(function ResultCard({
     <div className={`relative card-elevated rounded-2xl border-2 border-border animate-fade-in-up ${compact ? "p-3 sm:p-4" : "p-4 sm:p-6 result-glow"}`}>
       <button
         onClick={handleCopy}
-        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-xl hover:bg-muted/80 transition-colors active:scale-95"
+        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-xl hover:bg-muted/80 transition-colors active:scale-95 z-10"
         aria-label="Salin hasil"
       >
         <Copy size={compact ? 13 : 15} className="text-muted-foreground" />
@@ -123,18 +190,66 @@ const ResultCard = React.memo(function ResultCard({
           Tersalin!
         </div>
       )}
+
+      {/* Headline */}
       <div className="text-center">
         {compact && <div className="text-[11px] text-muted-foreground mb-1.5 font-medium truncate">Rp {inputFormatted}</div>}
         <div className="flex items-baseline justify-center gap-1">
-          <span className={`${compact ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl"} font-extrabold text-result-glow tabular-nums tracking-tight`}>
+          <span className={`${compact ? "text-xl sm:text-2xl" : "text-4xl sm:text-5xl"} font-extrabold text-result-glow tabular-nums tracking-tight`}>
             {primary.value}
           </span>
-          <span className={`${compact ? "text-xs sm:text-sm" : "text-sm sm:text-lg"} font-bold text-result opacity-80`}>
+          <span className={`${compact ? "text-xs sm:text-sm" : "text-base sm:text-xl"} font-bold text-result opacity-80`}>
             {primary.unit}
           </span>
         </div>
-        <span className={`${compact ? "text-[10px]" : "text-xs"} font-semibold text-result/60`}>MBG</span>
+        <span className={`${compact ? "text-[10px]" : "text-xs sm:text-sm"} font-semibold text-result/70`}>operasional MBG</span>
       </div>
+
+      {/* Stat grid + Bar (only non-compact) */}
+      {!compact && (
+        <>
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-4 sm:mt-5">
+            <div className="rounded-xl bg-muted/40 border border-border/60 p-2.5 sm:p-3 text-center">
+              <div className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold mb-0.5">Porsi MBG</div>
+              <div className="text-base sm:text-lg font-extrabold text-foreground tabular-nums">{formatCompact(porsi)}</div>
+              <div className="text-[10px] text-muted-foreground/80">@ Rp 10rb/porsi</div>
+            </div>
+            <div className="rounded-xl bg-muted/40 border border-border/60 p-2.5 sm:p-3 text-center">
+              <div className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold mb-0.5">Hari Operasional</div>
+              <div className="text-base sm:text-lg font-extrabold text-foreground tabular-nums">{formatCompact(hariOperasional)}</div>
+              <div className="text-[10px] text-muted-foreground/80">@ Rp 1,2 T/hari</div>
+            </div>
+          </div>
+
+          {/* APBN bar */}
+          <div className="mt-4 sm:mt-5">
+            <div className="flex items-baseline justify-between mb-1.5">
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold">
+                vs APBN MBG (Rp 71 T/tahun)
+              </span>
+              <span className="text-xs sm:text-sm font-extrabold text-primary tabular-nums">
+                {pctOfAnnual < 0.01
+                  ? "<0,01%"
+                  : pctOfAnnual >= 100
+                    ? `${formatCompact(pctOfAnnual)}%`
+                    : `${pctOfAnnual.toFixed(pctOfAnnual < 1 ? 2 : pctOfAnnual < 10 ? 1 : 0).replace(".", ",")}%`}
+              </span>
+            </div>
+            <div className="h-2.5 sm:h-3 w-full rounded-full bg-muted/60 overflow-hidden border border-border/50">
+              <div
+                className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full transition-[width] duration-500 ease-out"
+                style={{ width: `${barPct}%`, minWidth: barPct > 0 ? "4px" : "0" }}
+              />
+            </div>
+            {pctOfAnnual > 100 && (
+              <p className="text-[10px] text-accent font-semibold mt-1 text-center">
+                Melebihi anggaran tahunan ({formatCompact(animatedRupiah / MBG_ANNUAL_BUDGET)}× lipat)
+              </p>
+            )}
+          </div>
+        </>
+      )}
+
       {rupiah > Number.MAX_SAFE_INTEGER && (
         <p className="text-[10px] text-destructive mt-2 text-center">⚠ Melebihi batas presisi</p>
       )}
@@ -420,6 +535,11 @@ export default function Index() {
                   </button>
                 )}
               </div>
+              {rupiah > 0 && (
+                <p className="px-1 -mt-1 text-[11px] sm:text-xs text-muted-foreground italic capitalize animate-fade-in-up" aria-live="polite">
+                  {terbilang(rupiah)}
+                </p>
+              )}
               <div className="px-0.5 sm:px-1">
                 <Slider
                   value={[rupiahToSlider(rupiah)]}
