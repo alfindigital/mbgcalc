@@ -535,6 +535,11 @@ export default function Index() {
                   </button>
                 )}
               </div>
+              {rupiah > 0 && (
+                <p className="px-1 -mt-1 text-[11px] sm:text-xs text-muted-foreground italic capitalize animate-fade-in-up" aria-live="polite">
+                  {terbilang(rupiah)}
+                </p>
+              )}
               <div className="px-0.5 sm:px-1">
                 <Slider
                   value={[rupiahToSlider(rupiah)]}
