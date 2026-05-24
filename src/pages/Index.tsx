@@ -48,6 +48,61 @@ function parseRupiahInput(str: string): number {
   return digits ? parseInt(digits, 10) : 0;
 }
 
+// Format angka besar jadi ringkas: 1.250.000 → "1,25 Jt"
+function formatCompact(num: number): string {
+  if (!isFinite(num) || num <= 0) return "0";
+  const tiers = [
+    { v: 1e15, s: "Kuadriliun" },
+    { v: 1e12, s: "T" },
+    { v: 1e9, s: "M" },
+    { v: 1e6, s: "Jt" },
+    { v: 1e3, s: "Rb" },
+  ];
+  for (const t of tiers) {
+    if (num >= t.v) {
+      const val = num / t.v;
+      const fixed = val >= 100 ? val.toFixed(0) : val >= 10 ? val.toFixed(1) : val.toFixed(2);
+      return `${fixed.replace(".", ",").replace(/,?0+$/, "")} ${t.s}`;
+    }
+  }
+  return formatRupiah(Math.round(num));
+}
+
+// Terbilang Indonesia (mendukung sampai kuadriliun)
+const SATUAN = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
+function _terbilangSub(n: number): string {
+  if (n < 12) return SATUAN[n];
+  if (n < 20) return `${_terbilangSub(n - 10)} belas`;
+  if (n < 100) return `${_terbilangSub(Math.floor(n / 10))} puluh${n % 10 ? " " + _terbilangSub(n % 10) : ""}`;
+  if (n < 200) return `seratus${n - 100 ? " " + _terbilangSub(n - 100) : ""}`;
+  if (n < 1000) return `${_terbilangSub(Math.floor(n / 100))} ratus${n % 100 ? " " + _terbilangSub(n % 100) : ""}`;
+  if (n < 2000) return `seribu${n - 1000 ? " " + _terbilangSub(n - 1000) : ""}`;
+  return "";
+}
+function terbilang(num: number): string {
+  if (!isFinite(num) || num <= 0) return "";
+  if (num > Number.MAX_SAFE_INTEGER) return "angka terlalu besar";
+  const scales = [
+    { v: 1e15, s: "kuadriliun" },
+    { v: 1e12, s: "triliun" },
+    { v: 1e9, s: "miliar" },
+    { v: 1e6, s: "juta" },
+    { v: 1e3, s: "ribu" },
+  ];
+  let rest = Math.floor(num);
+  const parts: string[] = [];
+  for (const { v, s } of scales) {
+    if (rest >= v) {
+      const q = Math.floor(rest / v);
+      rest = rest % v;
+      if (v === 1e3 && q === 1) parts.push("seribu");
+      else parts.push(`${_terbilangSub(q)} ${s}`);
+    }
+  }
+  if (rest > 0) parts.push(_terbilangSub(rest));
+  return `${parts.join(" ")} rupiah`.replace(/\s+/g, " ").trim();
+}
+
 function rupiahToMs(rupiah: number): number {
   return (rupiah / MBG_DAILY_COST) * MS_PER_DAY;
 }
