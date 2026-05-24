@@ -7,6 +7,8 @@ import { useHistory } from "@/hooks/useHistory";
 
 // ─── Constants ───
 const MBG_DAILY_COST = 1_200_000_000_000;
+const MBG_ANNUAL_BUDGET = 71_000_000_000_000; // Rp 71 T / tahun
+const MBG_COST_PER_PORSI = 10_000; // Rp 10rb / porsi (standar BGN)
 const MS_PER_DAY = 86_400_000;
 const UNITS = [
   { key: "hari", label: "Hari", ms: MS_PER_DAY },
