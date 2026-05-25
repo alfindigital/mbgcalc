@@ -481,20 +481,24 @@ export default function Index() {
   const diffMs = useMemo(() => Math.abs(totalMs - totalMs2), [totalMs, totalMs2]);
   const diffRupiah = useMemo(() => Math.abs(debouncedRupiah - debouncedRupiah2), [debouncedRupiah, debouncedRupiah2]);
 
-  const handleSaveImage = useCallback(async () => {
+  const handleSaveImage = useCallback(async (ratio: "1:1" | "9:16" | "16:9" = "1:1") => {
     if (!captureRef.current || saving) return;
+    setSaveRatio(ratio);
     setSaving(true);
+    // Allow re-render with new dimensions
+    await new Promise((r) => setTimeout(r, 50));
     try {
+      const dims = ratio === "1:1" ? { w: 1080, h: 1080 } : ratio === "9:16" ? { w: 1080, h: 1920 } : { w: 1920, h: 1080 };
       const html2canvas = (await import("html2canvas")).default;
       captureRef.current.style.left = "0";
       captureRef.current.style.opacity = "1";
       const canvas = await html2canvas(captureRef.current, {
-        scale: 2, width: 1080, height: 1080, backgroundColor: null, useCORS: true,
+        scale: 2, width: dims.w, height: dims.h, backgroundColor: null, useCORS: true,
       });
       captureRef.current.style.left = "-9999px";
       captureRef.current.style.opacity = "0";
       const link = document.createElement("a");
-      link.download = `kalkulator-mbg-${Date.now()}.png`;
+      link.download = `kalkulator-mbg-${ratio.replace(":", "x")}-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       if (compareMode && debouncedRupiah > 0 && debouncedRupiah2 > 0) {
@@ -507,6 +511,12 @@ export default function Index() {
       toast.error("Gagal mengunduh gambar");
     } finally { setSaving(false); }
   }, [saving, debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
+
+  const handleCopyLink = useCallback(() => {
+    const url = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Tautan disalin!");
+  }, []);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
 
