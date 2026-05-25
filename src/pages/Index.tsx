@@ -808,52 +808,110 @@ export default function Index() {
 
         {/* Footer */}
         </main>
-        <footer className="border-t border-border/60 py-4 sm:py-5 text-center space-y-0.5" style={{ background: "hsl(var(--footer-bg))" }}>
+        <footer className="border-t border-border/60 py-4 sm:py-5 px-4 text-center space-y-2" style={{ background: "hsl(var(--footer-bg))" }}>
           <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">made by M. Alfin</p>
-          <p className="text-[10px] sm:text-[11px] text-muted-foreground/70">
-            Sumber data: Anggaran program MBG — Rp 71T/tahun ≈ Rp 1,2T/hari
-          </p>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2">
+                  <Info size={11} /> Sumber data
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="center" className="w-72 text-xs space-y-2">
+                <p className="font-bold text-sm">Patokan kalkulator</p>
+                <ul className="space-y-1.5 text-muted-foreground">
+                  <li>• <strong className="text-foreground">Rp 71 T/tahun</strong> — anggaran MBG (Perpres 201/2024, APBN 2025).</li>
+                  <li>• <strong className="text-foreground">Rp 1,2 T/hari</strong> — turunan rata-rata hari aktif sekolah.</li>
+                  <li>• <strong className="text-foreground">Rp 10.000/porsi</strong> — standar BGN.</li>
+                </ul>
+                <div className="pt-1.5 border-t border-border space-y-1">
+                  <p className="text-[10px] text-muted-foreground">Update: {MBG_DATA_UPDATED}</p>
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                    {MBG_SOURCES.map((s) => (
+                      <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer"
+                         className="text-[10px] text-primary hover:underline font-semibold">{s.label}</a>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <span className="text-muted-foreground/50 text-[10px]">·</span>
+            <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
+              <DialogTrigger asChild>
+                <button className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2">
+                  <Code2 size={11} /> Sematkan
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Sematkan Kalkulator MBG</DialogTitle>
+                  <DialogDescription>Salin snippet di bawah ke halaman/blog Anda.</DialogDescription>
+                </DialogHeader>
+                {(() => {
+                  const params = new URLSearchParams();
+                  if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
+                  const snippet = `<iframe src="https://mbgcal.lovable.app/embed${params.toString() ? "?" + params.toString() : ""}" width="440" height="520" style="border:0;border-radius:16px;max-width:100%" loading="lazy" title="Kalkulator MBG"></iframe>`;
+                  return (
+                    <div className="space-y-2">
+                      <pre className="text-[10px] sm:text-xs bg-muted p-3 rounded-lg overflow-x-auto whitespace-pre-wrap break-all">{snippet}</pre>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(snippet); toast.success("Snippet disalin!"); }}
+                        className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97]"
+                      >Salin snippet</button>
+                    </div>
+                  );
+                })()}
+              </DialogContent>
+            </Dialog>
+          </div>
         </footer>
 
-      {/* Off-screen capture */}
-      <div
-        ref={captureRef}
-        style={{
-          position: "absolute", left: "-9999px", top: 0, opacity: 0,
-          width: 1080, height: 1080,
-          background: "linear-gradient(180deg, #003366, #001a33)",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          padding: 60,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        }}
-      >
-        <div style={{ color: "white", textAlign: "center", marginBottom: 40 }}>
-          <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: 2 }}>KALKULATOR MBG</div>
-          <div style={{ fontSize: 20, opacity: 0.8, marginTop: 8 }}>Makan Bergizi Gratis</div>
-        </div>
-        <div style={{
-          background: "white", borderRadius: 24, padding: "48px 56px", width: "85%",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
-        }}>
-          <div style={{ fontSize: 32, fontWeight: 700, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
-          <div style={{ fontSize: 48, margin: "16px 0", color: "#888" }}>↓</div>
-          {primary && (
-            <div style={{ fontSize: 40, fontWeight: 800, color: "#FF6600" }}>
-              {primary.value} {primary.unit} MBG
+      {/* Off-screen capture (ratio: 1:1, 9:16, 16:9) */}
+      {(() => {
+        const dims = saveRatio === "1:1" ? { w: 1080, h: 1080 } : saveRatio === "9:16" ? { w: 1080, h: 1920 } : { w: 1920, h: 1080 };
+        const isWide = saveRatio === "16:9";
+        return (
+          <div
+            ref={captureRef}
+            style={{
+              position: "absolute", left: "-9999px", top: 0, opacity: 0,
+              width: dims.w, height: dims.h,
+              background: "linear-gradient(180deg, #003366, #001a33)",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              padding: isWide ? 48 : 60,
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            }}
+          >
+            <div style={{ color: "white", textAlign: "center", marginBottom: isWide ? 24 : 40 }}>
+              <div style={{ fontSize: isWide ? 32 : 36, fontWeight: 800, letterSpacing: 2 }}>KALKULATOR MBG</div>
+              <div style={{ fontSize: 18, opacity: 0.8, marginTop: 6 }}>Makan Bergizi Gratis</div>
             </div>
-          )}
-        </div>
-        <div style={{ color: "white", textAlign: "center", marginTop: 36, fontSize: 14 }}>
-          <div style={{ opacity: 0.9 }}>Proyeksi biaya harian program MBG: Rp 1,2 Triliun/hari</div>
-          <div style={{ opacity: 0.6, marginTop: 4, fontSize: 12 }}>Sumber: BGN (Badan Gizi Nasional)</div>
-        </div>
-        <div style={{ position: "absolute", bottom: 24, right: 40, color: "white", fontSize: 13, opacity: 0.7 }}>
-          made by M. Alfin
-        </div>
-        <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", color: "white", fontSize: 11, opacity: 0.3 }}>
-          kalkulatormbg
-        </div>
-      </div>
+            <div style={{
+              background: "white", borderRadius: 24, padding: isWide ? "36px 56px" : "48px 56px",
+              width: isWide ? "70%" : "85%",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
+            }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
+              <div style={{ fontSize: 44, margin: "12px 0", color: "#888" }}>↓</div>
+              {primary && (
+                <div style={{ fontSize: 40, fontWeight: 800, color: "#FF6600" }}>
+                  {primary.value} {primary.unit} MBG
+                </div>
+              )}
+            </div>
+            <div style={{ color: "white", textAlign: "center", marginTop: isWide ? 20 : 36, fontSize: 14 }}>
+              <div style={{ opacity: 0.9 }}>Proyeksi biaya harian program MBG: Rp 1,2 Triliun/hari</div>
+              <div style={{ opacity: 0.6, marginTop: 4, fontSize: 12 }}>Sumber: BGN (Badan Gizi Nasional)</div>
+            </div>
+            <div style={{ position: "absolute", bottom: 24, right: 40, color: "white", fontSize: 13, opacity: 0.7 }}>
+              made by M. Alfin
+            </div>
+            <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", color: "white", fontSize: 11, opacity: 0.4 }}>
+              mbgcal.lovable.app
+            </div>
+          </div>
+        );
+      })()}
 
       <style>{`
         @keyframes fade-in-up {
