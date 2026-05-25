@@ -531,7 +531,7 @@ export default function Index() {
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
               <Calculator size={16} className="text-primary-foreground" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">Kalkulator MBG</h1>
+            <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">Kalkulator MBG</p>
           </div>
           <button
             onClick={toggleDark}
