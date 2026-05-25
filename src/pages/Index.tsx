@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
-import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { useSearchParams } from "react-router-dom";
+import confetti from "canvas-confetti";
+import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator, Info, Code2, Link2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useHistory } from "@/hooks/useHistory";
+import { MBG_DAILY_COST, MBG_ANNUAL_BUDGET, MBG_COST_PER_PORSI, MBG_DATA_UPDATED, MBG_SOURCES } from "@/lib/mbg-constants";
 
 // ─── Constants ───
-const MBG_DAILY_COST = 1_200_000_000_000;
-const MBG_ANNUAL_BUDGET = 71_000_000_000_000; // Rp 71 T / tahun
-const MBG_COST_PER_PORSI = 10_000; // Rp 10rb / porsi (standar BGN)
 const MS_PER_DAY = 86_400_000;
 const UNITS = [
   { key: "hari", label: "Hari", ms: MS_PER_DAY },
@@ -212,12 +216,12 @@ const ResultCard = React.memo(function ResultCard({
             <div className="rounded-xl bg-muted/40 border border-border/60 p-2.5 sm:p-3 text-center">
               <div className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold mb-0.5">Porsi MBG</div>
               <div className="text-base sm:text-lg font-extrabold text-foreground tabular-nums">{formatCompact(porsi)}</div>
-              <div className="text-[10px] text-muted-foreground/80">@ Rp 10rb/porsi</div>
+              <div className="text-[10px] text-muted-foreground">@ Rp 10rb/porsi</div>
             </div>
             <div className="rounded-xl bg-muted/40 border border-border/60 p-2.5 sm:p-3 text-center">
               <div className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold mb-0.5">Hari Operasional</div>
               <div className="text-base sm:text-lg font-extrabold text-foreground tabular-nums">{formatCompact(hariOperasional)}</div>
-              <div className="text-[10px] text-muted-foreground/80">@ Rp 1,2 T/hari</div>
+              <div className="text-[10px] text-muted-foreground">@ Rp 1,2 T/hari</div>
             </div>
           </div>
 
@@ -341,23 +345,32 @@ const QuickButtons = React.memo(function QuickButtons({
 // ─── Main ───
 export default function Index() {
   const [dark, toggleDark] = useTheme();
-  const [rawInput, setRawInput] = useState("");
+  const [searchParams] = useSearchParams();
+  const [rawInput, setRawInput] = useState(() => {
+    const a = parseInt(searchParams.get("amount") || "0", 10);
+    return a > 0 ? formatRupiah(a) : "";
+  });
   const [activeQuick, setActiveQuick] = useState<number | null>(null);
   const [reverseOpen, setReverseOpen] = useState(false);
   const [reverseValue, setReverseValue] = useState("");
   const [reverseUnit, setReverseUnit] = useState("detik");
   const [saving, setSaving] = useState(false);
+  const [saveRatio, setSaveRatio] = useState<"1:1" | "9:16" | "16:9">("1:1");
+  const [embedOpen, setEmbedOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const captureRef = useRef<HTMLDivElement>(null);
 
-  const [compareMode, setCompareMode] = useState(false);
-  const [rawInput2, setRawInput2] = useState("");
+  const [compareMode, setCompareMode] = useState(() => !!searchParams.get("compare"));
+  const [rawInput2, setRawInput2] = useState(() => {
+    const a = parseInt(searchParams.get("compare") || "0", 10);
+    return a > 0 ? formatRupiah(a) : "";
+  });
   const [activeQuick2, setActiveQuick2] = useState<number | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const { history, addToHistory, clearHistory } = useHistory();
 
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => { if (!rawInput) inputRef.current?.focus(); }, []);
 
   const rupiah = useMemo(() => parseRupiahInput(rawInput), [rawInput]);
   const debouncedRupiah = useDebounce(rupiah, 150);
@@ -383,6 +396,44 @@ export default function Index() {
       }
     }
   }, [debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
+
+  // Sync state ↔ URL (deep-link)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
+      if (compareMode && debouncedRupiah2 > 0) params.set("compare", String(debouncedRupiah2));
+      const qs = params.toString();
+      const newUrl = `${window.location.pathname}${qs ? "?" + qs : ""}`;
+      if (newUrl !== window.location.pathname + window.location.search) {
+        window.history.replaceState(null, "", newUrl);
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [debouncedRupiah, debouncedRupiah2, compareMode]);
+
+  // Konfeti milestone (1T / 10T / 71T)
+  const firedMilestones = useRef<Set<number>>(new Set());
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    if (debouncedRupiah === 0) { firedMilestones.current.clear(); return; }
+    const thresholds = [1e12, 1e13, 71e12];
+    for (const t of thresholds) {
+      if (debouncedRupiah >= t && !firedMilestones.current.has(t)) {
+        firedMilestones.current.add(t);
+        const intensity = t === 71e12 ? 200 : t === 1e13 ? 130 : 80;
+        confetti({
+          particleCount: intensity, spread: 75, origin: { y: 0.35 },
+          colors: ["#003366", "#FF6600", "#FFD700", "#0066CC"],
+        });
+        if (t === 71e12) toast.success("🎉 Anggaran tahunan MBG terpenuhi!");
+        else if (t === 1e13) toast.success("🎊 Rp 10 Triliun!");
+        else toast.success("🎈 Rp 1 Triliun!");
+      }
+    }
+  }, [debouncedRupiah]);
 
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "");
@@ -430,20 +481,24 @@ export default function Index() {
   const diffMs = useMemo(() => Math.abs(totalMs - totalMs2), [totalMs, totalMs2]);
   const diffRupiah = useMemo(() => Math.abs(debouncedRupiah - debouncedRupiah2), [debouncedRupiah, debouncedRupiah2]);
 
-  const handleSaveImage = useCallback(async () => {
+  const handleSaveImage = useCallback(async (ratio: "1:1" | "9:16" | "16:9" = "1:1") => {
     if (!captureRef.current || saving) return;
+    setSaveRatio(ratio);
     setSaving(true);
+    // Allow re-render with new dimensions
+    await new Promise((r) => setTimeout(r, 50));
     try {
+      const dims = ratio === "1:1" ? { w: 1080, h: 1080 } : ratio === "9:16" ? { w: 1080, h: 1920 } : { w: 1920, h: 1080 };
       const html2canvas = (await import("html2canvas")).default;
       captureRef.current.style.left = "0";
       captureRef.current.style.opacity = "1";
       const canvas = await html2canvas(captureRef.current, {
-        scale: 2, width: 1080, height: 1080, backgroundColor: null, useCORS: true,
+        scale: 2, width: dims.w, height: dims.h, backgroundColor: null, useCORS: true,
       });
       captureRef.current.style.left = "-9999px";
       captureRef.current.style.opacity = "0";
       const link = document.createElement("a");
-      link.download = `kalkulator-mbg-${Date.now()}.png`;
+      link.download = `kalkulator-mbg-${ratio.replace(":", "x")}-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       if (compareMode && debouncedRupiah > 0 && debouncedRupiah2 > 0) {
@@ -456,6 +511,12 @@ export default function Index() {
       toast.error("Gagal mengunduh gambar");
     } finally { setSaving(false); }
   }, [saving, debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
+
+  const handleCopyLink = useCallback(() => {
+    const url = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Tautan disalin!");
+  }, []);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
 
@@ -470,7 +531,7 @@ export default function Index() {
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
               <Calculator size={16} className="text-primary-foreground" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">Kalkulator MBG</h1>
+            <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">Kalkulator MBG</p>
           </div>
           <button
             onClick={toggleDark}
@@ -483,7 +544,15 @@ export default function Index() {
       </header>
 
       <main className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
-        <h2 className="sr-only">Kalkulator Konversi Rupiah ke Waktu MBG</h2>
+        {/* Hero */}
+        <section className="text-center mb-5 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-tight">
+            Berapa lama Rp segini bisa menjalankan program <span className="text-primary">MBG</span>?
+          </h1>
+          <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground max-w-[380px] mx-auto">
+            Ketik nominal apa pun — lihat setara berapa porsi, hari, dan % dari APBN MBG.
+          </p>
+        </section>
 
         {/* Mode Toggle */}
         <div className="flex items-center justify-center mb-4 sm:mb-5">
@@ -610,7 +679,7 @@ export default function Index() {
         <div className={`${modeTransition} ${!compareMode && debouncedRupiah > 0 ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
           <div className="mt-4 sm:mt-6 space-y-2.5 sm:space-y-3">
             <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => {
                   const p = getPrimaryResult(totalMs);
@@ -618,19 +687,41 @@ export default function Index() {
                   toast.success("Teks berhasil disalin!");
                   if (debouncedRupiah > 0) addToHistory(debouncedRupiah);
                 }}
-                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
               >
-                <Copy size={14} />
-                Salin Teks
+                <Copy size={13} />
+                Salin
               </button>
               <button
-                onClick={handleSaveImage}
-                disabled={saving}
-                className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60"
+                onClick={handleCopyLink}
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
               >
-                <Download size={14} />
-                {saving ? "Menyimpan..." : "Simpan Gambar"}
+                <Link2 size={13} />
+                Tautan
               </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    disabled={saving}
+                    className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60"
+                  >
+                    <Download size={13} />
+                    {saving ? "..." : "Gambar"}
+                    <ChevronDown size={11} className="opacity-70" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuItem onClick={() => handleSaveImage("1:1")}>
+                    <div className="flex flex-col"><span className="font-semibold text-xs">1:1 — IG Feed</span><span className="text-[10px] text-muted-foreground">1080 × 1080</span></div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSaveImage("9:16")}>
+                    <div className="flex flex-col"><span className="font-semibold text-xs">9:16 — Story / Reels</span><span className="text-[10px] text-muted-foreground">1080 × 1920</span></div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSaveImage("16:9")}>
+                    <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -717,52 +808,110 @@ export default function Index() {
 
         {/* Footer */}
         </main>
-        <footer className="border-t border-border/60 py-4 sm:py-5 text-center space-y-0.5" style={{ background: "hsl(var(--footer-bg))" }}>
+        <footer className="border-t border-border/60 py-4 sm:py-5 px-4 text-center space-y-2" style={{ background: "hsl(var(--footer-bg))" }}>
           <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">made by M. Alfin</p>
-          <p className="text-[10px] sm:text-[11px] text-muted-foreground/70">
-            Sumber data: Anggaran program MBG — Rp 71T/tahun ≈ Rp 1,2T/hari
-          </p>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2">
+                  <Info size={11} /> Sumber data
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="center" className="w-72 text-xs space-y-2">
+                <p className="font-bold text-sm">Patokan kalkulator</p>
+                <ul className="space-y-1.5 text-muted-foreground">
+                  <li>• <strong className="text-foreground">Rp 71 T/tahun</strong> — anggaran MBG (Perpres 201/2024, APBN 2025).</li>
+                  <li>• <strong className="text-foreground">Rp 1,2 T/hari</strong> — turunan rata-rata hari aktif sekolah.</li>
+                  <li>• <strong className="text-foreground">Rp 10.000/porsi</strong> — standar BGN.</li>
+                </ul>
+                <div className="pt-1.5 border-t border-border space-y-1">
+                  <p className="text-[10px] text-muted-foreground">Update: {MBG_DATA_UPDATED}</p>
+                  <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                    {MBG_SOURCES.map((s) => (
+                      <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer"
+                         className="text-[10px] text-primary hover:underline font-semibold">{s.label}</a>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <span className="text-muted-foreground/50 text-[10px]">·</span>
+            <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
+              <DialogTrigger asChild>
+                <button className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2">
+                  <Code2 size={11} /> Sematkan
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Sematkan Kalkulator MBG</DialogTitle>
+                  <DialogDescription>Salin snippet di bawah ke halaman/blog Anda.</DialogDescription>
+                </DialogHeader>
+                {(() => {
+                  const params = new URLSearchParams();
+                  if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
+                  const snippet = `<iframe src="https://mbgcal.lovable.app/embed${params.toString() ? "?" + params.toString() : ""}" width="440" height="520" style="border:0;border-radius:16px;max-width:100%" loading="lazy" title="Kalkulator MBG"></iframe>`;
+                  return (
+                    <div className="space-y-2">
+                      <pre className="text-[10px] sm:text-xs bg-muted p-3 rounded-lg overflow-x-auto whitespace-pre-wrap break-all">{snippet}</pre>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(snippet); toast.success("Snippet disalin!"); }}
+                        className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97]"
+                      >Salin snippet</button>
+                    </div>
+                  );
+                })()}
+              </DialogContent>
+            </Dialog>
+          </div>
         </footer>
 
-      {/* Off-screen capture */}
-      <div
-        ref={captureRef}
-        style={{
-          position: "absolute", left: "-9999px", top: 0, opacity: 0,
-          width: 1080, height: 1080,
-          background: "linear-gradient(180deg, #003366, #001a33)",
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          padding: 60,
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-        }}
-      >
-        <div style={{ color: "white", textAlign: "center", marginBottom: 40 }}>
-          <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: 2 }}>KALKULATOR MBG</div>
-          <div style={{ fontSize: 20, opacity: 0.8, marginTop: 8 }}>Makan Bergizi Gratis</div>
-        </div>
-        <div style={{
-          background: "white", borderRadius: 24, padding: "48px 56px", width: "85%",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
-        }}>
-          <div style={{ fontSize: 32, fontWeight: 700, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
-          <div style={{ fontSize: 48, margin: "16px 0", color: "#888" }}>↓</div>
-          {primary && (
-            <div style={{ fontSize: 40, fontWeight: 800, color: "#FF6600" }}>
-              {primary.value} {primary.unit} MBG
+      {/* Off-screen capture (ratio: 1:1, 9:16, 16:9) */}
+      {(() => {
+        const dims = saveRatio === "1:1" ? { w: 1080, h: 1080 } : saveRatio === "9:16" ? { w: 1080, h: 1920 } : { w: 1920, h: 1080 };
+        const isWide = saveRatio === "16:9";
+        return (
+          <div
+            ref={captureRef}
+            style={{
+              position: "absolute", left: "-9999px", top: 0, opacity: 0,
+              width: dims.w, height: dims.h,
+              background: "linear-gradient(180deg, #003366, #001a33)",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              padding: isWide ? 48 : 60,
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            }}
+          >
+            <div style={{ color: "white", textAlign: "center", marginBottom: isWide ? 24 : 40 }}>
+              <div style={{ fontSize: isWide ? 32 : 36, fontWeight: 800, letterSpacing: 2 }}>KALKULATOR MBG</div>
+              <div style={{ fontSize: 18, opacity: 0.8, marginTop: 6 }}>Makan Bergizi Gratis</div>
             </div>
-          )}
-        </div>
-        <div style={{ color: "white", textAlign: "center", marginTop: 36, fontSize: 14 }}>
-          <div style={{ opacity: 0.9 }}>Proyeksi biaya harian program MBG: Rp 1,2 Triliun/hari</div>
-          <div style={{ opacity: 0.6, marginTop: 4, fontSize: 12 }}>Sumber: BGN (Badan Gizi Nasional)</div>
-        </div>
-        <div style={{ position: "absolute", bottom: 24, right: 40, color: "white", fontSize: 13, opacity: 0.7 }}>
-          made by M. Alfin
-        </div>
-        <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", color: "white", fontSize: 11, opacity: 0.3 }}>
-          kalkulatormbg
-        </div>
-      </div>
+            <div style={{
+              background: "white", borderRadius: 24, padding: isWide ? "36px 56px" : "48px 56px",
+              width: isWide ? "70%" : "85%",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
+            }}>
+              <div style={{ fontSize: 30, fontWeight: 700, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
+              <div style={{ fontSize: 44, margin: "12px 0", color: "#888" }}>↓</div>
+              {primary && (
+                <div style={{ fontSize: 40, fontWeight: 800, color: "#FF6600" }}>
+                  {primary.value} {primary.unit} MBG
+                </div>
+              )}
+            </div>
+            <div style={{ color: "white", textAlign: "center", marginTop: isWide ? 20 : 36, fontSize: 14 }}>
+              <div style={{ opacity: 0.9 }}>Proyeksi biaya harian program MBG: Rp 1,2 Triliun/hari</div>
+              <div style={{ opacity: 0.6, marginTop: 4, fontSize: 12 }}>Sumber: BGN (Badan Gizi Nasional)</div>
+            </div>
+            <div style={{ position: "absolute", bottom: 24, right: 40, color: "white", fontSize: 13, opacity: 0.7 }}>
+              made by M. Alfin
+            </div>
+            <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", color: "white", fontSize: 11, opacity: 0.4 }}>
+              mbgcal.lovable.app
+            </div>
+          </div>
+        );
+      })()}
 
       <style>{`
         @keyframes fade-in-up {
