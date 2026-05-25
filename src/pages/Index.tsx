@@ -679,7 +679,7 @@ export default function Index() {
         <div className={`${modeTransition} ${!compareMode && debouncedRupiah > 0 ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
           <div className="mt-4 sm:mt-6 space-y-2.5 sm:space-y-3">
             <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} />
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => {
                   const p = getPrimaryResult(totalMs);
@@ -687,19 +687,41 @@ export default function Index() {
                   toast.success("Teks berhasil disalin!");
                   if (debouncedRupiah > 0) addToHistory(debouncedRupiah);
                 }}
-                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
               >
-                <Copy size={14} />
-                Salin Teks
+                <Copy size={13} />
+                Salin
               </button>
               <button
-                onClick={handleSaveImage}
-                disabled={saving}
-                className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60"
+                onClick={handleCopyLink}
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
               >
-                <Download size={14} />
-                {saving ? "Menyimpan..." : "Simpan Gambar"}
+                <Link2 size={13} />
+                Tautan
               </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    disabled={saving}
+                    className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60"
+                  >
+                    <Download size={13} />
+                    {saving ? "..." : "Gambar"}
+                    <ChevronDown size={11} className="opacity-70" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  <DropdownMenuItem onClick={() => handleSaveImage("1:1")}>
+                    <div className="flex flex-col"><span className="font-semibold text-xs">1:1 — IG Feed</span><span className="text-[10px] text-muted-foreground">1080 × 1080</span></div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSaveImage("9:16")}>
+                    <div className="flex flex-col"><span className="font-semibold text-xs">9:16 — Story / Reels</span><span className="text-[10px] text-muted-foreground">1080 × 1920</span></div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleSaveImage("16:9")}>
+                    <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
