@@ -397,6 +397,44 @@ export default function Index() {
     }
   }, [debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
 
+  // Sync state ↔ URL (deep-link)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
+      if (compareMode && debouncedRupiah2 > 0) params.set("compare", String(debouncedRupiah2));
+      const qs = params.toString();
+      const newUrl = `${window.location.pathname}${qs ? "?" + qs : ""}`;
+      if (newUrl !== window.location.pathname + window.location.search) {
+        window.history.replaceState(null, "", newUrl);
+      }
+    }, 400);
+    return () => clearTimeout(t);
+  }, [debouncedRupiah, debouncedRupiah2, compareMode]);
+
+  // Konfeti milestone (1T / 10T / 71T)
+  const firedMilestones = useRef<Set<number>>(new Set());
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    if (debouncedRupiah === 0) { firedMilestones.current.clear(); return; }
+    const thresholds = [1e12, 1e13, 71e12];
+    for (const t of thresholds) {
+      if (debouncedRupiah >= t && !firedMilestones.current.has(t)) {
+        firedMilestones.current.add(t);
+        const intensity = t === 71e12 ? 200 : t === 1e13 ? 130 : 80;
+        confetti({
+          particleCount: intensity, spread: 75, origin: { y: 0.35 },
+          colors: ["#003366", "#FF6600", "#FFD700", "#0066CC"],
+        });
+        if (t === 71e12) toast.success("🎉 Anggaran tahunan MBG terpenuhi!");
+        else if (t === 1e13) toast.success("🎊 Rp 10 Triliun!");
+        else toast.success("🎈 Rp 1 Triliun!");
+      }
+    }
+  }, [debouncedRupiah]);
+
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "");
     setActiveQuick(null);
