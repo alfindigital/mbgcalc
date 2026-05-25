@@ -345,23 +345,32 @@ const QuickButtons = React.memo(function QuickButtons({
 // ─── Main ───
 export default function Index() {
   const [dark, toggleDark] = useTheme();
-  const [rawInput, setRawInput] = useState("");
+  const [searchParams] = useSearchParams();
+  const [rawInput, setRawInput] = useState(() => {
+    const a = parseInt(searchParams.get("amount") || "0", 10);
+    return a > 0 ? formatRupiah(a) : "";
+  });
   const [activeQuick, setActiveQuick] = useState<number | null>(null);
   const [reverseOpen, setReverseOpen] = useState(false);
   const [reverseValue, setReverseValue] = useState("");
   const [reverseUnit, setReverseUnit] = useState("detik");
   const [saving, setSaving] = useState(false);
+  const [saveRatio, setSaveRatio] = useState<"1:1" | "9:16" | "16:9">("1:1");
+  const [embedOpen, setEmbedOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const captureRef = useRef<HTMLDivElement>(null);
 
-  const [compareMode, setCompareMode] = useState(false);
-  const [rawInput2, setRawInput2] = useState("");
+  const [compareMode, setCompareMode] = useState(() => !!searchParams.get("compare"));
+  const [rawInput2, setRawInput2] = useState(() => {
+    const a = parseInt(searchParams.get("compare") || "0", 10);
+    return a > 0 ? formatRupiah(a) : "";
+  });
   const [activeQuick2, setActiveQuick2] = useState<number | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
   const { history, addToHistory, clearHistory } = useHistory();
 
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => { if (!rawInput) inputRef.current?.focus(); }, []);
 
   const rupiah = useMemo(() => parseRupiahInput(rawInput), [rawInput]);
   const debouncedRupiah = useDebounce(rupiah, 150);
