@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
-import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { useSearchParams } from "react-router-dom";
+import confetti from "canvas-confetti";
+import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator, Info, Code2, Link2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useHistory } from "@/hooks/useHistory";
+import { MBG_DAILY_COST, MBG_ANNUAL_BUDGET, MBG_COST_PER_PORSI, MBG_DATA_UPDATED, MBG_SOURCES } from "@/lib/mbg-constants";
 
 // ─── Constants ───
-const MBG_DAILY_COST = 1_200_000_000_000;
-const MBG_ANNUAL_BUDGET = 71_000_000_000_000; // Rp 71 T / tahun
-const MBG_COST_PER_PORSI = 10_000; // Rp 10rb / porsi (standar BGN)
 const MS_PER_DAY = 86_400_000;
 const UNITS = [
   { key: "hari", label: "Hari", ms: MS_PER_DAY },
@@ -212,12 +216,12 @@ const ResultCard = React.memo(function ResultCard({
             <div className="rounded-xl bg-muted/40 border border-border/60 p-2.5 sm:p-3 text-center">
               <div className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold mb-0.5">Porsi MBG</div>
               <div className="text-base sm:text-lg font-extrabold text-foreground tabular-nums">{formatCompact(porsi)}</div>
-              <div className="text-[10px] text-muted-foreground/80">@ Rp 10rb/porsi</div>
+              <div className="text-[10px] text-muted-foreground">@ Rp 10rb/porsi</div>
             </div>
             <div className="rounded-xl bg-muted/40 border border-border/60 p-2.5 sm:p-3 text-center">
               <div className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold mb-0.5">Hari Operasional</div>
               <div className="text-base sm:text-lg font-extrabold text-foreground tabular-nums">{formatCompact(hariOperasional)}</div>
-              <div className="text-[10px] text-muted-foreground/80">@ Rp 1,2 T/hari</div>
+              <div className="text-[10px] text-muted-foreground">@ Rp 1,2 T/hari</div>
             </div>
           </div>
 
