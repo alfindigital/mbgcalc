@@ -805,10 +805,14 @@ export default function Index() {
           <div className="flex items-center justify-center gap-2 flex-wrap">
             <Popover>
               <PopoverTrigger asChild>
-                <button className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2">
-                  <Info size={11} /> Sumber data
+                <button
+                  aria-label="Lihat sumber data dan patokan kalkulator"
+                  className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <Info size={11} aria-hidden="true" /> Sumber data
                 </button>
               </PopoverTrigger>
+
               <PopoverContent align="center" className="w-72 text-xs space-y-2">
                 <p className="font-bold text-sm">Patokan kalkulator</p>
                 <ul className="space-y-1.5 text-muted-foreground">
