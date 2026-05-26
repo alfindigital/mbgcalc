@@ -544,15 +544,8 @@ export default function Index() {
       </header>
 
       <main className="w-full max-w-[440px] mx-auto px-4 sm:px-5 py-6 sm:py-8 flex-1 flex flex-col">
-        {/* Hero */}
-        <section className="text-center mb-5 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight leading-tight">
-            Berapa lama Rp segini bisa menjalankan program <span className="text-primary">MBG</span>?
-          </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground max-w-[380px] mx-auto">
-            Ketik nominal apa pun — lihat setara berapa porsi, hari, dan % dari APBN MBG.
-          </p>
-        </section>
+        <h1 className="sr-only">Kalkulator Konversi Rupiah ke Program MBG</h1>
+
 
         {/* Mode Toggle */}
         <div className="flex items-center justify-center mb-4 sm:mb-5">
