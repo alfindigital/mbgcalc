@@ -834,10 +834,14 @@ export default function Index() {
             <span className="text-muted-foreground/50 text-[10px]">·</span>
             <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
               <DialogTrigger asChild>
-                <button className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2">
-                  <Code2 size={11} /> Sematkan
+                <button
+                  aria-label="Buka dialog snippet sematkan iframe kalkulator"
+                  className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <Code2 size={11} aria-hidden="true" /> Sematkan
                 </button>
               </DialogTrigger>
+
               <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle>Sematkan Kalkulator MBG</DialogTitle>
