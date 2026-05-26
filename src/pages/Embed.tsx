@@ -33,23 +33,63 @@ function getPrimary(totalMs: number) {
   return { value: "0", unit: "Milidetik" };
 }
 
-export default function Embed() {
-  const [sp] = useSearchParams();
-  const minimal = sp.get("minimal") === "1";
-  const theme = sp.get("theme");
-  const initialAmount = Math.max(0, parseInt(sp.get("amount") || "0", 10) || 0);
-  const [amount, setAmount] = useState(initialAmount);
-
-  useEffect(() => {
-    if (theme === "dark") document.documentElement.classList.add("dark");
-    else if (theme === "light") document.documentElement.classList.remove("dark");
-  }, [theme]);
-
+function ResultBlock({ amount }: { amount: number }) {
   const totalMs = (amount / MBG_DAILY_COST) * MS_PER_DAY;
   const primary = useMemo(() => getPrimary(totalMs), [totalMs]);
   const porsi = amount / MBG_COST_PER_PORSI;
   const hari = amount / MBG_DAILY_COST;
   const pct = (amount / MBG_ANNUAL_BUDGET) * 100;
+
+  return (
+    <div className="card-elevated rounded-2xl border-2 border-border p-4 result-glow">
+      <div className="text-center">
+        <div className="text-[11px] text-muted-foreground mb-1 font-medium">Rp {formatRupiah(amount)}</div>
+        <div className="flex items-baseline justify-center gap-1">
+          <span className="text-3xl sm:text-4xl font-extrabold text-result-glow tabular-nums">{primary.value}</span>
+          <span className="text-sm sm:text-base font-bold text-result opacity-80">{primary.unit}</span>
+        </div>
+        <span className="text-[11px] font-semibold text-result/80">operasional MBG</span>
+      </div>
+      <div className="grid grid-cols-2 gap-2 mt-3">
+        <div className="rounded-xl bg-muted/40 border border-border/60 p-2 text-center">
+          <div className="text-[10px] uppercase text-muted-foreground font-bold">Porsi MBG</div>
+          <div className="text-base font-extrabold tabular-nums">{formatCompact(porsi)}</div>
+        </div>
+        <div className="rounded-xl bg-muted/40 border border-border/60 p-2 text-center">
+          <div className="text-[10px] uppercase text-muted-foreground font-bold">Hari Operasional</div>
+          <div className="text-base font-extrabold tabular-nums">{formatCompact(hari)}</div>
+        </div>
+      </div>
+      <div className="mt-3">
+        <div className="flex items-baseline justify-between mb-1">
+          <span className="text-[10px] uppercase text-muted-foreground font-bold">vs APBN MBG</span>
+          <span className="text-xs font-extrabold text-primary tabular-nums">
+            {pct < 0.01 ? "<0,01%" : pct >= 100 ? `${formatCompact(pct)}%` : `${pct.toFixed(pct < 1 ? 2 : pct < 10 ? 1 : 0).replace(".", ",")}%`}
+          </span>
+        </div>
+        <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden border border-border/50">
+          <div className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full" style={{ width: `${Math.min(pct, 100)}%` }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Embed() {
+  const [sp] = useSearchParams();
+  const minimal = sp.get("minimal") === "1";
+  const theme = sp.get("theme");
+  const initialAmount = Math.max(0, parseInt(sp.get("amount") || "0", 10) || 0);
+  const compareParam = sp.get("compare");
+  const initialCompare = compareParam !== null ? Math.max(0, parseInt(compareParam, 10) || 0) : null;
+  const [amount, setAmount] = useState(initialAmount);
+  const [amount2, setAmount2] = useState<number | null>(initialCompare);
+  const compareMode = amount2 !== null;
+
+  useEffect(() => {
+    if (theme === "dark") document.documentElement.classList.add("dark");
+    else if (theme === "light") document.documentElement.classList.remove("dark");
+  }, [theme]);
 
   return (
     <>
@@ -58,52 +98,40 @@ export default function Embed() {
         <title>Kalkulator MBG — Embed</title>
       </Helmet>
       <div className="min-h-screen min-h-[100dvh] bg-background text-foreground p-3 sm:p-4 flex flex-col">
-        <div className="max-w-[440px] w-full mx-auto flex-1 flex flex-col gap-3">
+        <div className="max-w-[560px] w-full mx-auto flex-1 flex flex-col gap-3">
           {!minimal && (
-            <div className="relative flex items-center">
-              <span className="absolute left-3 text-muted-foreground font-bold text-sm pointer-events-none">Rp</span>
-              <input
-                type="text" inputMode="numeric" value={amount ? formatRupiah(amount) : ""}
-                onChange={(e) => setAmount(parseInt(e.target.value.replace(/\D/g, ""), 10) || 0)}
-                placeholder="Ketik jumlah..."
-                className="w-full h-11 pl-10 pr-3 rounded-xl border-2 border-border bg-card text-base font-bold focus:outline-none focus:border-accent"
-              />
+            <div className={compareMode ? "grid grid-cols-2 gap-2" : "flex"}>
+              <div className="relative flex items-center">
+                <span className="absolute left-3 text-muted-foreground font-bold text-sm pointer-events-none">Rp</span>
+                <input
+                  type="text" inputMode="numeric" value={amount ? formatRupiah(amount) : ""}
+                  onChange={(e) => setAmount(parseInt(e.target.value.replace(/\D/g, ""), 10) || 0)}
+                  placeholder="Nominal A"
+                  className="w-full h-11 pl-10 pr-3 rounded-xl border-2 border-border bg-card text-base font-bold focus:outline-none focus:border-accent"
+                />
+              </div>
+              {compareMode && (
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-muted-foreground font-bold text-sm pointer-events-none">Rp</span>
+                  <input
+                    type="text" inputMode="numeric" value={amount2 ? formatRupiah(amount2) : ""}
+                    onChange={(e) => setAmount2(parseInt(e.target.value.replace(/\D/g, ""), 10) || 0)}
+                    placeholder="Nominal B"
+                    className="w-full h-11 pl-10 pr-3 rounded-xl border-2 border-border bg-card text-base font-bold focus:outline-none focus:border-accent"
+                  />
+                </div>
+              )}
             </div>
           )}
-          {amount > 0 && (
-            <div className="card-elevated rounded-2xl border-2 border-border p-4 result-glow">
-              <div className="text-center">
-                <div className="text-[11px] text-muted-foreground mb-1 font-medium">Rp {formatRupiah(amount)}</div>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-result-glow tabular-nums">{primary.value}</span>
-                  <span className="text-sm sm:text-base font-bold text-result opacity-80">{primary.unit}</span>
-                </div>
-                <span className="text-[11px] font-semibold text-result/80">operasional MBG</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mt-3">
-                <div className="rounded-xl bg-muted/40 border border-border/60 p-2 text-center">
-                  <div className="text-[10px] uppercase text-muted-foreground font-bold">Porsi MBG</div>
-                  <div className="text-base font-extrabold tabular-nums">{formatCompact(porsi)}</div>
-                </div>
-                <div className="rounded-xl bg-muted/40 border border-border/60 p-2 text-center">
-                  <div className="text-[10px] uppercase text-muted-foreground font-bold">Hari Operasional</div>
-                  <div className="text-base font-extrabold tabular-nums">{formatCompact(hari)}</div>
-                </div>
-              </div>
-              <div className="mt-3">
-                <div className="flex items-baseline justify-between mb-1">
-                  <span className="text-[10px] uppercase text-muted-foreground font-bold">vs APBN MBG</span>
-                  <span className="text-xs font-extrabold text-primary tabular-nums">
-                    {pct < 0.01 ? "<0,01%" : pct >= 100 ? `${formatCompact(pct)}%` : `${pct.toFixed(pct < 1 ? 2 : pct < 10 ? 1 : 0).replace(".", ",")}%`}
-                  </span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden border border-border/50">
-                  <div className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full" style={{ width: `${Math.min(pct, 100)}%` }} />
-                </div>
-              </div>
+          {compareMode ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {amount > 0 && <ResultBlock amount={amount} />}
+              {amount2! > 0 && <ResultBlock amount={amount2!} />}
             </div>
+          ) : (
+            amount > 0 && <ResultBlock amount={amount} />
           )}
-          <a href={`https://mbgcal.lovable.app/?amount=${amount}`} target="_blank" rel="noopener noreferrer"
+          <a href={`https://mbgcal.lovable.app/?amount=${amount}${compareMode ? `&compare=${amount2}` : ""}`} target="_blank" rel="noopener noreferrer"
              className="text-[10px] text-muted-foreground hover:text-primary text-center mt-auto">
             kalkulator MBG · mbgcal.lovable.app
           </a>
