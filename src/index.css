@@ -83,8 +83,8 @@
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --result: 24 95% 53%;
-    --result-glow: 24 100% 62%;
+    --result: 222 75% 65%;
+    --result-glow: 222 80% 70%;
 
     --border: 225 15% 18%;
     --input: 225 15% 18%;
@@ -98,7 +98,8 @@
     --shadow-card: 0 1px 3px 0 rgba(0,0,0,0.2), 0 4px 16px -2px rgba(0,0,0,0.3);
     --shadow-card-hover: 0 4px 24px -4px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.2);
     --shadow-input-focus: 0 0 0 3px hsla(222, 70%, 55%, 0.2);
-    --shadow-result: 0 8px 32px -8px hsla(24, 95%, 53%, 0.25);
+    --shadow-result: 0 8px 32px -8px hsla(222, 75%, 55%, 0.3);
+
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
