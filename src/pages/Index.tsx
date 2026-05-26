@@ -675,41 +675,45 @@ export default function Index() {
                   toast.success("Teks berhasil disalin!");
                   if (debouncedRupiah > 0) addToHistory(debouncedRupiah);
                 }}
-                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
+                aria-label="Salin teks hasil ke clipboard"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                <Copy size={13} />
+                <Copy size={13} aria-hidden="true" />
                 Salin
               </button>
               <button
                 onClick={handleCopyLink}
-                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors"
+                aria-label="Salin tautan hasil ke clipboard"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                <Link2 size={13} />
+                <Link2 size={13} aria-hidden="true" />
                 Tautan
               </button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
                     disabled={saving}
-                    className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60"
+                    aria-label="Simpan hasil sebagai gambar, pilih rasio"
+                    className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
-                    <Download size={13} />
+                    <Download size={13} aria-hidden="true" />
                     {saving ? "..." : "Gambar"}
-                    <ChevronDown size={11} className="opacity-70" />
+                    <ChevronDown size={11} className="opacity-70" aria-hidden="true" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onClick={() => handleSaveImage("1:1")}>
+                  <DropdownMenuItem onClick={() => handleSaveImage("1:1")} aria-label="Simpan gambar rasio 1:1 untuk Instagram Feed, 1080 × 1080">
                     <div className="flex flex-col"><span className="font-semibold text-xs">1:1 — IG Feed</span><span className="text-[10px] text-muted-foreground">1080 × 1080</span></div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSaveImage("9:16")}>
+                  <DropdownMenuItem onClick={() => handleSaveImage("9:16")} aria-label="Simpan gambar rasio 9:16 untuk Story atau Reels, 1080 × 1920">
                     <div className="flex flex-col"><span className="font-semibold text-xs">9:16 — Story / Reels</span><span className="text-[10px] text-muted-foreground">1080 × 1920</span></div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSaveImage("16:9")}>
+                  <DropdownMenuItem onClick={() => handleSaveImage("16:9")} aria-label="Simpan gambar rasio 16:9 untuk Twitter atau Web, 1920 × 1080">
                     <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
             </div>
           </div>
         </div>
@@ -801,10 +805,14 @@ export default function Index() {
           <div className="flex items-center justify-center gap-2 flex-wrap">
             <Popover>
               <PopoverTrigger asChild>
-                <button className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2">
-                  <Info size={11} /> Sumber data
+                <button
+                  aria-label="Lihat sumber data dan patokan kalkulator"
+                  className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <Info size={11} aria-hidden="true" /> Sumber data
                 </button>
               </PopoverTrigger>
+
               <PopoverContent align="center" className="w-72 text-xs space-y-2">
                 <p className="font-bold text-sm">Patokan kalkulator</p>
                 <ul className="space-y-1.5 text-muted-foreground">
@@ -826,10 +834,14 @@ export default function Index() {
             <span className="text-muted-foreground/50 text-[10px]">·</span>
             <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
               <DialogTrigger asChild>
-                <button className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2">
-                  <Code2 size={11} /> Sematkan
+                <button
+                  aria-label="Buka dialog snippet sematkan iframe kalkulator"
+                  className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <Code2 size={11} aria-hidden="true" /> Sematkan
                 </button>
               </DialogTrigger>
+
               <DialogContent className="max-w-md">
                 <DialogHeader>
                   <DialogTitle>Sematkan Kalkulator MBG</DialogTitle>
@@ -844,8 +856,11 @@ export default function Index() {
                       <pre className="text-[10px] sm:text-xs bg-muted p-3 rounded-lg overflow-x-auto whitespace-pre-wrap break-all">{snippet}</pre>
                       <button
                         onClick={() => { navigator.clipboard.writeText(snippet); toast.success("Snippet disalin!"); }}
-                        className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97]"
+                        aria-label="Salin snippet iframe sematkan ke clipboard"
+                        className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       >Salin snippet</button>
+
+
                     </div>
                   );
                 })()}
