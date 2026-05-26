@@ -856,12 +856,10 @@ export default function Index() {
                       <pre className="text-[10px] sm:text-xs bg-muted p-3 rounded-lg overflow-x-auto whitespace-pre-wrap break-all">{snippet}</pre>
                       <button
                         onClick={() => { navigator.clipboard.writeText(snippet); toast.success("Snippet disalin!"); }}
-                        className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97]"
-                      <button
-                        onClick={() => { navigator.clipboard.writeText(snippet); toast.success("Snippet disalin!"); }}
                         aria-label="Salin snippet iframe sematkan ke clipboard"
                         className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       >Salin snippet</button>
+
 
                     </div>
                   );
