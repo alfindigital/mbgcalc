@@ -373,12 +373,12 @@ export default function Index() {
   useEffect(() => { if (!rawInput) inputRef.current?.focus(); }, []);
 
   const rupiah = useMemo(() => parseRupiahInput(rawInput), [rawInput]);
-  const debouncedRupiah = useDebounce(rupiah, 150);
+  const debouncedRupiah = rupiah;
   const totalMs = useMemo(() => rupiahToMs(debouncedRupiah), [debouncedRupiah]);
   const inputFormatted = useMemo(() => (rupiah > 0 ? formatRupiah(rupiah) : ""), [rupiah]);
 
   const rupiah2 = useMemo(() => parseRupiahInput(rawInput2), [rawInput2]);
-  const debouncedRupiah2 = useDebounce(rupiah2, 150);
+  const debouncedRupiah2 = rupiah2;
   const totalMs2 = useMemo(() => rupiahToMs(debouncedRupiah2), [debouncedRupiah2]);
   const inputFormatted2 = useMemo(() => (rupiah2 > 0 ? formatRupiah(rupiah2) : ""), [rupiah2]);
 
