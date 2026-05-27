@@ -489,13 +489,27 @@ export default function Index() {
             </div>
             <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">Kalkulator MBG</p>
           </div>
-          <button
-            onClick={toggleDark}
-            className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
-            aria-label="Toggle tema"
-          >
-            {dark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-muted-foreground" />}
-          </button>
+          <div className="flex items-center gap-2">
+            {history.length > 0 && (
+              <button
+                onClick={() => setHistoryOpen(true)}
+                className="relative p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
+                aria-label="Buka riwayat"
+              >
+                <History size={17} className="text-muted-foreground" />
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                  {history.length}
+                </span>
+              </button>
+            )}
+            <button
+              onClick={toggleDark}
+              className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
+              aria-label="Toggle tema"
+            >
+              {dark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-muted-foreground" />}
+            </button>
+          </div>
         </div>
       </header>
 
