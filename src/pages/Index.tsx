@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
 import confetti from "canvas-confetti";
-import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator, Info, Code2, Link2 } from "lucide-react";
+import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator, Info, Code2, Link2, History } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
@@ -489,13 +489,27 @@ export default function Index() {
             </div>
             <p className="text-xl sm:text-2xl font-extrabold text-primary tracking-tight">Kalkulator MBG</p>
           </div>
-          <button
-            onClick={toggleDark}
-            className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
-            aria-label="Toggle tema"
-          >
-            {dark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-muted-foreground" />}
-          </button>
+          <div className="flex items-center gap-2">
+            {history.length > 0 && (
+              <button
+                onClick={() => setHistoryOpen(true)}
+                className="relative p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
+                aria-label="Buka riwayat"
+              >
+                <History size={17} className="text-muted-foreground" />
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
+                  {history.length}
+                </span>
+              </button>
+            )}
+            <button
+              onClick={toggleDark}
+              className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
+              aria-label="Toggle tema"
+            >
+              {dark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-muted-foreground" />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -728,42 +742,51 @@ export default function Index() {
           )}
         </Section>
 
-        {/* History */}
-        {history.length > 0 && (
-          <Section className="mt-3 sm:mt-4">
-            <button onClick={() => setHistoryOpen((o) => !o)} className="flex items-center justify-between w-full text-left group" aria-expanded={historyOpen}>
-              <h2 className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">
-                Riwayat
-                <span className="ml-1.5 text-[10px] sm:text-xs font-semibold text-muted-foreground bg-muted px-1.5 sm:px-2 py-0.5 rounded-full">
-                  {history.length}
-                </span>
-              </h2>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                {historyOpen && (
-                  <span role="button" onClick={(e) => { e.stopPropagation(); clearHistory(); }}
-                    className="flex items-center gap-0.5 text-[11px] sm:text-xs text-muted-foreground hover:text-destructive transition-colors font-medium">
-                    <Trash2 size={11} /> Hapus
+        {/* History Dialog */}
+        <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+          <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <div className="flex items-center justify-between gap-2 pr-6">
+                <DialogTitle className="flex items-center gap-2">
+                  Riwayat
+                  <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                    {history.length}
                   </span>
+                </DialogTitle>
+                {history.length > 0 && (
+                  <button
+                    onClick={clearHistory}
+                    aria-label="Hapus semua riwayat"
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors active:scale-95"
+                  >
+                    <Trash2 size={14} aria-hidden="true" />
+                  </button>
                 )}
-                <div className={`p-1 rounded-lg transition-colors ${historyOpen ? "bg-muted" : ""}`}>
-                  {historyOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-                </div>
               </div>
-            </button>
-            {historyOpen && <HistoryList history={history} onTap={handleHistoryTap} />}
-          </Section>
-        )}
+              <DialogDescription className="sr-only">Daftar perhitungan terakhir Anda</DialogDescription>
+            </DialogHeader>
+            {history.length > 0 ? (
+              <HistoryList
+                history={history}
+                onTap={(v, v2, t) => { handleHistoryTap(v, v2, t); setHistoryOpen(false); }}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-6">Belum ada riwayat</p>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Footer */}
         </main>
-        <footer className="border-t border-border/60 py-4 sm:py-5 px-4 text-center space-y-2" style={{ background: "hsl(var(--footer-bg))" }}>
-          <p className="text-[11px] sm:text-xs text-muted-foreground font-medium">made by M. Alfin</p>
-          <div className="flex items-center justify-center gap-2 flex-wrap">
+        <footer className="border-t border-border/60 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
+          <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
+            <span>made by M. Alfin</span>
+            <span className="text-muted-foreground/50">·</span>
             <Popover>
               <PopoverTrigger asChild>
                 <button
                   aria-label="Lihat sumber data dan patokan kalkulator"
-                  className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <Info size={11} aria-hidden="true" /> Sumber data
                 </button>
@@ -787,12 +810,12 @@ export default function Index() {
                 </div>
               </PopoverContent>
             </Popover>
-            <span className="text-muted-foreground/50 text-[10px]">·</span>
+            <span className="text-muted-foreground/50">·</span>
             <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
               <DialogTrigger asChild>
                 <button
                   aria-label="Buka dialog snippet sematkan iframe kalkulator"
-                  className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <Code2 size={11} aria-hidden="true" /> Sematkan
                 </button>
@@ -815,8 +838,6 @@ export default function Index() {
                         aria-label="Salin snippet iframe sematkan ke clipboard"
                         className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       >Salin snippet</button>
-
-
                     </div>
                   );
                 })()}
