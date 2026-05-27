@@ -671,14 +671,14 @@ export default function Index() {
                     <ChevronDown size={11} className="opacity-70" aria-hidden="true" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44">
-                  <DropdownMenuItem onClick={() => handleSaveImage("1:1")} aria-label="Simpan gambar rasio 1:1 untuk Instagram Feed, 1080 × 1080">
+                <DropdownMenuContent align="end" className="w-44" loop>
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("1:1"); }} aria-label="Simpan gambar rasio 1:1 untuk Instagram Feed, 1080 × 1080" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
                     <div className="flex flex-col"><span className="font-semibold text-xs">1:1 — IG Feed</span><span className="text-[10px] text-muted-foreground">1080 × 1080</span></div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSaveImage("9:16")} aria-label="Simpan gambar rasio 9:16 untuk Story atau Reels, 1080 × 1920">
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("9:16"); }} aria-label="Simpan gambar rasio 9:16 untuk Story atau Reels, 1080 × 1920" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
                     <div className="flex flex-col"><span className="font-semibold text-xs">9:16 — Story / Reels</span><span className="text-[10px] text-muted-foreground">1080 × 1920</span></div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSaveImage("16:9")} aria-label="Simpan gambar rasio 16:9 untuk Twitter atau Web, 1920 × 1080">
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("16:9"); }} aria-label="Simpan gambar rasio 16:9 untuk Twitter atau Web, 1920 × 1080" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
                     <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
