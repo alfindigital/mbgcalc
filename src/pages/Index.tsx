@@ -209,50 +209,6 @@ const ResultCard = React.memo(function ResultCard({
         <span className={`${compact ? "text-[10px]" : "text-xs sm:text-sm"} font-semibold text-result/70`}>operasional MBG</span>
       </div>
 
-      {/* Stat grid + Bar (only non-compact) */}
-      {!compact && (
-        <>
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-4 sm:mt-5">
-            <div className="rounded-xl bg-muted/40 border border-border/60 p-2.5 sm:p-3 text-center">
-              <div className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold mb-0.5">Porsi MBG</div>
-              <div className="text-base sm:text-lg font-extrabold text-foreground tabular-nums">{formatCompact(porsi)}</div>
-              <div className="text-[10px] text-muted-foreground">@ Rp 10rb/porsi</div>
-            </div>
-            <div className="rounded-xl bg-muted/40 border border-border/60 p-2.5 sm:p-3 text-center">
-              <div className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold mb-0.5">Hari Operasional</div>
-              <div className="text-base sm:text-lg font-extrabold text-foreground tabular-nums">{formatCompact(hariOperasional)}</div>
-              <div className="text-[10px] text-muted-foreground">@ Rp 1,2 T/hari</div>
-            </div>
-          </div>
-
-          {/* APBN bar */}
-          <div className="mt-4 sm:mt-5">
-            <div className="flex items-baseline justify-between mb-1.5">
-              <span className="text-[10px] sm:text-[11px] uppercase tracking-wide text-muted-foreground font-bold">
-                vs APBN MBG (Rp 71 T/tahun)
-              </span>
-              <span className="text-xs sm:text-sm font-extrabold text-primary tabular-nums">
-                {pctOfAnnual < 0.01
-                  ? "<0,01%"
-                  : pctOfAnnual >= 100
-                    ? `${formatCompact(pctOfAnnual)}%`
-                    : `${pctOfAnnual.toFixed(pctOfAnnual < 1 ? 2 : pctOfAnnual < 10 ? 1 : 0).replace(".", ",")}%`}
-              </span>
-            </div>
-            <div className="h-2.5 sm:h-3 w-full rounded-full bg-muted/60 overflow-hidden border border-border/50">
-              <div
-                className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full transition-[width] duration-500 ease-out"
-                style={{ width: `${barPct}%`, minWidth: barPct > 0 ? "4px" : "0" }}
-              />
-            </div>
-            {pctOfAnnual > 100 && (
-              <p className="text-[10px] text-accent font-semibold mt-1 text-center">
-                Melebihi anggaran tahunan ({formatCompact(animatedRupiah / MBG_ANNUAL_BUDGET)}× lipat)
-              </p>
-            )}
-          </div>
-        </>
-      )}
 
       {rupiah > Number.MAX_SAFE_INTEGER && (
         <p className="text-[10px] text-destructive mt-2 text-center">⚠ Melebihi batas presisi</p>
