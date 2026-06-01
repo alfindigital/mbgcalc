@@ -119,7 +119,7 @@ const ResultCard = React.memo(function ResultCard({
   const [copied, setCopied] = useState(false);
   const actualPrimary = getPrimaryResult(totalMs);
 
-  const pctOfAnnual = (animatedRupiah / MBG_ANNUAL_BUDGET) * 100;
+
 
 
   const handleCopy = useCallback(() => {
