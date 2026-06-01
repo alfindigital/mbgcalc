@@ -141,15 +141,6 @@ function useTheme() {
   return [dark, useCallback(() => setDark((d) => !d), [])] as const;
 }
 
-function useDebounce<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(t);
-  }, [value, delay]);
-  return debounced;
-}
-
 // ─── Result Card ───
 const ResultCard = React.memo(function ResultCard({
   rupiah, totalMs, inputFormatted, compact,
