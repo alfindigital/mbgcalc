@@ -72,40 +72,6 @@ function formatCompact(num: number): string {
   return formatRupiah(Math.round(num));
 }
 
-// Terbilang Indonesia (mendukung sampai kuadriliun)
-const SATUAN = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
-function _terbilangSub(n: number): string {
-  if (n < 12) return SATUAN[n];
-  if (n < 20) return `${_terbilangSub(n - 10)} belas`;
-  if (n < 100) return `${_terbilangSub(Math.floor(n / 10))} puluh${n % 10 ? " " + _terbilangSub(n % 10) : ""}`;
-  if (n < 200) return `seratus${n - 100 ? " " + _terbilangSub(n - 100) : ""}`;
-  if (n < 1000) return `${_terbilangSub(Math.floor(n / 100))} ratus${n % 100 ? " " + _terbilangSub(n % 100) : ""}`;
-  if (n < 2000) return `seribu${n - 1000 ? " " + _terbilangSub(n - 1000) : ""}`;
-  return "";
-}
-function terbilang(num: number): string {
-  if (!isFinite(num) || num <= 0) return "";
-  if (num > Number.MAX_SAFE_INTEGER) return "angka terlalu besar";
-  const scales = [
-    { v: 1e15, s: "kuadriliun" },
-    { v: 1e12, s: "triliun" },
-    { v: 1e9, s: "miliar" },
-    { v: 1e6, s: "juta" },
-    { v: 1e3, s: "ribu" },
-  ];
-  let rest = Math.floor(num);
-  const parts: string[] = [];
-  for (const { v, s } of scales) {
-    if (rest >= v) {
-      const q = Math.floor(rest / v);
-      rest = rest % v;
-      if (v === 1e3 && q === 1) parts.push("seribu");
-      else parts.push(`${_terbilangSub(q)} ${s}`);
-    }
-  }
-  if (rest > 0) parts.push(_terbilangSub(rest));
-  return `${parts.join(" ")} rupiah`.replace(/\s+/g, " ").trim();
-}
 
 function rupiahToMs(rupiah: number): number {
   return (rupiah / MBG_DAILY_COST) * MS_PER_DAY;
