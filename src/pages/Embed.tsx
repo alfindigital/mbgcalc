@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
-import { MBG_DAILY_COST, MBG_COST_PER_PORSI, MBG_ANNUAL_BUDGET } from "@/lib/mbg-constants";
+import { MBG_DAILY_COST } from "@/lib/mbg-constants";
 
 const MS_PER_DAY = 86_400_000;
 const UNITS = [
@@ -36,9 +36,6 @@ function getPrimary(totalMs: number) {
 function ResultBlock({ amount }: { amount: number }) {
   const totalMs = (amount / MBG_DAILY_COST) * MS_PER_DAY;
   const primary = useMemo(() => getPrimary(totalMs), [totalMs]);
-  const porsi = amount / MBG_COST_PER_PORSI;
-  const hari = amount / MBG_DAILY_COST;
-  const pct = (amount / MBG_ANNUAL_BUDGET) * 100;
 
   return (
     <div className="card-elevated rounded-2xl border-2 border-border p-4 result-glow">
@@ -49,27 +46,6 @@ function ResultBlock({ amount }: { amount: number }) {
           <span className="text-sm sm:text-base font-bold text-result opacity-80">{primary.unit}</span>
         </div>
         <span className="text-[11px] font-semibold text-result/80">operasional MBG</span>
-      </div>
-      <div className="grid grid-cols-2 gap-2 mt-3">
-        <div className="rounded-xl bg-muted/40 border border-border/60 p-2 text-center">
-          <div className="text-[10px] uppercase text-muted-foreground font-bold">Porsi MBG</div>
-          <div className="text-base font-extrabold tabular-nums">{formatCompact(porsi)}</div>
-        </div>
-        <div className="rounded-xl bg-muted/40 border border-border/60 p-2 text-center">
-          <div className="text-[10px] uppercase text-muted-foreground font-bold">Hari Operasional</div>
-          <div className="text-base font-extrabold tabular-nums">{formatCompact(hari)}</div>
-        </div>
-      </div>
-      <div className="mt-3">
-        <div className="flex items-baseline justify-between mb-1">
-          <span className="text-[10px] uppercase text-muted-foreground font-bold">vs APBN MBG</span>
-          <span className="text-xs font-extrabold text-primary tabular-nums">
-            {pct < 0.01 ? "<0,01%" : pct >= 100 ? `${formatCompact(pct)}%` : `${pct.toFixed(pct < 1 ? 2 : pct < 10 ? 1 : 0).replace(".", ",")}%`}
-          </span>
-        </div>
-        <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden border border-border/50">
-          <div className="h-full bg-gradient-to-r from-primary via-accent to-primary rounded-full" style={{ width: `${Math.min(pct, 100)}%` }} />
-        </div>
       </div>
     </div>
   );
