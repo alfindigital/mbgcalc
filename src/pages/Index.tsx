@@ -114,7 +114,7 @@ const ResultCard = React.memo(function ResultCard({
   rupiah: number; totalMs: number; inputFormatted: string; compact?: boolean;
 }) {
   const animatedMs = useAnimatedNumber(totalMs, 400);
-  const animatedRupiah = useAnimatedNumber(rupiah, 400);
+  
   const primary = getPrimaryResult(animatedMs);
   const [copied, setCopied] = useState(false);
   const actualPrimary = getPrimaryResult(totalMs);
