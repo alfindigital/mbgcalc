@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
-import { Helmet } from "react-helmet-async";
+
 import { useSearchParams } from "react-router-dom";
 import confetti from "canvas-confetti";
 import { Sun, Moon, X, Copy, Download, ChevronDown, ChevronUp, Trash2, ArrowLeftRight, Calculator, Info, Code2, Link2, History } from "lucide-react";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useHistory } from "@/hooks/useHistory";
-import { MBG_DAILY_COST, MBG_ANNUAL_BUDGET, MBG_COST_PER_PORSI, MBG_DATA_UPDATED, MBG_SOURCES } from "@/lib/mbg-constants";
+import { MBG_DAILY_COST, MBG_COST_PER_PORSI, MBG_DATA_UPDATED, MBG_SOURCES } from "@/lib/mbg-constants";
 
 // ─── Constants ───
 const MS_PER_DAY = 86_400_000;
@@ -72,40 +72,6 @@ function formatCompact(num: number): string {
   return formatRupiah(Math.round(num));
 }
 
-// Terbilang Indonesia (mendukung sampai kuadriliun)
-const SATUAN = ["", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas"];
-function _terbilangSub(n: number): string {
-  if (n < 12) return SATUAN[n];
-  if (n < 20) return `${_terbilangSub(n - 10)} belas`;
-  if (n < 100) return `${_terbilangSub(Math.floor(n / 10))} puluh${n % 10 ? " " + _terbilangSub(n % 10) : ""}`;
-  if (n < 200) return `seratus${n - 100 ? " " + _terbilangSub(n - 100) : ""}`;
-  if (n < 1000) return `${_terbilangSub(Math.floor(n / 100))} ratus${n % 100 ? " " + _terbilangSub(n % 100) : ""}`;
-  if (n < 2000) return `seribu${n - 1000 ? " " + _terbilangSub(n - 1000) : ""}`;
-  return "";
-}
-function terbilang(num: number): string {
-  if (!isFinite(num) || num <= 0) return "";
-  if (num > Number.MAX_SAFE_INTEGER) return "angka terlalu besar";
-  const scales = [
-    { v: 1e15, s: "kuadriliun" },
-    { v: 1e12, s: "triliun" },
-    { v: 1e9, s: "miliar" },
-    { v: 1e6, s: "juta" },
-    { v: 1e3, s: "ribu" },
-  ];
-  let rest = Math.floor(num);
-  const parts: string[] = [];
-  for (const { v, s } of scales) {
-    if (rest >= v) {
-      const q = Math.floor(rest / v);
-      rest = rest % v;
-      if (v === 1e3 && q === 1) parts.push("seribu");
-      else parts.push(`${_terbilangSub(q)} ${s}`);
-    }
-  }
-  if (rest > 0) parts.push(_terbilangSub(rest));
-  return `${parts.join(" ")} rupiah`.replace(/\s+/g, " ").trim();
-}
 
 function rupiahToMs(rupiah: number): number {
   return (rupiah / MBG_DAILY_COST) * MS_PER_DAY;
@@ -148,15 +114,13 @@ const ResultCard = React.memo(function ResultCard({
   rupiah: number; totalMs: number; inputFormatted: string; compact?: boolean;
 }) {
   const animatedMs = useAnimatedNumber(totalMs, 400);
-  const animatedRupiah = useAnimatedNumber(rupiah, 400);
+  
   const primary = getPrimaryResult(animatedMs);
   const [copied, setCopied] = useState(false);
   const actualPrimary = getPrimaryResult(totalMs);
 
-  const porsi = animatedRupiah / MBG_COST_PER_PORSI;
-  const hariOperasional = animatedRupiah / MBG_DAILY_COST;
-  const pctOfAnnual = (animatedRupiah / MBG_ANNUAL_BUDGET) * 100;
-  const barPct = Math.min(pctOfAnnual, 100);
+
+
 
   const handleCopy = useCallback(() => {
     const porsiTxt = formatCompact(rupiah / MBG_COST_PER_PORSI);
