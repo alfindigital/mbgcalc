@@ -13,18 +13,6 @@ const UNITS = [
 ] as const;
 
 function formatRupiah(n: number) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
-function formatCompact(num: number): string {
-  if (!isFinite(num) || num <= 0) return "0";
-  const tiers = [{ v: 1e12, s: "T" }, { v: 1e9, s: "M" }, { v: 1e6, s: "Jt" }, { v: 1e3, s: "Rb" }];
-  for (const t of tiers) {
-    if (num >= t.v) {
-      const val = num / t.v;
-      const fixed = val >= 100 ? val.toFixed(0) : val >= 10 ? val.toFixed(1) : val.toFixed(2);
-      return `${fixed.replace(".", ",").replace(/,?0+$/, "")} ${t.s}`;
-    }
-  }
-  return formatRupiah(Math.round(num));
-}
 function getPrimary(totalMs: number) {
   for (const u of UNITS) {
     const v = totalMs / u.ms;
