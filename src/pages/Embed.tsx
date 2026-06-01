@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
-import { MBG_DAILY_COST, MBG_COST_PER_PORSI, MBG_ANNUAL_BUDGET } from "@/lib/mbg-constants";
+import { MBG_DAILY_COST } from "@/lib/mbg-constants";
 
 const MS_PER_DAY = 86_400_000;
 const UNITS = [
