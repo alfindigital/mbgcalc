@@ -119,10 +119,8 @@ const ResultCard = React.memo(function ResultCard({
   const [copied, setCopied] = useState(false);
   const actualPrimary = getPrimaryResult(totalMs);
 
-  const porsi = animatedRupiah / MBG_COST_PER_PORSI;
-  const hariOperasional = animatedRupiah / MBG_DAILY_COST;
   const pctOfAnnual = (animatedRupiah / MBG_ANNUAL_BUDGET) * 100;
-  const barPct = Math.min(pctOfAnnual, 100);
+
 
   const handleCopy = useCallback(() => {
     const porsiTxt = formatCompact(rupiah / MBG_COST_PER_PORSI);
