@@ -448,15 +448,13 @@ export default function Index() {
             {history.length > 0 && (
               <button
                 onClick={() => setHistoryOpen(true)}
-                className="relative p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
+                className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
                 aria-label="Buka riwayat"
               >
                 <History size={17} className="text-muted-foreground" />
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-                  {history.length}
-                </span>
               </button>
             )}
+
             <button
               onClick={toggleDark}
               className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
@@ -701,18 +699,19 @@ export default function Index() {
         <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
           <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <div className="flex items-center justify-between gap-2 pr-6">
-                <DialogTitle>Riwayat</DialogTitle>
+              <div className="flex items-center justify-between gap-2 pr-10 min-h-[28px]">
+                <DialogTitle className="leading-none">Riwayat</DialogTitle>
                 {history.length > 0 && (
                   <button
                     onClick={clearHistory}
                     aria-label="Hapus semua riwayat"
-                    className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition-colors active:scale-95"
+                    className="inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors active:scale-95"
                   >
                     <Trash2 size={14} aria-hidden="true" />
                   </button>
                 )}
               </div>
+
               <DialogDescription className="sr-only">Daftar perhitungan terakhir Anda</DialogDescription>
             </DialogHeader>
 
