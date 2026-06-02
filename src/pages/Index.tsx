@@ -660,10 +660,10 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Reverse Mode */}
-        {!compareMode && (
+        {/* Reverse Mode — hidden in compare mode, state preserved */}
+        <div className={`${modeTransition} ${!compareMode ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={compareMode}>
           <Section className="mt-4 sm:mt-6">
-            <button onClick={() => setReverseOpen((o) => !o)} className="flex items-center justify-between w-full text-left group" aria-expanded={reverseOpen}>
+            <button onClick={() => setReverseOpen((o) => !o)} className="flex items-center justify-between w-full text-left group" aria-expanded={reverseOpen} tabIndex={compareMode ? -1 : 0}>
               <h2 className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">Mode Terbalik</h2>
               <div className={`p-1 rounded-lg transition-colors ${reverseOpen ? "bg-muted" : ""}`}>
                 {reverseOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
@@ -677,11 +677,13 @@ export default function Index() {
                     onChange={(e) => setReverseValue(e.target.value.replace(/[^0-9.]/g, ""))}
                     placeholder="Jumlah"
                     aria-label="Jumlah waktu"
+                    tabIndex={compareMode ? -1 : 0}
                     className="flex-1 h-10 sm:h-11 px-3 rounded-xl border-2 border-border bg-background text-sm sm:text-base font-semibold focus:outline-none focus:border-accent input-glow transition-colors"
                   />
                   <select
                     value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
                     aria-label="Satuan waktu"
+                    tabIndex={compareMode ? -1 : 0}
                     className="h-10 sm:h-11 px-2 sm:px-3 rounded-xl border-2 border-border bg-background text-xs sm:text-sm font-semibold focus:outline-none focus:border-accent transition-colors"
                   >
                     {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
@@ -695,7 +697,8 @@ export default function Index() {
               </div>
             )}
           </Section>
-        )}
+        </div>
+
 
 
         {/* History Dialog */}
