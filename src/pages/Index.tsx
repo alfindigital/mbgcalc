@@ -661,39 +661,42 @@ export default function Index() {
         </div>
 
         {/* Reverse Mode */}
-        <Section className="mt-4 sm:mt-6">
-          <button onClick={() => setReverseOpen((o) => !o)} className="flex items-center justify-between w-full text-left group" aria-expanded={reverseOpen}>
-            <h2 className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">Mode Terbalik</h2>
-            <div className={`p-1 rounded-lg transition-colors ${reverseOpen ? "bg-muted" : ""}`}>
-              {reverseOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-            </div>
-          </button>
-          {reverseOpen && (
-            <div className="mt-3 sm:mt-4 space-y-2.5 animate-fade-in-up">
-              <div className="flex gap-2">
-                <input
-                  type="text" inputMode="decimal" value={reverseValue}
-                  onChange={(e) => setReverseValue(e.target.value.replace(/[^0-9.]/g, ""))}
-                  placeholder="Jumlah"
-                  aria-label="Jumlah waktu"
-                  className="flex-1 h-10 sm:h-11 px-3 rounded-xl border-2 border-border bg-background text-sm sm:text-base font-semibold focus:outline-none focus:border-accent input-glow transition-colors"
-                />
-                <select
-                  value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
-                  aria-label="Satuan waktu"
-                  className="h-10 sm:h-11 px-2 sm:px-3 rounded-xl border-2 border-border bg-background text-xs sm:text-sm font-semibold focus:outline-none focus:border-accent transition-colors"
-                >
-                  {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
-                </select>
+        {!compareMode && (
+          <Section className="mt-4 sm:mt-6">
+            <button onClick={() => setReverseOpen((o) => !o)} className="flex items-center justify-between w-full text-left group" aria-expanded={reverseOpen}>
+              <h2 className="font-bold text-xs sm:text-sm group-hover:text-primary transition-colors">Mode Terbalik</h2>
+              <div className={`p-1 rounded-lg transition-colors ${reverseOpen ? "bg-muted" : ""}`}>
+                {reverseOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
               </div>
-              {reverseRupiah > 0 && (
-                <p className="text-base sm:text-lg font-extrabold text-result-glow animate-fade-in-up">
-                  = Rp {formatRupiah(Math.round(reverseRupiah))}
-                </p>
-              )}
-            </div>
-          )}
-        </Section>
+            </button>
+            {reverseOpen && (
+              <div className="mt-3 sm:mt-4 space-y-2.5 animate-fade-in-up">
+                <div className="flex gap-2">
+                  <input
+                    type="text" inputMode="decimal" value={reverseValue}
+                    onChange={(e) => setReverseValue(e.target.value.replace(/[^0-9.]/g, ""))}
+                    placeholder="Jumlah"
+                    aria-label="Jumlah waktu"
+                    className="flex-1 h-10 sm:h-11 px-3 rounded-xl border-2 border-border bg-background text-sm sm:text-base font-semibold focus:outline-none focus:border-accent input-glow transition-colors"
+                  />
+                  <select
+                    value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
+                    aria-label="Satuan waktu"
+                    className="h-10 sm:h-11 px-2 sm:px-3 rounded-xl border-2 border-border bg-background text-xs sm:text-sm font-semibold focus:outline-none focus:border-accent transition-colors"
+                  >
+                    {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
+                  </select>
+                </div>
+                {reverseRupiah > 0 && (
+                  <p className="text-base sm:text-lg font-extrabold text-result-glow animate-fade-in-up">
+                    = Rp {formatRupiah(Math.round(reverseRupiah))}
+                  </p>
+                )}
+              </div>
+            )}
+          </Section>
+        )}
+
 
         {/* History Dialog */}
         <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
