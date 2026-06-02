@@ -702,12 +702,7 @@ export default function Index() {
           <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <div className="flex items-center justify-between gap-2 pr-6">
-                <DialogTitle className="flex items-center gap-2">
-                  Riwayat
-                  <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-                    {history.length}
-                  </span>
-                </DialogTitle>
+                <DialogTitle>Riwayat</DialogTitle>
                 {history.length > 0 && (
                   <button
                     onClick={clearHistory}
@@ -720,6 +715,7 @@ export default function Index() {
               </div>
               <DialogDescription className="sr-only">Daftar perhitungan terakhir Anda</DialogDescription>
             </DialogHeader>
+
             {history.length > 0 ? (
               <HistoryList
                 history={history}
