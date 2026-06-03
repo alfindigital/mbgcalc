@@ -134,17 +134,19 @@ const ResultCard = React.memo(function ResultCard({
     setTimeout(() => setCopied(false), 1500);
   }, [inputFormatted, actualPrimary, rupiah]);
 
-  if (rupiah <= 0) return null;
+  if (rupiah <= 0 && !compact) return null;
 
   return (
     <div className={`relative card-elevated rounded-2xl border-2 border-border animate-fade-in-up ${compact ? "p-3 sm:p-4" : "p-4 sm:p-6 result-glow"}`}>
-      <button
-        onClick={handleCopy}
-        className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-xl hover:bg-muted/80 transition-colors active:scale-95 z-10"
-        aria-label="Salin hasil"
-      >
-        <Copy size={compact ? 13 : 15} className="text-muted-foreground" />
-      </button>
+      {rupiah > 0 && (
+        <button
+          onClick={handleCopy}
+          className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-xl hover:bg-muted/80 transition-colors active:scale-95 z-10"
+          aria-label="Salin hasil"
+        >
+          <Copy size={compact ? 13 : 15} className="text-muted-foreground" />
+        </button>
+      )}
       {copied && (
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full bg-primary text-primary-foreground text-xs px-2.5 py-1 rounded-lg shadow-lg animate-slide-down font-medium">
           Tersalin!
@@ -153,7 +155,6 @@ const ResultCard = React.memo(function ResultCard({
 
       {/* Headline */}
       <div className="text-center">
-        {compact && <div className="text-[11px] text-muted-foreground mb-1.5 font-medium truncate">Rp {inputFormatted}</div>}
         <div className="flex items-baseline justify-center gap-1">
           <span className={`${compact ? "text-xl sm:text-2xl" : "text-4xl sm:text-5xl"} font-extrabold text-result-glow tabular-nums tracking-tight`}>
             {primary.value}
@@ -632,21 +633,19 @@ export default function Index() {
         </div>
 
         {/* Result — Compare */}
-        <div className={`${modeTransition} ${compareMode && (debouncedRupiah > 0 || debouncedRupiah2 > 0) ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
+        <div className={`${modeTransition} ${compareMode ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
           <div className="mt-4 sm:mt-5 space-y-2.5 sm:space-y-3">
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              {debouncedRupiah > 0 && <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} compact />}
-              {debouncedRupiah2 > 0 && <ResultCard rupiah={debouncedRupiah2} totalMs={totalMs2} inputFormatted={inputFormatted2} compact />}
+              <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} compact />
+              <ResultCard rupiah={debouncedRupiah2} totalMs={totalMs2} inputFormatted={inputFormatted2} compact />
             </div>
-            {debouncedRupiah > 0 && debouncedRupiah2 > 0 && (
-              <Section>
-                <p className="text-[11px] text-muted-foreground mb-0.5 text-center font-medium">Selisih</p>
-                <p className="text-xs sm:text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
-                <p className="text-xs sm:text-sm font-bold text-result text-center">
-                  = {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} MBG
-                </p>
-              </Section>
-            )}
+            <Section>
+              <p className="text-[11px] text-muted-foreground mb-0.5 text-center font-medium">Selisih</p>
+              <p className="text-xs sm:text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
+              <p className="text-xs sm:text-sm font-bold text-result text-center">
+                = {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} MBG
+              </p>
+            </Section>
           </div>
         </div>
 
