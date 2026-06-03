@@ -415,10 +415,27 @@ export default function Index() {
   }, [saving, debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
 
   const handleCopyLink = useCallback(() => {
-    const url = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+    const params = new URLSearchParams();
+    if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
+    if (compareMode && debouncedRupiah2 > 0) params.set("compare", String(debouncedRupiah2));
+    const url = `${window.location.origin}${window.location.pathname}${params.toString() ? "?" + params.toString() : ""}`;
     navigator.clipboard.writeText(url);
     toast.success("Tautan disalin!");
-  }, []);
+  }, [debouncedRupiah, debouncedRupiah2, compareMode]);
+
+  const handleCopyCompare = useCallback(() => {
+    const p1 = getPrimaryResult(totalMs);
+    const p2 = getPrimaryResult(totalMs2);
+    const pd = getPrimaryResult(diffMs);
+    const txt =
+      `Bandingkan biaya MBG:\n` +
+      `• Rp ${formatRupiah(debouncedRupiah)} = ${p1.value} ${p1.unit}\n` +
+      `• Rp ${formatRupiah(debouncedRupiah2)} = ${p2.value} ${p2.unit}\n` +
+      `Selisih: Rp ${formatRupiah(Math.round(diffRupiah))} = ${pd.value} ${pd.unit} MBG`;
+    navigator.clipboard.writeText(txt);
+    toast.success("Teks berhasil disalin!");
+    if (debouncedRupiah > 0 && debouncedRupiah2 > 0) addToHistory(debouncedRupiah, debouncedRupiah2);
+  }, [debouncedRupiah, debouncedRupiah2, totalMs, totalMs2, diffMs, diffRupiah, addToHistory]);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
 
