@@ -694,21 +694,18 @@ export default function Index() {
         <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
           <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <div className="flex items-center justify-between gap-2 pr-10 min-h-[28px]">
-                <DialogTitle className="leading-none">Riwayat</DialogTitle>
-                {history.length > 0 && (
-                  <button
-                    onClick={clearHistory}
-                    aria-label="Hapus semua riwayat"
-                    className="inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors active:scale-95"
-                  >
-                    <Trash2 size={14} aria-hidden="true" />
-                  </button>
-                )}
-              </div>
-
+              <DialogTitle className="leading-none">Riwayat</DialogTitle>
               <DialogDescription className="sr-only">Daftar perhitungan terakhir Anda</DialogDescription>
             </DialogHeader>
+            {history.length > 0 && (
+              <button
+                onClick={clearHistory}
+                aria-label="Hapus semua riwayat"
+                className="absolute right-12 top-4 inline-flex items-center justify-center h-4 w-4 rounded-sm text-muted-foreground hover:text-destructive transition-colors"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+              </button>
+            )}
 
             {history.length > 0 ? (
               <HistoryList
