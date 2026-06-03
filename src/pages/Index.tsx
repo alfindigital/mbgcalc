@@ -680,9 +680,14 @@ export default function Index() {
                   </select>
                 </div>
                 {reverseRupiah > 0 && (
-                  <p className="text-base sm:text-lg font-extrabold text-result-glow animate-fade-in-up">
-                    = Rp {formatRupiah(Math.round(reverseRupiah))}
-                  </p>
+                  <div className="space-y-1 animate-fade-in-up">
+                    <p className="text-base sm:text-lg font-extrabold text-result-glow">
+                      = Rp {formatRupiah(Math.round(reverseRupiah))}
+                    </p>
+                    <p className="text-xs text-muted-foreground italic capitalize">
+                      {terbilang(Math.round(reverseRupiah))} rupiah
+                    </p>
+                  </div>
                 )}
               </div>
             )}
