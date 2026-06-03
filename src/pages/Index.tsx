@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useHistory } from "@/hooks/useHistory";
 import { MBG_DAILY_COST, MBG_COST_PER_PORSI, MBG_DATA_UPDATED, MBG_SOURCES } from "@/lib/mbg-constants";
+import { terbilang } from "@/lib/terbilang";
 
 // ─── Constants ───
 const MS_PER_DAY = 86_400_000;
@@ -679,9 +680,14 @@ export default function Index() {
                   </select>
                 </div>
                 {reverseRupiah > 0 && (
-                  <p className="text-base sm:text-lg font-extrabold text-result-glow animate-fade-in-up">
-                    = Rp {formatRupiah(Math.round(reverseRupiah))}
-                  </p>
+                  <div className="space-y-1 animate-fade-in-up">
+                    <p className="text-base sm:text-lg font-extrabold text-result-glow">
+                      = Rp {formatRupiah(Math.round(reverseRupiah))}
+                    </p>
+                    <p className="text-xs text-muted-foreground italic capitalize">
+                      {terbilang(Math.round(reverseRupiah))} rupiah
+                    </p>
+                  </div>
                 )}
               </div>
             )}
