@@ -874,19 +874,51 @@ export default function Index() {
               <div style={{ fontSize: isWide ? 32 : 36, fontWeight: 800, letterSpacing: 2 }}>KALKULATOR MBG</div>
               <div style={{ fontSize: 18, opacity: 0.8, marginTop: 6 }}>Makan Bergizi Gratis</div>
             </div>
-            <div style={{
-              background: "white", borderRadius: 24, padding: isWide ? "36px 56px" : "48px 56px",
-              width: isWide ? "70%" : "85%",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
-            }}>
-              <div style={{ fontSize: 30, fontWeight: 700, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
-              <div style={{ fontSize: 44, margin: "12px 0", color: "#888" }}>↓</div>
-              {primary && (
-                <div style={{ fontSize: 40, fontWeight: 800, color: "#FF6600" }}>
-                  {primary.value} {primary.unit} MBG
+            {compareMode ? (() => {
+              const p1 = getPrimaryResult(totalMs);
+              const p2 = getPrimaryResult(totalMs2);
+              const pd = getPrimaryResult(diffMs);
+              return (
+                <div style={{
+                  background: "white", borderRadius: 24, padding: isWide ? "32px 48px" : "40px 48px",
+                  width: isWide ? "78%" : "88%",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
+                }}>
+                  <div style={{ display: "flex", gap: 20, justifyContent: "center", alignItems: "stretch" }}>
+                    <div style={{ flex: 1, padding: "16px 8px", borderRadius: 16, background: "#f5f7fa" }}>
+                      <div style={{ fontSize: 18, fontWeight: 600, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: "#FF6600", marginTop: 8 }}>{p1.value}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#FF6600", opacity: 0.85 }}>{p1.unit} MBG</div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", fontSize: 24, fontWeight: 800, color: "#888" }}>VS</div>
+                    <div style={{ flex: 1, padding: "16px 8px", borderRadius: 16, background: "#f5f7fa" }}>
+                      <div style={{ fontSize: 18, fontWeight: 600, color: "#003366" }}>Rp {inputFormatted2 || "0"}</div>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: "#FF6600", marginTop: 8 }}>{p2.value}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#FF6600", opacity: 0.85 }}>{p2.unit} MBG</div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 24, paddingTop: 20, borderTop: "2px dashed #e0e0e0" }}>
+                    <div style={{ fontSize: 13, color: "#888", fontWeight: 600 }}>SELISIH</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: "#003366", marginTop: 4 }}>Rp {formatRupiah(Math.round(diffRupiah))}</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: "#FF6600", marginTop: 4 }}>= {pd.value} {pd.unit} MBG</div>
+                  </div>
                 </div>
-              )}
-            </div>
+              );
+            })() : (
+              <div style={{
+                background: "white", borderRadius: 24, padding: isWide ? "36px 56px" : "48px 56px",
+                width: isWide ? "70%" : "85%",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
+              }}>
+                <div style={{ fontSize: 30, fontWeight: 700, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
+                <div style={{ fontSize: 44, margin: "12px 0", color: "#888" }}>↓</div>
+                {primary && (
+                  <div style={{ fontSize: 40, fontWeight: 800, color: "#FF6600" }}>
+                    {primary.value} {primary.unit} MBG
+                  </div>
+                )}
+              </div>
+            )}
             <div style={{ color: "white", textAlign: "center", marginTop: isWide ? 20 : 36, fontSize: 14 }}>
               <div style={{ opacity: 0.9 }}>Proyeksi biaya harian program MBG: Rp 1,2 Triliun/hari</div>
               <div style={{ opacity: 0.6, marginTop: 4, fontSize: 12 }}>Sumber: BGN (Badan Gizi Nasional)</div>
