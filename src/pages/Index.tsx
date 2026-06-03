@@ -415,10 +415,27 @@ export default function Index() {
   }, [saving, debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
 
   const handleCopyLink = useCallback(() => {
-    const url = `${window.location.origin}${window.location.pathname}${window.location.search}`;
+    const params = new URLSearchParams();
+    if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
+    if (compareMode && debouncedRupiah2 > 0) params.set("compare", String(debouncedRupiah2));
+    const url = `${window.location.origin}${window.location.pathname}${params.toString() ? "?" + params.toString() : ""}`;
     navigator.clipboard.writeText(url);
     toast.success("Tautan disalin!");
-  }, []);
+  }, [debouncedRupiah, debouncedRupiah2, compareMode]);
+
+  const handleCopyCompare = useCallback(() => {
+    const p1 = getPrimaryResult(totalMs);
+    const p2 = getPrimaryResult(totalMs2);
+    const pd = getPrimaryResult(diffMs);
+    const txt =
+      `Bandingkan biaya MBG:\n` +
+      `• Rp ${formatRupiah(debouncedRupiah)} = ${p1.value} ${p1.unit}\n` +
+      `• Rp ${formatRupiah(debouncedRupiah2)} = ${p2.value} ${p2.unit}\n` +
+      `Selisih: Rp ${formatRupiah(Math.round(diffRupiah))} = ${pd.value} ${pd.unit} MBG`;
+    navigator.clipboard.writeText(txt);
+    toast.success("Teks berhasil disalin!");
+    if (debouncedRupiah > 0 && debouncedRupiah2 > 0) addToHistory(debouncedRupiah, debouncedRupiah2);
+  }, [debouncedRupiah, debouncedRupiah2, totalMs, totalMs2, diffMs, diffRupiah, addToHistory]);
 
   const primary = useMemo(() => (debouncedRupiah > 0 ? getPrimaryResult(totalMs) : null), [debouncedRupiah, totalMs]);
 
@@ -646,6 +663,50 @@ export default function Index() {
                 = {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} MBG
               </p>
             </Section>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={handleCopyCompare}
+                aria-label="Salin teks perbandingan ke clipboard"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+                disabled={!(debouncedRupiah > 0 && debouncedRupiah2 > 0)}
+              >
+                <Copy size={13} aria-hidden="true" />
+                Salin
+              </button>
+              <button
+                onClick={handleCopyLink}
+                aria-label="Salin tautan perbandingan ke clipboard"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+                disabled={!(debouncedRupiah > 0 && debouncedRupiah2 > 0)}
+              >
+                <Link2 size={13} aria-hidden="true" />
+                Tautan
+              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    disabled={saving || !(debouncedRupiah > 0 && debouncedRupiah2 > 0)}
+                    aria-label="Simpan perbandingan sebagai gambar, pilih rasio"
+                    className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <Download size={13} aria-hidden="true" />
+                    {saving ? "..." : "Gambar"}
+                    <ChevronDown size={11} className="opacity-70" aria-hidden="true" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44" loop>
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("1:1"); }} className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                    <div className="flex flex-col"><span className="font-semibold text-xs">1:1 — IG Feed</span><span className="text-[10px] text-muted-foreground">1080 × 1080</span></div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("9:16"); }} className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                    <div className="flex flex-col"><span className="font-semibold text-xs">9:16 — Story / Reels</span><span className="text-[10px] text-muted-foreground">1080 × 1920</span></div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("16:9"); }} className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                    <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
 
@@ -813,19 +874,51 @@ export default function Index() {
               <div style={{ fontSize: isWide ? 32 : 36, fontWeight: 800, letterSpacing: 2 }}>KALKULATOR MBG</div>
               <div style={{ fontSize: 18, opacity: 0.8, marginTop: 6 }}>Makan Bergizi Gratis</div>
             </div>
-            <div style={{
-              background: "white", borderRadius: 24, padding: isWide ? "36px 56px" : "48px 56px",
-              width: isWide ? "70%" : "85%",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
-            }}>
-              <div style={{ fontSize: 30, fontWeight: 700, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
-              <div style={{ fontSize: 44, margin: "12px 0", color: "#888" }}>↓</div>
-              {primary && (
-                <div style={{ fontSize: 40, fontWeight: 800, color: "#FF6600" }}>
-                  {primary.value} {primary.unit} MBG
+            {compareMode ? (() => {
+              const p1 = getPrimaryResult(totalMs);
+              const p2 = getPrimaryResult(totalMs2);
+              const pd = getPrimaryResult(diffMs);
+              return (
+                <div style={{
+                  background: "white", borderRadius: 24, padding: isWide ? "32px 48px" : "40px 48px",
+                  width: isWide ? "78%" : "88%",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
+                }}>
+                  <div style={{ display: "flex", gap: 20, justifyContent: "center", alignItems: "stretch" }}>
+                    <div style={{ flex: 1, padding: "16px 8px", borderRadius: 16, background: "#f5f7fa" }}>
+                      <div style={{ fontSize: 18, fontWeight: 600, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: "#FF6600", marginTop: 8 }}>{p1.value}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#FF6600", opacity: 0.85 }}>{p1.unit} MBG</div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", fontSize: 24, fontWeight: 800, color: "#888" }}>VS</div>
+                    <div style={{ flex: 1, padding: "16px 8px", borderRadius: 16, background: "#f5f7fa" }}>
+                      <div style={{ fontSize: 18, fontWeight: 600, color: "#003366" }}>Rp {inputFormatted2 || "0"}</div>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: "#FF6600", marginTop: 8 }}>{p2.value}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#FF6600", opacity: 0.85 }}>{p2.unit} MBG</div>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 24, paddingTop: 20, borderTop: "2px dashed #e0e0e0" }}>
+                    <div style={{ fontSize: 13, color: "#888", fontWeight: 600 }}>SELISIH</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: "#003366", marginTop: 4 }}>Rp {formatRupiah(Math.round(diffRupiah))}</div>
+                    <div style={{ fontSize: 18, fontWeight: 700, color: "#FF6600", marginTop: 4 }}>= {pd.value} {pd.unit} MBG</div>
+                  </div>
                 </div>
-              )}
-            </div>
+              );
+            })() : (
+              <div style={{
+                background: "white", borderRadius: 24, padding: isWide ? "36px 56px" : "48px 56px",
+                width: isWide ? "70%" : "85%",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.3)", textAlign: "center",
+              }}>
+                <div style={{ fontSize: 30, fontWeight: 700, color: "#003366" }}>Rp {inputFormatted || "0"}</div>
+                <div style={{ fontSize: 44, margin: "12px 0", color: "#888" }}>↓</div>
+                {primary && (
+                  <div style={{ fontSize: 40, fontWeight: 800, color: "#FF6600" }}>
+                    {primary.value} {primary.unit} MBG
+                  </div>
+                )}
+              </div>
+            )}
             <div style={{ color: "white", textAlign: "center", marginTop: isWide ? 20 : 36, fontSize: 14 }}>
               <div style={{ opacity: 0.9 }}>Proyeksi biaya harian program MBG: Rp 1,2 Triliun/hari</div>
               <div style={{ opacity: 0.6, marginTop: 4, fontSize: 12 }}>Sumber: BGN (Badan Gizi Nasional)</div>
