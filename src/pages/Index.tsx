@@ -663,6 +663,50 @@ export default function Index() {
                 = {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} MBG
               </p>
             </Section>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={handleCopyCompare}
+                aria-label="Salin teks perbandingan ke clipboard"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+                disabled={!(debouncedRupiah > 0 && debouncedRupiah2 > 0)}
+              >
+                <Copy size={13} aria-hidden="true" />
+                Salin
+              </button>
+              <button
+                onClick={handleCopyLink}
+                aria-label="Salin tautan perbandingan ke clipboard"
+                className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50"
+                disabled={!(debouncedRupiah > 0 && debouncedRupiah2 > 0)}
+              >
+                <Link2 size={13} aria-hidden="true" />
+                Tautan
+              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    disabled={saving || !(debouncedRupiah > 0 && debouncedRupiah2 > 0)}
+                    aria-label="Simpan perbandingan sebagai gambar, pilih rasio"
+                    className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <Download size={13} aria-hidden="true" />
+                    {saving ? "..." : "Gambar"}
+                    <ChevronDown size={11} className="opacity-70" aria-hidden="true" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44" loop>
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("1:1"); }} className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                    <div className="flex flex-col"><span className="font-semibold text-xs">1:1 — IG Feed</span><span className="text-[10px] text-muted-foreground">1080 × 1080</span></div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("9:16"); }} className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                    <div className="flex flex-col"><span className="font-semibold text-xs">9:16 — Story / Reels</span><span className="text-[10px] text-muted-foreground">1080 × 1920</span></div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("16:9"); }} className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                    <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
 
