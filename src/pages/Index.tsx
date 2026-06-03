@@ -633,21 +633,19 @@ export default function Index() {
         </div>
 
         {/* Result — Compare */}
-        <div className={`${modeTransition} ${compareMode && (debouncedRupiah > 0 || debouncedRupiah2 > 0) ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
+        <div className={`${modeTransition} ${compareMode ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
           <div className="mt-4 sm:mt-5 space-y-2.5 sm:space-y-3">
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              {debouncedRupiah > 0 && <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} compact />}
-              {debouncedRupiah2 > 0 && <ResultCard rupiah={debouncedRupiah2} totalMs={totalMs2} inputFormatted={inputFormatted2} compact />}
+              <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} compact />
+              <ResultCard rupiah={debouncedRupiah2} totalMs={totalMs2} inputFormatted={inputFormatted2} compact />
             </div>
-            {debouncedRupiah > 0 && debouncedRupiah2 > 0 && (
-              <Section>
-                <p className="text-[11px] text-muted-foreground mb-0.5 text-center font-medium">Selisih</p>
-                <p className="text-xs sm:text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
-                <p className="text-xs sm:text-sm font-bold text-result text-center">
-                  = {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} MBG
-                </p>
-              </Section>
-            )}
+            <Section>
+              <p className="text-[11px] text-muted-foreground mb-0.5 text-center font-medium">Selisih</p>
+              <p className="text-xs sm:text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
+              <p className="text-xs sm:text-sm font-bold text-result text-center">
+                = {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} MBG
+              </p>
+            </Section>
           </div>
         </div>
 
