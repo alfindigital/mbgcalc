@@ -308,20 +308,9 @@ export default function Index() {
     }
   }, [debouncedRupiah, debouncedRupiah2, compareMode, addToHistory]);
 
-  // Sync state ↔ URL (deep-link)
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const params = new URLSearchParams();
-      if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
-      if (compareMode && debouncedRupiah2 > 0) params.set("compare", String(debouncedRupiah2));
-      const qs = params.toString();
-      const newUrl = `${window.location.pathname}${qs ? "?" + qs : ""}`;
-      if (newUrl !== window.location.pathname + window.location.search) {
-        window.history.replaceState(null, "", newUrl);
-      }
-    }, 400);
-    return () => clearTimeout(t);
-  }, [debouncedRupiah, debouncedRupiah2, compareMode]);
+  // URL sync removed — was causing perceived "auto refresh" / focus jitter in preview iframe.
+  // Deep-link initial load still works from ?amount=...&compare=... on mount.
+  // Share/Embed buttons build their own URL on demand.
 
   // Konfeti milestone (1T / 10T / 71T)
   const firedMilestones = useRef<Set<number>>(new Set());
