@@ -264,7 +264,7 @@ export default function Index() {
     return a > 0 ? formatRupiah(a) : "";
   });
   const [activeQuick, setActiveQuick] = useState<number | null>(null);
-  const [reverseOpen, setReverseOpen] = useState(false);
+  const [reverseMode, setReverseMode] = useState(false);
   const [reverseValue, setReverseValue] = useState("");
   const [reverseUnit, setReverseUnit] = useState("detik");
   const [saving, setSaving] = useState(false);
@@ -482,21 +482,28 @@ export default function Index() {
         <div className="flex items-center justify-center mb-4 sm:mb-5">
           <div className="inline-flex rounded-xl border bg-muted/50 p-0.5 sm:p-1 text-sm">
             <button
-              onClick={() => setCompareMode(false)}
+              onClick={() => { setCompareMode(false); setReverseMode(false); }}
               className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
-                !compareMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
+                !compareMode && !reverseMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
               }`}
             >
               Normal
             </button>
             <button
-              onClick={() => setCompareMode(true)}
-              className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all flex items-center gap-1 text-xs sm:text-sm ${
+              onClick={() => { setCompareMode(true); setReverseMode(false); }}
+              className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
                 compareMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
               }`}
             >
-              <ArrowLeftRight size={13} />
-              Bandingkan
+              Banding
+            </button>
+            <button
+              onClick={() => { setReverseMode(true); setCompareMode(false); }}
+              className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
+                reverseMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
+              }`}
+            >
+              Balik
             </button>
           </div>
         </div>
