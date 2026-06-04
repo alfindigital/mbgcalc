@@ -487,7 +487,7 @@ export default function Index() {
                 !compareMode && !reverseMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
               }`}
             >
-              Normal
+              Hitung
             </button>
             <button
               onClick={() => { setCompareMode(true); setReverseMode(false); }}
@@ -495,7 +495,7 @@ export default function Index() {
                 compareMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
               }`}
             >
-              Banding
+              Beda
             </button>
             <button
               onClick={() => { setReverseMode(true); setCompareMode(false); }}
