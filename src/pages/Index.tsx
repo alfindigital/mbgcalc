@@ -617,7 +617,7 @@ export default function Index() {
                 className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <Copy size={13} aria-hidden="true" />
-                Salin
+                Teks
               </button>
               <button
                 onClick={handleCopyLink}
@@ -625,7 +625,7 @@ export default function Index() {
                 className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 <Link2 size={13} aria-hidden="true" />
-                Tautan
+                Link
               </button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -635,7 +635,7 @@ export default function Index() {
                     className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     <Download size={13} aria-hidden="true" />
-                    {saving ? "..." : "Gambar"}
+                    {saving ? "..." : "PNG"}
                     <ChevronDown size={11} className="opacity-70" aria-hidden="true" />
                   </button>
                 </DropdownMenuTrigger>
@@ -678,7 +678,7 @@ export default function Index() {
                 disabled={!(debouncedRupiah > 0 && debouncedRupiah2 > 0)}
               >
                 <Copy size={13} aria-hidden="true" />
-                Salin
+                Teks
               </button>
               <button
                 onClick={handleCopyLink}
@@ -687,7 +687,7 @@ export default function Index() {
                 disabled={!(debouncedRupiah > 0 && debouncedRupiah2 > 0)}
               >
                 <Link2 size={13} aria-hidden="true" />
-                Tautan
+                Link
               </button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -697,7 +697,7 @@ export default function Index() {
                     className="h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     <Download size={13} aria-hidden="true" />
-                    {saving ? "..." : "Gambar"}
+                    {saving ? "..." : "PNG"}
                     <ChevronDown size={11} className="opacity-70" aria-hidden="true" />
                   </button>
                 </DropdownMenuTrigger>
