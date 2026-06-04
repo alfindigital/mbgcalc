@@ -717,9 +717,6 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Reverse Mode — hidden in compare mode, state preserved */}
-        <div className={`${modeTransition} ${!compareMode ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={compareMode}>
-          <Section className="mt-4 sm:mt-6">
         {/* Reverse Mode — its own tab */}
         <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
           <Section className="mt-1">
