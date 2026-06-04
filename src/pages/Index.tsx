@@ -134,7 +134,7 @@ const ResultCard = React.memo(function ResultCard({
     setTimeout(() => setCopied(false), 1500);
   }, [inputFormatted, actualPrimary, rupiah]);
 
-  if (rupiah <= 0 && !compact) return null;
+  
 
   return (
     <div className={`relative card-elevated rounded-2xl border-2 border-border animate-fade-in-up ${compact ? "p-3 sm:p-4" : "p-4 sm:p-6 result-glow"}`}>
@@ -595,7 +595,7 @@ export default function Index() {
         </div>
 
         {/* Result — Normal */}
-        <div className={`${modeTransition} ${!compareMode && debouncedRupiah > 0 ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
+        <div className={`${modeTransition} ${!compareMode ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
           <div className="mt-4 sm:mt-6 space-y-2.5 sm:space-y-3">
             <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} inputFormatted={inputFormatted} />
             <div className="grid grid-cols-3 gap-2">
