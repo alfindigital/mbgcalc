@@ -466,11 +466,11 @@ export default function Index() {
 
         {/* Mode Toggle */}
         <div className="flex items-center justify-center mb-4 sm:mb-5">
-          <div className="inline-flex rounded-xl border bg-muted/50 p-0.5 sm:p-1 text-sm">
+          <div className="inline-flex rounded-xl border-2 border-primary/15 bg-muted/50 p-0.5 sm:p-1 text-sm shadow-sm">
             <button
               onClick={() => { setCompareMode(false); setReverseMode(false); }}
               className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
-                !compareMode && !reverseMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
+                !compareMode && !reverseMode ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:text-primary"
               }`}
             >
               Hitung
@@ -478,15 +478,15 @@ export default function Index() {
             <button
               onClick={() => { setCompareMode(true); setReverseMode(false); }}
               className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
-                compareMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
+                compareMode ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:text-primary"
               }`}
             >
-              Beda
+              Selisih
             </button>
             <button
               onClick={() => { setReverseMode(true); setCompareMode(false); }}
               className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
-                reverseMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
+                reverseMode ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:text-primary"
               }`}
             >
               Balik
