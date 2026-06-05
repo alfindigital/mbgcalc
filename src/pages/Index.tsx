@@ -795,9 +795,9 @@ export default function Index() {
 
         {/* Footer */}
         </main>
-        <footer className="border-t border-border/60 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
-          <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
-            <span>made by M. Alfin</span>
+        <footer className="border-t-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
+          <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-primary/80 font-medium">
+            <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
             <span className="text-muted-foreground/50">·</span>
             <Popover>
               <PopoverTrigger asChild>
