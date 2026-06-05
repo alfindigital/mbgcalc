@@ -138,20 +138,6 @@ const ResultCard = React.memo(function ResultCard({
 
   return (
     <div className={`relative card-elevated rounded-2xl border-2 border-border animate-fade-in-up ${compact ? "p-3 sm:p-4" : "p-4 sm:p-6 result-glow"}`}>
-      {rupiah > 0 && (
-        <button
-          onClick={handleCopy}
-          className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-xl hover:bg-muted/80 transition-colors active:scale-95 z-10"
-          aria-label="Salin hasil"
-        >
-          <Copy size={compact ? 13 : 15} className="text-muted-foreground" />
-        </button>
-      )}
-      {copied && (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full bg-primary text-primary-foreground text-xs px-2.5 py-1 rounded-lg shadow-lg animate-slide-down font-medium">
-          Tersalin!
-        </div>
-      )}
 
       {/* Headline */}
       <div className="text-center">
@@ -480,11 +466,11 @@ export default function Index() {
 
         {/* Mode Toggle */}
         <div className="flex items-center justify-center mb-4 sm:mb-5">
-          <div className="inline-flex rounded-xl border bg-muted/50 p-0.5 sm:p-1 text-sm">
+          <div className="inline-flex rounded-xl border-2 border-primary/15 bg-muted/50 p-0.5 sm:p-1 text-sm shadow-sm">
             <button
               onClick={() => { setCompareMode(false); setReverseMode(false); }}
               className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
-                !compareMode && !reverseMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
+                !compareMode && !reverseMode ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:text-primary"
               }`}
             >
               Hitung
@@ -492,15 +478,15 @@ export default function Index() {
             <button
               onClick={() => { setCompareMode(true); setReverseMode(false); }}
               className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
-                compareMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
+                compareMode ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:text-primary"
               }`}
             >
-              Beda
+              Selisih
             </button>
             <button
               onClick={() => { setReverseMode(true); setCompareMode(false); }}
               className={`px-4 sm:px-5 py-1.5 sm:py-2 rounded-lg font-semibold transition-all text-xs sm:text-sm ${
-                reverseMode ? "bg-card text-foreground shadow-md" : "text-muted-foreground"
+                reverseMode ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:text-primary"
               }`}
             >
               Balik
@@ -718,40 +704,63 @@ export default function Index() {
         </div>
 
         {/* Reverse Mode — its own tab */}
-        <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
-          <Section className="mt-1">
-            <h2 className="font-bold text-xs sm:text-sm mb-3">Mode Balik</h2>
-            <div className="space-y-2.5">
-              <div className="flex gap-2">
+        <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-[600px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex gap-2">
+              <div className="relative flex-1 flex items-center group">
                 <input
                   type="text" inputMode="decimal" value={reverseValue}
                   onChange={(e) => setReverseValue(e.target.value.replace(/[^0-9.]/g, ""))}
-                  placeholder="Jumlah"
+                  placeholder="Ketik jumlah..."
                   aria-label="Jumlah waktu"
                   tabIndex={reverseMode ? 0 : -1}
-                  className="flex-1 h-10 sm:h-11 px-3 rounded-xl border-2 border-border bg-background text-sm sm:text-base font-semibold focus:outline-none focus:border-accent input-glow transition-colors"
+                  className="w-full h-12 sm:h-14 px-3.5 sm:px-4 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-foreground/40 placeholder:font-normal"
                 />
-                <select
-                  value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
-                  aria-label="Satuan waktu"
-                  tabIndex={reverseMode ? 0 : -1}
-                  className="h-10 sm:h-11 px-2 sm:px-3 rounded-xl border-2 border-border bg-background text-xs sm:text-sm font-semibold focus:outline-none focus:border-accent transition-colors"
-                >
-                  {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
-                </select>
               </div>
-              {reverseRupiah > 0 && (
-                <div className="space-y-1 animate-fade-in-up">
-                  <p className="text-base sm:text-lg font-extrabold text-result-glow">
-                    = Rp {formatRupiah(Math.round(reverseRupiah))}
-                  </p>
-                  <p className="text-xs text-muted-foreground italic capitalize">
+              <select
+                value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
+                aria-label="Satuan waktu"
+                tabIndex={reverseMode ? 0 : -1}
+                className="h-12 sm:h-14 px-3 sm:px-4 rounded-2xl border-2 border-border bg-card text-sm sm:text-base font-bold text-primary focus:outline-none focus:border-accent transition-colors cursor-pointer"
+              >
+                {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
+              </select>
+            </div>
+
+            <div className={`relative card-elevated rounded-2xl border-2 border-border p-4 sm:p-6 result-glow animate-fade-in-up`}>
+              <div className="text-center">
+                <p className="text-[11px] sm:text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Setara dengan</p>
+                <div className="flex items-baseline justify-center gap-1.5 flex-wrap">
+                  <span className="text-xs sm:text-sm font-bold text-result/70">Rp</span>
+                  <span className="text-3xl sm:text-4xl font-extrabold text-result-glow tabular-nums tracking-tight">
+                    {formatRupiah(Math.round(reverseRupiah))}
+                  </span>
+                </div>
+                {reverseRupiah > 0 && (
+                  <p className="text-[11px] sm:text-xs text-muted-foreground italic capitalize mt-2 leading-snug">
                     {terbilang(Math.round(reverseRupiah))} rupiah
                   </p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </Section>
+
+            <button
+              onClick={() => {
+                if (reverseRupiah <= 0) return;
+                const unitLabel = UNITS.find((u) => u.key === reverseUnit)?.label.toLowerCase() ?? "";
+                navigator.clipboard.writeText(
+                  `${reverseValue} ${unitLabel} MBG = Rp ${formatRupiah(Math.round(reverseRupiah))}`
+                );
+                toast.success("Teks berhasil disalin!");
+              }}
+              disabled={reverseRupiah <= 0}
+              aria-label="Salin hasil ke clipboard"
+              className="w-full h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Copy size={13} aria-hidden="true" />
+              Salin Teks
+            </button>
+          </div>
         </div>
 
 
@@ -786,9 +795,9 @@ export default function Index() {
 
         {/* Footer */}
         </main>
-        <footer className="border-t border-border/60 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
-          <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
-            <span>made by M. Alfin</span>
+        <footer className="border-t-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
+          <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-primary/80 font-medium">
+            <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
             <span className="text-muted-foreground/50">·</span>
             <Popover>
               <PopoverTrigger asChild>
