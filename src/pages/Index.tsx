@@ -704,40 +704,63 @@ export default function Index() {
         </div>
 
         {/* Reverse Mode — its own tab */}
-        <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-[500px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
-          <Section className="mt-1">
-            <h2 className="font-bold text-xs sm:text-sm mb-3">Mode Balik</h2>
-            <div className="space-y-2.5">
-              <div className="flex gap-2">
+        <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-[600px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="flex gap-2">
+              <div className="relative flex-1 flex items-center group">
                 <input
                   type="text" inputMode="decimal" value={reverseValue}
                   onChange={(e) => setReverseValue(e.target.value.replace(/[^0-9.]/g, ""))}
-                  placeholder="Jumlah"
+                  placeholder="Ketik jumlah..."
                   aria-label="Jumlah waktu"
                   tabIndex={reverseMode ? 0 : -1}
-                  className="flex-1 h-10 sm:h-11 px-3 rounded-xl border-2 border-border bg-background text-sm sm:text-base font-semibold focus:outline-none focus:border-accent input-glow transition-colors"
+                  className="w-full h-12 sm:h-14 px-3.5 sm:px-4 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-foreground/40 placeholder:font-normal"
                 />
-                <select
-                  value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
-                  aria-label="Satuan waktu"
-                  tabIndex={reverseMode ? 0 : -1}
-                  className="h-10 sm:h-11 px-2 sm:px-3 rounded-xl border-2 border-border bg-background text-xs sm:text-sm font-semibold focus:outline-none focus:border-accent transition-colors"
-                >
-                  {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
-                </select>
               </div>
-              {reverseRupiah > 0 && (
-                <div className="space-y-1 animate-fade-in-up">
-                  <p className="text-base sm:text-lg font-extrabold text-result-glow">
-                    = Rp {formatRupiah(Math.round(reverseRupiah))}
-                  </p>
-                  <p className="text-xs text-muted-foreground italic capitalize">
+              <select
+                value={reverseUnit} onChange={(e) => setReverseUnit(e.target.value)}
+                aria-label="Satuan waktu"
+                tabIndex={reverseMode ? 0 : -1}
+                className="h-12 sm:h-14 px-3 sm:px-4 rounded-2xl border-2 border-border bg-card text-sm sm:text-base font-bold text-primary focus:outline-none focus:border-accent transition-colors cursor-pointer"
+              >
+                {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
+              </select>
+            </div>
+
+            <div className={`relative card-elevated rounded-2xl border-2 border-border p-4 sm:p-6 result-glow animate-fade-in-up`}>
+              <div className="text-center">
+                <p className="text-[11px] sm:text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Setara dengan</p>
+                <div className="flex items-baseline justify-center gap-1.5 flex-wrap">
+                  <span className="text-xs sm:text-sm font-bold text-result/70">Rp</span>
+                  <span className="text-3xl sm:text-4xl font-extrabold text-result-glow tabular-nums tracking-tight">
+                    {formatRupiah(Math.round(reverseRupiah))}
+                  </span>
+                </div>
+                {reverseRupiah > 0 && (
+                  <p className="text-[11px] sm:text-xs text-muted-foreground italic capitalize mt-2 leading-snug">
                     {terbilang(Math.round(reverseRupiah))} rupiah
                   </p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </Section>
+
+            <button
+              onClick={() => {
+                if (reverseRupiah <= 0) return;
+                const unitLabel = UNITS.find((u) => u.key === reverseUnit)?.label.toLowerCase() ?? "";
+                navigator.clipboard.writeText(
+                  `${reverseValue} ${unitLabel} MBG = Rp ${formatRupiah(Math.round(reverseRupiah))}`
+                );
+                toast.success("Teks berhasil disalin!");
+              }}
+              disabled={reverseRupiah <= 0}
+              aria-label="Salin hasil ke clipboard"
+              className="w-full h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.97] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Copy size={13} aria-hidden="true" />
+              Salin Teks
+            </button>
+          </div>
         </div>
 
 
