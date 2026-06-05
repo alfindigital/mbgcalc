@@ -442,10 +442,11 @@ export default function Index() {
             {history.length > 0 && (
               <button
                 onClick={() => setHistoryOpen(true)}
-                className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm"
-                aria-label="Buka riwayat"
+                type="button"
+                className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label={`Buka riwayat (${history.length})`}
               >
-                <History size={17} className="text-muted-foreground" />
+                <History size={17} className="text-muted-foreground" aria-hidden="true" />
               </button>
             )}
 
