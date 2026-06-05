@@ -138,20 +138,6 @@ const ResultCard = React.memo(function ResultCard({
 
   return (
     <div className={`relative card-elevated rounded-2xl border-2 border-border animate-fade-in-up ${compact ? "p-3 sm:p-4" : "p-4 sm:p-6 result-glow"}`}>
-      {rupiah > 0 && (
-        <button
-          onClick={handleCopy}
-          className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-xl hover:bg-muted/80 transition-colors active:scale-95 z-10"
-          aria-label="Salin hasil"
-        >
-          <Copy size={compact ? 13 : 15} className="text-muted-foreground" />
-        </button>
-      )}
-      {copied && (
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full bg-primary text-primary-foreground text-xs px-2.5 py-1 rounded-lg shadow-lg animate-slide-down font-medium">
-          Tersalin!
-        </div>
-      )}
 
       {/* Headline */}
       <div className="text-center">
