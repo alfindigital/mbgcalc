@@ -115,24 +115,9 @@ const ResultCard = React.memo(function ResultCard({
   rupiah: number; totalMs: number; inputFormatted: string; compact?: boolean;
 }) {
   const animatedMs = useAnimatedNumber(totalMs, 400);
-  
   const primary = getPrimaryResult(animatedMs);
-  const [copied, setCopied] = useState(false);
-  const actualPrimary = getPrimaryResult(totalMs);
 
 
-
-
-  const handleCopy = useCallback(() => {
-    const porsiTxt = formatCompact(rupiah / MBG_COST_PER_PORSI);
-    const hariTxt = formatCompact(rupiah / MBG_DAILY_COST);
-    navigator.clipboard.writeText(
-      `Rp ${inputFormatted} = ${porsiTxt} porsi MBG = ${hariTxt} hari operasional (${actualPrimary.value} ${actualPrimary.unit})`
-    );
-    setCopied(true);
-    toast.success("Teks berhasil disalin!");
-    setTimeout(() => setCopied(false), 1500);
-  }, [inputFormatted, actualPrimary, rupiah]);
 
   
 
@@ -149,7 +134,7 @@ const ResultCard = React.memo(function ResultCard({
             {primary.unit}
           </span>
         </div>
-        <span className={`${compact ? "text-[10px]" : "text-xs sm:text-sm"} font-semibold text-result/70`}>operasional MBG</span>
+        <span className={`${compact ? "text-[10px]" : "text-xs sm:text-sm"} font-semibold text-muted-foreground`}>operasional MBG</span>
       </div>
 
 
@@ -516,7 +501,7 @@ export default function Index() {
                   onPaste={handlePaste}
                   placeholder="Ketik jumlah..."
                   aria-label="Jumlah Rupiah"
-                  className="w-full h-12 sm:h-14 pl-10 sm:pl-11 pr-10 sm:pr-11 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-foreground/40 placeholder:font-normal"
+                  className="w-full h-12 sm:h-14 pl-10 sm:pl-11 pr-10 sm:pr-11 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-muted-foreground placeholder:font-normal"
                   tabIndex={compareMode ? -1 : 0}
                 />
                 {rawInput && (
@@ -718,7 +703,7 @@ export default function Index() {
                   placeholder="Ketik jumlah..."
                   aria-label="Jumlah waktu"
                   tabIndex={reverseMode ? 0 : -1}
-                  className="w-full h-12 sm:h-14 px-3.5 sm:px-4 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-foreground/40 placeholder:font-normal"
+                  className="w-full h-12 sm:h-14 px-3.5 sm:px-4 rounded-2xl border-2 border-border bg-card text-base sm:text-lg font-bold focus:outline-none focus:border-accent input-glow transition-colors placeholder:text-muted-foreground placeholder:font-normal"
                 />
               </div>
               <select
@@ -800,9 +785,10 @@ export default function Index() {
         {/* Footer */}
         </main>
         <footer className="border-t-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
-          <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-primary/80 font-medium">
+          <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
             <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
-            <span className="text-muted-foreground/50">·</span>
+            <span className="text-muted-foreground">·</span>
+
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -831,7 +817,7 @@ export default function Index() {
                 </div>
               </PopoverContent>
             </Popover>
-            <span className="text-muted-foreground/50">·</span>
+            <span className="text-muted-foreground">·</span>
             <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
               <DialogTrigger asChild>
                 <button
