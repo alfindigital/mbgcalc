@@ -1,29 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useSearchParams } from "react-router-dom";
-import { MBG_DAILY_COST } from "@/lib/mbg-constants";
-
-const MS_PER_DAY = 86_400_000;
-const UNITS = [
-  { key: "hari", label: "Hari", ms: MS_PER_DAY },
-  { key: "jam", label: "Jam", ms: 3_600_000 },
-  { key: "menit", label: "Menit", ms: 60_000 },
-  { key: "detik", label: "Detik", ms: 1_000 },
-  { key: "milidetik", label: "Milidetik", ms: 1 },
-] as const;
-
-function formatRupiah(n: number) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
-function getPrimary(totalMs: number) {
-  for (const u of UNITS) {
-    const v = totalMs / u.ms;
-    if (v >= 0.01) return { value: formatRupiah(parseFloat(v.toFixed(2))), unit: u.label };
-  }
-  return { value: "0", unit: "Milidetik" };
-}
+import { rupiahToMs, getPrimaryResult, rupiahToPorsi, formatRupiah, formatCompact } from "@/lib/units";
+import { SITE_URL } from "@/lib/site";
 
 function ResultBlock({ amount }: { amount: number }) {
-  const totalMs = (amount / MBG_DAILY_COST) * MS_PER_DAY;
-  const primary = useMemo(() => getPrimary(totalMs), [totalMs]);
+  const primary = useMemo(() => getPrimaryResult(rupiahToMs(amount)), [amount]);
+  const porsi = useMemo(() => rupiahToPorsi(amount), [amount]);
 
   return (
     <div className="card-elevated rounded-2xl border-2 border-border p-4 result-glow">
@@ -33,7 +16,11 @@ function ResultBlock({ amount }: { amount: number }) {
           <span className="text-3xl sm:text-4xl font-extrabold text-result-glow tabular-nums">{primary.value}</span>
           <span className="text-sm sm:text-base font-bold text-result opacity-80">{primary.unit}</span>
         </div>
-        <span className="text-[11px] font-semibold text-result/80">operasional MBG</span>
+        <span className="text-[11px] font-semibold text-muted-foreground">operasional program MBG</span>
+        <div className="mt-1.5">
+          <span className="text-sm font-extrabold text-result">≈ {formatCompact(porsi)}</span>
+          <span className="text-[10px] font-semibold text-muted-foreground"> porsi makan gratis</span>
+        </div>
       </div>
     </div>
   );
@@ -55,6 +42,8 @@ export default function Embed() {
     else if (theme === "light") document.documentElement.classList.remove("dark");
   }, [theme]);
 
+  const linkUrl = `${SITE_URL}/?amount=${amount}${compareMode ? `&compare=${amount2}` : ""}`;
+
   return (
     <>
       <Helmet>
@@ -65,22 +54,22 @@ export default function Embed() {
         <div className="max-w-[560px] w-full mx-auto flex-1 flex flex-col gap-3">
           {!minimal && (
             <div className={compareMode ? "grid grid-cols-2 gap-2" : "flex"}>
-              <div className="relative flex items-center">
+              <div className="relative flex items-center w-full">
                 <span className="absolute left-3 text-muted-foreground font-bold text-sm pointer-events-none">Rp</span>
                 <input
                   type="text" inputMode="numeric" value={amount ? formatRupiah(amount) : ""}
                   onChange={(e) => setAmount(parseInt(e.target.value.replace(/\D/g, ""), 10) || 0)}
-                  placeholder="Nominal A"
+                  placeholder="Nominal A" aria-label="Nominal Rupiah"
                   className="w-full h-11 pl-10 pr-3 rounded-xl border-2 border-border bg-card text-base font-bold focus:outline-none focus:border-accent"
                 />
               </div>
               {compareMode && (
-                <div className="relative flex items-center">
+                <div className="relative flex items-center w-full">
                   <span className="absolute left-3 text-muted-foreground font-bold text-sm pointer-events-none">Rp</span>
                   <input
                     type="text" inputMode="numeric" value={amount2 ? formatRupiah(amount2) : ""}
                     onChange={(e) => setAmount2(parseInt(e.target.value.replace(/\D/g, ""), 10) || 0)}
-                    placeholder="Nominal B"
+                    placeholder="Nominal B" aria-label="Nominal Rupiah kedua"
                     className="w-full h-11 pl-10 pr-3 rounded-xl border-2 border-border bg-card text-base font-bold focus:outline-none focus:border-accent"
                   />
                 </div>
@@ -95,9 +84,9 @@ export default function Embed() {
           ) : (
             amount > 0 && <ResultBlock amount={amount} />
           )}
-          <a href={`https://mbgcal.lovable.app/?amount=${amount}${compareMode ? `&compare=${amount2}` : ""}`} target="_blank" rel="noopener noreferrer"
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer"
              className="text-[10px] text-muted-foreground hover:text-primary text-center mt-auto">
-            kalkulator MBG · mbgcal.lovable.app
+            kalkulator MBG · {new URL(SITE_URL).host}
           </a>
         </div>
       </div>

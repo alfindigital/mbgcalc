@@ -1,9 +1,12 @@
 # Kalkulator MBG
 
-> Konversi nominal Rupiah ke setara waktu program Makan Bergizi Gratis (MBG) berdasarkan proyeksi biaya harian BGN sebesar Rp 1,2 Triliun/hari.
+> Konversi nominal Rupiah ke setara waktu DAN jumlah porsi program Makan Bergizi Gratis (MBG). Basis: anggaran MBG 2026 Rp 335 triliun (≈ Rp 917,8 miliar/hari, anggaran tahunan ÷ 365) dan biaya Rp 10.000/porsi (standar BGN).
 
-Aplikasi web ringan untuk mengubah jumlah uang (Rupiah) menjadi durasi waktu yang setara dengan biaya operasional program MBG. Mendukung mode normal, mode bandingkan dua nominal, mode terbalik (waktu → Rupiah), riwayat perhitungan, ekspor hasil sebagai gambar, dan tema gelap/terang.
+Aplikasi web ringan untuk mengubah jumlah uang (Rupiah) menjadi: (1) durasi waktu setara biaya operasional program MBG, dan (2) jumlah porsi makan gratis. Mendukung mode normal, mode bandingkan dua nominal (Selisih), mode terbalik (waktu → Rupiah), preset angka nyata bersumber resmi, riwayat perhitungan, ekspor hasil sebagai gambar (1:1/9:16/16:9), berbagi via Web Share API, dan tema gelap/terang.
+
+Catatan: alat edukasi independen, bukan afiliasi resmi BGN/pemerintah. Angka berbasis sumber publik (APBN 2026).
 
 ## Pages
 
-- [Beranda](/): Kalkulator utama — konversi Rupiah ke waktu MBG, mode bandingkan, mode terbalik, dan riwayat.
+- [Beranda](/): Kalkulator utama — konversi Rupiah ke waktu & porsi MBG, mode bandingkan, mode terbalik, preset, dan riwayat.
+- [Embed](/embed): Versi ringkas read-only untuk disematkan via iframe (noindex).

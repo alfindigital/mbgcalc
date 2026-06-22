@@ -19,7 +19,7 @@ const NotFound = () => {
       let el = document.head.querySelector<HTMLMetaElement>(selector);
       if (!el) {
         el = document.createElement("meta");
-        const [key, val] = selector.replace(/[\[\]"']/g, "").split("=");
+        const [key, val] = selector.replace(/[[\]"']/g, "").split("=");
         el.setAttribute(key, val);
         document.head.appendChild(el);
       }
