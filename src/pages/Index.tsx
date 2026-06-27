@@ -828,6 +828,14 @@ export default function Index() {
         <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
           <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
           <span className="text-muted-foreground">·</span>
+          <Link
+            to="/tentang"
+            aria-label="Halaman tentang: metodologi, FAQ, dan sumber data"
+            className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <Info size={11} aria-hidden="true" /> Tentang
+          </Link>
+          <span className="text-muted-foreground">·</span>
           <Popover>
             <PopoverTrigger asChild>
               <button aria-label="Lihat sumber data dan patokan kalkulator"
