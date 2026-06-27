@@ -820,42 +820,8 @@ export default function Index() {
           </div>
         </div>
 
-        {/* ── Konten edukasi + FAQ (SEO) ── */}
-        <section className="mt-10 sm:mt-14 max-w-3xl mx-auto w-full">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
-            <Section className="lg:!p-6">
-              <h2 className="text-base sm:text-lg font-extrabold mb-2">Apa itu Kalkulator MBG?</h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Alat untuk mengubah nominal Rupiah apa pun menjadi gambaran konkret: berapa lama uang itu bisa membiayai
-                program Makan Bergizi Gratis, dan setara berapa <strong className="text-foreground">porsi makan gratis</strong>.
-                Cocok untuk memahami skala anggaran, belanja, atau angka berita.
-              </p>
-            </Section>
-            <Section className="lg:!p-6">
-              <h2 className="text-base sm:text-lg font-extrabold mb-2">Metodologi singkat</h2>
-              <ul className="text-sm text-muted-foreground leading-relaxed space-y-1.5">
-                <li>• Anggaran MBG {MBG_BUDGET_YEAR}: <strong className="text-foreground">{MBG_ANNUAL_LABEL}</strong></li>
-                <li>• Biaya harian: {MBG_ANNUAL_LABEL} ÷ 365 = <strong className="text-foreground">{MBG_DAILY_LABEL}/hari</strong></li>
-                <li>• Per porsi: <strong className="text-foreground">Rp {formatRupiah(MBG_COST_PER_PORSI)}</strong> (standar BGN)</li>
-                <li>• Target penerima: <strong className="text-foreground">{formatRupiah(MBG_RECIPIENTS)}</strong> orang</li>
-              </ul>
-            </Section>
-          </div>
+        {/* Konten edukasi panjang dipindah ke /tentang demi tampilan utama yang clean. */}
 
-          <h2 className="text-lg sm:text-xl font-extrabold mt-8 mb-3 text-center">Pertanyaan yang sering diajukan</h2>
-          <Accordion type="single" collapsible className="w-full">
-            {FAQ.map((item, i) => (
-              <AccordionItem key={i} value={`faq-${i}`}>
-                <AccordionTrigger className="text-left text-sm sm:text-base font-bold">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground leading-relaxed">{item.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-
-          <p className="text-[11px] text-muted-foreground text-center mt-6 leading-relaxed">
-            Alat edukasi independen — bukan afiliasi resmi BGN/pemerintah. Angka berbasis sumber publik, diperbarui {MBG_DATA_UPDATED}.
-          </p>
-        </section>
 
         {/* History Dialog */}
         <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
