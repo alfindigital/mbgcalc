@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Code2, Link2, History, Share2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useHistory } from "@/hooks/useHistory";
 import { getStorage, setStorage } from "@/lib/storage";
@@ -40,28 +40,6 @@ const MODES = [
 ] as const;
 type ModeKey = (typeof MODES)[number]["key"];
 
-const FAQ = [
-  {
-    q: "Apa itu program Makan Bergizi Gratis (MBG)?",
-    a: `Program pemerintah yang memberi makan bergizi gratis untuk siswa, ibu hamil, dan balita. Pada ${MBG_BUDGET_YEAR} ditargetkan menjangkau ${formatRupiah(MBG_RECIPIENTS)} penerima manfaat dengan anggaran ${MBG_ANNUAL_LABEL}.`,
-  },
-  {
-    q: "Bagaimana kalkulator ini menghitung?",
-    a: `Nominal yang Anda masukkan dibandingkan dengan biaya program MBG: ${MBG_DAILY_LABEL}/hari (anggaran tahunan ÷ 365) untuk satuan waktu, dan Rp ${formatRupiah(MBG_COST_PER_PORSI)}/porsi untuk jumlah porsi makan.`,
-  },
-  {
-    q: `Dari mana angka ${MBG_ANNUAL_LABEL}?`,
-    a: "Dari APBN 2026 (pagu Rp 268 triliun + dana standby Rp 67 triliun). Tautan sumber lengkap ada di bagian “Sumber data” pada footer.",
-  },
-  {
-    q: "Apakah hasilnya angka resmi pemerintah?",
-    a: "Bukan. Ini alat edukasi independen untuk membantu membayangkan skala sebuah angka. Tidak berafiliasi dengan BGN/pemerintah — selalu rujuk sumber resmi untuk angka pasti.",
-  },
-  {
-    q: "Apa maksud “porsi makan gratis”?",
-    a: `Setiap Rp ${formatRupiah(MBG_COST_PER_PORSI)} setara satu porsi standar BGN, kira-kira jatah makan satu anak untuk satu hari.`,
-  },
-];
 
 // ─── Tema ───
 function useTheme() {
@@ -820,42 +798,8 @@ export default function Index() {
           </div>
         </div>
 
-        {/* ── Konten edukasi + FAQ (SEO) ── */}
-        <section className="mt-10 sm:mt-14 max-w-3xl mx-auto w-full">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-6 space-y-4 lg:space-y-0">
-            <Section className="lg:!p-6">
-              <h2 className="text-base sm:text-lg font-extrabold mb-2">Apa itu Kalkulator MBG?</h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Alat untuk mengubah nominal Rupiah apa pun menjadi gambaran konkret: berapa lama uang itu bisa membiayai
-                program Makan Bergizi Gratis, dan setara berapa <strong className="text-foreground">porsi makan gratis</strong>.
-                Cocok untuk memahami skala anggaran, belanja, atau angka berita.
-              </p>
-            </Section>
-            <Section className="lg:!p-6">
-              <h2 className="text-base sm:text-lg font-extrabold mb-2">Metodologi singkat</h2>
-              <ul className="text-sm text-muted-foreground leading-relaxed space-y-1.5">
-                <li>• Anggaran MBG {MBG_BUDGET_YEAR}: <strong className="text-foreground">{MBG_ANNUAL_LABEL}</strong></li>
-                <li>• Biaya harian: {MBG_ANNUAL_LABEL} ÷ 365 = <strong className="text-foreground">{MBG_DAILY_LABEL}/hari</strong></li>
-                <li>• Per porsi: <strong className="text-foreground">Rp {formatRupiah(MBG_COST_PER_PORSI)}</strong> (standar BGN)</li>
-                <li>• Target penerima: <strong className="text-foreground">{formatRupiah(MBG_RECIPIENTS)}</strong> orang</li>
-              </ul>
-            </Section>
-          </div>
+        {/* Konten edukasi panjang dipindah ke /tentang demi tampilan utama yang clean. */}
 
-          <h2 className="text-lg sm:text-xl font-extrabold mt-8 mb-3 text-center">Pertanyaan yang sering diajukan</h2>
-          <Accordion type="single" collapsible className="w-full">
-            {FAQ.map((item, i) => (
-              <AccordionItem key={i} value={`faq-${i}`}>
-                <AccordionTrigger className="text-left text-sm sm:text-base font-bold">{item.q}</AccordionTrigger>
-                <AccordionContent className="text-sm text-muted-foreground leading-relaxed">{item.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-
-          <p className="text-[11px] text-muted-foreground text-center mt-6 leading-relaxed">
-            Alat edukasi independen — bukan afiliasi resmi BGN/pemerintah. Angka berbasis sumber publik, diperbarui {MBG_DATA_UPDATED}.
-          </p>
-        </section>
 
         {/* History Dialog */}
         <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
@@ -883,6 +827,14 @@ export default function Index() {
       <footer className="border-t-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
         <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
           <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
+          <span className="text-muted-foreground">·</span>
+          <Link
+            to="/tentang"
+            aria-label="Halaman tentang: metodologi, FAQ, dan sumber data"
+            className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <Info size={11} aria-hidden="true" /> Tentang
+          </Link>
           <span className="text-muted-foreground">·</span>
           <Popover>
             <PopoverTrigger asChild>
