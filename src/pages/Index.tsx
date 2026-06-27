@@ -40,28 +40,6 @@ const MODES = [
 ] as const;
 type ModeKey = (typeof MODES)[number]["key"];
 
-const FAQ = [
-  {
-    q: "Apa itu program Makan Bergizi Gratis (MBG)?",
-    a: `Program pemerintah yang memberi makan bergizi gratis untuk siswa, ibu hamil, dan balita. Pada ${MBG_BUDGET_YEAR} ditargetkan menjangkau ${formatRupiah(MBG_RECIPIENTS)} penerima manfaat dengan anggaran ${MBG_ANNUAL_LABEL}.`,
-  },
-  {
-    q: "Bagaimana kalkulator ini menghitung?",
-    a: `Nominal yang Anda masukkan dibandingkan dengan biaya program MBG: ${MBG_DAILY_LABEL}/hari (anggaran tahunan ÷ 365) untuk satuan waktu, dan Rp ${formatRupiah(MBG_COST_PER_PORSI)}/porsi untuk jumlah porsi makan.`,
-  },
-  {
-    q: `Dari mana angka ${MBG_ANNUAL_LABEL}?`,
-    a: "Dari APBN 2026 (pagu Rp 268 triliun + dana standby Rp 67 triliun). Tautan sumber lengkap ada di bagian “Sumber data” pada footer.",
-  },
-  {
-    q: "Apakah hasilnya angka resmi pemerintah?",
-    a: "Bukan. Ini alat edukasi independen untuk membantu membayangkan skala sebuah angka. Tidak berafiliasi dengan BGN/pemerintah — selalu rujuk sumber resmi untuk angka pasti.",
-  },
-  {
-    q: "Apa maksud “porsi makan gratis”?",
-    a: `Setiap Rp ${formatRupiah(MBG_COST_PER_PORSI)} setara satu porsi standar BGN, kira-kira jatah makan satu anak untuk satu hari.`,
-  },
-];
 
 // ─── Tema ───
 function useTheme() {
