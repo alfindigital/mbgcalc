@@ -301,14 +301,8 @@ export default function Index() {
   const handleClear = useCallback(() => { setRawInput(""); setActiveQuick(null); inputRef.current?.focus(); }, []);
   const handleClear2 = useCallback(() => { setRawInput2(""); setActiveQuick2(null); }, []);
 
-  const handlePreset = useCallback((value: number, label: string) => {
-    setReverseMode(false);
-    setCompareMode(false);
-    setActiveQuick(null);
-    setRawInput(formatRupiah(value));
-    track("preset_click", { label, value });
-    inputRef.current?.focus();
-  }, []);
+
+
 
   const handleHistoryTap = useCallback((val: number, val2?: number, type?: "single" | "compare") => {
     if (type === "compare" && val2) {
