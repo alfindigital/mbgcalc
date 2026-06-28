@@ -569,41 +569,8 @@ export default function Index() {
                   </div>
                   <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick} onSelect={handleQuick} disabled={compareMode} />
 
-                  {/* Preset skenario */}
-                  <div className="pt-1">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground">Coba angka nyata</span>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button aria-label="Sumber angka preset" className="text-muted-foreground hover:text-primary transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                            <Info size={12} aria-hidden="true" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="w-72 text-xs space-y-1.5">
-                          <p className="font-bold text-sm">Sumber angka preset</p>
-                          {PRESETS.map((p) => (
-                            <div key={p.label} className="flex justify-between gap-2">
-                              <span className="text-muted-foreground">{p.label}</span>
-                              <a href={p.source.url} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline shrink-0">{p.source.label}</a>
-                            </div>
-                          ))}
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                      {PRESETS.map((p) => (
-                        <button
-                          key={p.label}
-                          onClick={() => handlePreset(p.value, p.label)}
-                          className="shrink-0 h-8 px-3 rounded-full border border-primary/25 text-primary text-[11px] sm:text-xs font-semibold hover:bg-primary/5 active:scale-95 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          tabIndex={compareMode || reverseMode ? -1 : 0}
-                        >
-                          {p.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
+
               </div>
 
               {/* Compare mode input */}
