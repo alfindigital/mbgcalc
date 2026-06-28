@@ -528,9 +528,9 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Calculator: 2 kolom di desktop (input kiri, hasil kanan) */}
-        <div className="lg:grid lg:grid-cols-2 lg:gap-6 xl:gap-8 lg:items-start max-w-md lg:max-w-none mx-auto w-full">
-          {/* ── LEFT: input ── */}
+        {/* Calculator: single column */}
+        <div className="max-w-md mx-auto w-full">
+          {/* ── input ── */}
           <div>
             <div className="relative">
               {/* Normal mode input */}
