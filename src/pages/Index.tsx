@@ -803,32 +803,6 @@ export default function Index() {
             <Info size={11} aria-hidden="true" /> Tentang
           </Link>
           <span className="text-muted-foreground">·</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button aria-label="Lihat sumber data dan patokan kalkulator"
-                className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                <Info size={11} aria-hidden="true" /> Sumber data
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="center" className="w-72 text-xs space-y-2">
-              <p className="font-bold text-sm">Patokan kalkulator</p>
-              <ul className="space-y-1.5 text-muted-foreground">
-                <li>• <strong className="text-foreground">{MBG_ANNUAL_LABEL}/tahun</strong> — anggaran MBG {MBG_BUDGET_YEAR} (pagu Rp 268 T + standby Rp 67 T).</li>
-                <li>• <strong className="text-foreground">{MBG_DAILY_LABEL}/hari</strong> — anggaran tahunan ÷ 365 hari.</li>
-                <li>• <strong className="text-foreground">Rp {formatRupiah(MBG_COST_PER_PORSI)}/porsi</strong> — standar BGN.</li>
-                <li>• <strong className="text-foreground">{formatRupiah(MBG_RECIPIENTS)} penerima</strong> — target {MBG_BUDGET_YEAR}.</li>
-              </ul>
-              <div className="pt-1.5 border-t border-border space-y-1">
-                <p className="text-[10px] text-muted-foreground">Update: {MBG_DATA_UPDATED} · alat edukasi independen, bukan afiliasi resmi.</p>
-                <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-                  {MBG_SOURCES.map((s) => (
-                    <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline font-semibold">{s.label}</a>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          <span className="text-muted-foreground">·</span>
           <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
             <DialogTrigger asChild>
               <button aria-label="Buka dialog snippet sematkan iframe kalkulator"
