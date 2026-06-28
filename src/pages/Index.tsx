@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useSearchParams, Link } from "react-router-dom";
 import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Code2, Link2, History, Share2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -11,8 +11,7 @@ import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useHistory } from "@/hooks/useHistory";
 import { getStorage, setStorage } from "@/lib/storage";
 import {
-  MBG_COST_PER_PORSI, MBG_ANNUAL_BUDGET, MBG_RECIPIENTS,
-  MBG_DATA_UPDATED, MBG_SOURCES, MBG_ANNUAL_LABEL, MBG_DAILY_LABEL, MBG_BUDGET_YEAR,
+  MBG_ANNUAL_BUDGET, MBG_ANNUAL_LABEL, MBG_DAILY_LABEL, MBG_BUDGET_YEAR,
 } from "@/lib/mbg-constants";
 import {
   UNITS, SLIDER_MAX,
@@ -21,7 +20,7 @@ import {
   sliderToRupiah, rupiahToSlider, niceRound,
 } from "@/lib/units";
 import { terbilang } from "@/lib/terbilang";
-import { PRESETS } from "@/lib/presets";
+
 import { track } from "@/lib/analytics";
 import { SITE_URL, EMBED_PATH } from "@/lib/site";
 
@@ -301,14 +300,8 @@ export default function Index() {
   const handleClear = useCallback(() => { setRawInput(""); setActiveQuick(null); inputRef.current?.focus(); }, []);
   const handleClear2 = useCallback(() => { setRawInput2(""); setActiveQuick2(null); }, []);
 
-  const handlePreset = useCallback((value: number, label: string) => {
-    setReverseMode(false);
-    setCompareMode(false);
-    setActiveQuick(null);
-    setRawInput(formatRupiah(value));
-    track("preset_click", { label, value });
-    inputRef.current?.focus();
-  }, []);
+
+
 
   const handleHistoryTap = useCallback((val: number, val2?: number, type?: "single" | "compare") => {
     if (type === "compare" && val2) {
@@ -528,9 +521,9 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Calculator: 2 kolom di desktop (input kiri, hasil kanan) */}
-        <div className="lg:grid lg:grid-cols-2 lg:gap-6 xl:gap-8 lg:items-start max-w-md lg:max-w-none mx-auto w-full">
-          {/* ── LEFT: input ── */}
+        {/* Calculator: single column */}
+        <div className="max-w-md mx-auto w-full">
+          {/* ── input ── */}
           <div>
             <div className="relative">
               {/* Normal mode input */}
@@ -569,41 +562,8 @@ export default function Index() {
                   </div>
                   <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick} onSelect={handleQuick} disabled={compareMode} />
 
-                  {/* Preset skenario */}
-                  <div className="pt-1">
-                    <div className="flex items-center gap-1.5 mb-1.5">
-                      <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground">Coba angka nyata</span>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button aria-label="Sumber angka preset" className="text-muted-foreground hover:text-primary transition-colors rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                            <Info size={12} aria-hidden="true" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="w-72 text-xs space-y-1.5">
-                          <p className="font-bold text-sm">Sumber angka preset</p>
-                          {PRESETS.map((p) => (
-                            <div key={p.label} className="flex justify-between gap-2">
-                              <span className="text-muted-foreground">{p.label}</span>
-                              <a href={p.source.url} target="_blank" rel="noopener noreferrer" className="text-primary font-semibold hover:underline shrink-0">{p.source.label}</a>
-                            </div>
-                          ))}
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                      {PRESETS.map((p) => (
-                        <button
-                          key={p.label}
-                          onClick={() => handlePreset(p.value, p.label)}
-                          className="shrink-0 h-8 px-3 rounded-full border border-primary/25 text-primary text-[11px] sm:text-xs font-semibold hover:bg-primary/5 active:scale-95 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          tabIndex={compareMode || reverseMode ? -1 : 0}
-                        >
-                          {p.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
+
               </div>
 
               {/* Compare mode input */}
@@ -670,8 +630,8 @@ export default function Index() {
             </div>
           </div>
 
-          {/* ── RIGHT: hasil ── */}
-          <div className="mt-4 lg:mt-0">
+          {/* ── hasil ── */}
+          <div className="mt-4">
             {/* Result — Normal */}
             <div className={`${modeTransition} ${!compareMode && !reverseMode ? "opacity-100 translate-y-0 max-h-[600px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
               <div className="space-y-2.5 sm:space-y-3">
@@ -810,7 +770,7 @@ export default function Index() {
             </DialogHeader>
             {history.length > 0 && (
               <button onClick={clearHistory} aria-label="Hapus semua riwayat"
-                className="absolute right-12 top-3.5 inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors">
+                className="absolute right-11 top-4 inline-flex items-center justify-center rounded-sm text-muted-foreground hover:text-destructive opacity-70 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
               </button>
             )}
@@ -835,32 +795,6 @@ export default function Index() {
           >
             <Info size={11} aria-hidden="true" /> Tentang
           </Link>
-          <span className="text-muted-foreground">·</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button aria-label="Lihat sumber data dan patokan kalkulator"
-                className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                <Info size={11} aria-hidden="true" /> Sumber data
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="center" className="w-72 text-xs space-y-2">
-              <p className="font-bold text-sm">Patokan kalkulator</p>
-              <ul className="space-y-1.5 text-muted-foreground">
-                <li>• <strong className="text-foreground">{MBG_ANNUAL_LABEL}/tahun</strong> — anggaran MBG {MBG_BUDGET_YEAR} (pagu Rp 268 T + standby Rp 67 T).</li>
-                <li>• <strong className="text-foreground">{MBG_DAILY_LABEL}/hari</strong> — anggaran tahunan ÷ 365 hari.</li>
-                <li>• <strong className="text-foreground">Rp {formatRupiah(MBG_COST_PER_PORSI)}/porsi</strong> — standar BGN.</li>
-                <li>• <strong className="text-foreground">{formatRupiah(MBG_RECIPIENTS)} penerima</strong> — target {MBG_BUDGET_YEAR}.</li>
-              </ul>
-              <div className="pt-1.5 border-t border-border space-y-1">
-                <p className="text-[10px] text-muted-foreground">Update: {MBG_DATA_UPDATED} · alat edukasi independen, bukan afiliasi resmi.</p>
-                <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-                  {MBG_SOURCES.map((s) => (
-                    <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline font-semibold">{s.label}</a>
-                  ))}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
           <span className="text-muted-foreground">·</span>
           <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
             <DialogTrigger asChild>
