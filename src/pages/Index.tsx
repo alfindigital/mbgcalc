@@ -20,7 +20,7 @@ import {
   sliderToRupiah, rupiahToSlider, niceRound,
 } from "@/lib/units";
 import { terbilang } from "@/lib/terbilang";
-import { PRESETS } from "@/lib/presets";
+
 import { track } from "@/lib/analytics";
 import { SITE_URL, EMBED_PATH } from "@/lib/site";
 
