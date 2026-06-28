@@ -637,8 +637,8 @@ export default function Index() {
             </div>
           </div>
 
-          {/* ── RIGHT: hasil ── */}
-          <div className="mt-4 lg:mt-0">
+          {/* ── hasil ── */}
+          <div className="mt-4">
             {/* Result — Normal */}
             <div className={`${modeTransition} ${!compareMode && !reverseMode ? "opacity-100 translate-y-0 max-h-[600px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
               <div className="space-y-2.5 sm:space-y-3">
