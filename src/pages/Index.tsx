@@ -11,8 +11,7 @@ import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useHistory } from "@/hooks/useHistory";
 import { getStorage, setStorage } from "@/lib/storage";
 import {
-  MBG_COST_PER_PORSI, MBG_ANNUAL_BUDGET, MBG_RECIPIENTS,
-  MBG_DATA_UPDATED, MBG_SOURCES, MBG_ANNUAL_LABEL, MBG_DAILY_LABEL, MBG_BUDGET_YEAR,
+  MBG_ANNUAL_BUDGET, MBG_ANNUAL_LABEL, MBG_DAILY_LABEL, MBG_BUDGET_YEAR,
 } from "@/lib/mbg-constants";
 import {
   UNITS, SLIDER_MAX,
