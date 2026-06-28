@@ -777,7 +777,7 @@ export default function Index() {
             </DialogHeader>
             {history.length > 0 && (
               <button onClick={clearHistory} aria-label="Hapus semua riwayat"
-                className="absolute right-12 top-3.5 inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-muted transition-colors">
+                className="absolute right-11 top-4 inline-flex items-center justify-center rounded-sm text-muted-foreground hover:text-destructive opacity-70 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
               </button>
             )}
