@@ -717,13 +717,22 @@ export default function Index() {
             <div className={`${modeTransition} ${!compareMode && !reverseMode ? "opacity-100 translate-y-0 max-h-[600px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
               <div className="space-y-2.5 sm:space-y-3">
                 <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} />
-                <button
-                  onClick={handleShare}
-                  aria-label="Bagikan hasil"
-                  className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Share2 size={15} aria-hidden="true" /> Bagikan
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleShare}
+                    aria-label="Bagikan hasil"
+                    className="h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <Share2 size={15} aria-hidden="true" /> Bagikan
+                  </button>
+                  <button
+                    onClick={handleShareWA}
+                    aria-label="Bagikan hasil ke WhatsApp"
+                    className="h-11 rounded-xl bg-[#25D366] text-white font-bold text-sm flex items-center justify-center gap-1.5 hover:brightness-95 shadow-md active:scale-[0.98] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <MessageCircle size={15} aria-hidden="true" /> WhatsApp
+                  </button>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={handleCopyText} aria-label="Salin teks hasil ke clipboard"
                     className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
