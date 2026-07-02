@@ -149,3 +149,25 @@
     box-shadow: var(--shadow-result);
   }
 }
+
+/* Sticky mini-result bar (mobile) — kelihatan saat user scroll dari input */
+@media (max-width: 640px) {
+  .sticky-mini {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: hsl(var(--card));
+    border-top: 2px solid hsl(var(--primary) / 0.15);
+    box-shadow: 0 -4px 16px -4px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Print stylesheet — guru/NGO/jurnalis print hasil untuk materi diskusi */
+@media print {
+  header, footer, .no-print { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .card-elevated { box-shadow: none !important; border: 1px solid #ccc !important; background: white !important; }
+  .text-result, .text-result-glow { color: black !important; text-shadow: none !important; }
+  main { padding: 0 !important; max-width: 100% !important; }
+}
