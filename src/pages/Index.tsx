@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { useSearchParams, Link } from "react-router-dom";
-import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Code2, Link2, History, Share2 } from "lucide-react";
+import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Code2, Link2, History, Share2, MessageCircle, Printer } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
@@ -20,9 +20,12 @@ import {
   sliderToRupiah, rupiahToSlider, niceRound,
 } from "@/lib/units";
 import { terbilang } from "@/lib/terbilang";
+import { getAnalogy } from "@/lib/analogies";
+import { PRESETS, PRESET_PAIRS } from "@/lib/presets";
 
 import { track } from "@/lib/analytics";
-import { SITE_URL, EMBED_PATH } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
+import { EmbedBuilder } from "@/components/EmbedBuilder";
 
 const SITE_HOST = new URL(SITE_URL).host;
 
@@ -30,6 +33,14 @@ const QUICK_AMOUNTS = [
   { label: "1 Jt", value: 1_000_000 },
   { label: "10 Jt", value: 10_000_000 },
   { label: "100 Jt", value: 100_000_000 },
+];
+
+/** Preset waktu utk mode Balik — pintasan yang paling sering dipakai. */
+const REVERSE_QUICK = [
+  { label: "1 hari", value: "1", unit: "hari" },
+  { label: "1 minggu", value: "7", unit: "hari" },
+  { label: "1 bulan", value: "1", unit: "bulan" },
+  { label: "1 tahun", value: "1", unit: "tahun" },
 ];
 
 const MODES = [
@@ -87,6 +98,12 @@ const ResultCard = React.memo(function ResultCard({
       {!compact && rupiah >= 1_000_000_000 && rupiah <= Number.MAX_SAFE_INTEGER && (
         <p className="text-[11px] text-muted-foreground italic capitalize mt-2 text-center leading-snug">
           {terbilang(rupiah)} rupiah
+        </p>
+      )}
+
+      {!compact && rupiah > 0 && getAnalogy(rupiah) && (
+        <p className="mt-3 pt-3 border-t border-border text-center text-xs sm:text-sm font-semibold text-accent leading-snug">
+          {getAnalogy(rupiah)}
         </p>
       )}
 
@@ -374,22 +391,23 @@ export default function Index() {
     toast.success("Tautan disalin!");
   }, [buildShareUrl, currentMode]);
 
-  const handleShare = useCallback(async () => {
-    const url = buildShareUrl();
-    let text: string;
+  /** Punch-line text — 1-2 baris, siap-tweet, dengan analogi. */
+  const buildShareText = useCallback(() => {
     if (compareMode) {
       const p1 = getPrimaryResult(totalMs);
       const p2 = getPrimaryResult(totalMs2);
       const pd = getPrimaryResult(diffMs);
-      text =
-        `Bandingkan di Kalkulator MBG:\n` +
-        `• Rp ${formatRupiah(debouncedRupiah)} = ${p1.value} ${p1.unit}\n` +
-        `• Rp ${formatRupiah(debouncedRupiah2)} = ${p2.value} ${p2.unit}\n` +
-        `Selisih: ${pd.value} ${pd.unit} program MBG`;
-    } else {
-      const p = getPrimaryResult(totalMs);
-      text = `Rp ${formatRupiah(debouncedRupiah)} = ${p.value} ${p.unit} program MBG (≈ ${formatCompact(rupiahToPorsi(debouncedRupiah))} porsi makan gratis).`;
+      return `Rp ${formatRupiah(debouncedRupiah)} = ${p1.value} ${p1.unit} MBG. Rp ${formatRupiah(debouncedRupiah2)} = ${p2.value} ${p2.unit}. Selisih ${pd.value} ${pd.unit}.`;
     }
+    const p = getPrimaryResult(totalMs);
+    const analogy = getAnalogy(debouncedRupiah);
+    const base = `Rp ${formatRupiah(debouncedRupiah)} = ${p.value} ${p.unit} program MBG (≈ ${formatCompact(rupiahToPorsi(debouncedRupiah))} porsi makan gratis).`;
+    return analogy ? `${base} ${analogy}.` : base;
+  }, [compareMode, totalMs, totalMs2, diffMs, debouncedRupiah, debouncedRupiah2]);
+
+  const handleShare = useCallback(async () => {
+    const url = buildShareUrl();
+    const text = buildShareText();
     track("share", { mode: currentMode, native: typeof navigator.share === "function" });
     if (typeof navigator.share === "function") {
       try { await navigator.share({ title: "Kalkulator MBG", text, url }); }
@@ -398,7 +416,18 @@ export default function Index() {
       try { await navigator.clipboard.writeText(`${text}\n${url}`); toast.success("Disalin — siap dibagikan!"); }
       catch { toast.error("Gagal menyalin"); }
     }
-  }, [buildShareUrl, compareMode, totalMs, totalMs2, diffMs, debouncedRupiah, debouncedRupiah2, currentMode]);
+  }, [buildShareUrl, buildShareText, currentMode]);
+
+  const handleShareWA = useCallback(() => {
+    const text = `${buildShareText()}\n${buildShareUrl()}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+    track("share_wa", { mode: currentMode });
+  }, [buildShareText, buildShareUrl, currentMode]);
+
+  const handlePrint = useCallback(() => {
+    track("print", { mode: currentMode });
+    window.print();
+  }, [currentMode]);
 
   const handleCopyText = useCallback(() => {
     const p = getPrimaryResult(totalMs);
@@ -562,6 +591,24 @@ export default function Index() {
                   </div>
                   <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick} onSelect={handleQuick} disabled={compareMode} />
 
+                  {/* Preset trending — angka publik yang lagi dibahas */}
+                  <div className="pt-1">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                      <span aria-hidden="true">🔥</span> Coba angka publik
+                    </p>
+                    <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1 snap-x">
+                      {PRESETS.filter((p) => p.trending).map((p) => (
+                        <button
+                          key={p.label}
+                          onClick={() => { setActiveQuick(null); setRawInput(formatRupiah(p.value)); track("preset_click", { label: p.short }); }}
+                          className="shrink-0 snap-start h-8 px-3 rounded-lg border border-primary/25 bg-card text-[11px] font-bold text-primary hover:bg-primary/5 active:scale-[0.96] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          title={p.label}
+                        >
+                          {p.short}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
               </div>
@@ -605,11 +652,33 @@ export default function Index() {
                     <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick2} onSelect={handleQuick2} compact disabled={!compareMode} />
                   </div>
                 </div>
+
+                {/* Preset pasangan — VS langsung */}
+                <div className="mt-3">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Bandingkan cepat</p>
+                  <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1 snap-x">
+                    {PRESET_PAIRS.map((pair) => (
+                      <button
+                        key={pair.label}
+                        onClick={() => {
+                          setActiveQuick(null); setActiveQuick2(null);
+                          setRawInput(formatRupiah(pair.a.value));
+                          setRawInput2(formatRupiah(pair.b.value));
+                          track("preset_pair_click", { label: pair.label });
+                        }}
+                        className="shrink-0 snap-start h-8 px-3 rounded-lg border border-accent/40 bg-card text-[11px] font-bold text-accent hover:bg-accent/5 active:scale-[0.96] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        disabled={!compareMode}
+                      >
+                        {pair.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Reverse mode input */}
-            <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-40" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
+            <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-64" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
               <div className="flex gap-2">
                 <div className="relative flex-1 flex items-center group">
                   <input
@@ -627,6 +696,19 @@ export default function Index() {
                   {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
                 </select>
               </div>
+              {/* Quick chips utk mode Balik */}
+              <div className="mt-2 flex gap-1.5 flex-wrap">
+                {REVERSE_QUICK.map((q) => (
+                  <button
+                    key={q.label}
+                    onClick={() => { setReverseValue(q.value); setReverseUnit(q.unit); track("reverse_quick", { label: q.label }); }}
+                    tabIndex={reverseMode ? 0 : -1}
+                    className="h-8 px-3 rounded-lg border border-primary/25 bg-card text-[11px] font-bold text-primary hover:bg-primary/5 active:scale-[0.96] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {q.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -636,13 +718,22 @@ export default function Index() {
             <div className={`${modeTransition} ${!compareMode && !reverseMode ? "opacity-100 translate-y-0 max-h-[600px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
               <div className="space-y-2.5 sm:space-y-3">
                 <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} />
-                <button
-                  onClick={handleShare}
-                  aria-label="Bagikan hasil"
-                  className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Share2 size={15} aria-hidden="true" /> Bagikan
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleShare}
+                    aria-label="Bagikan hasil"
+                    className="h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <Share2 size={15} aria-hidden="true" /> Bagikan
+                  </button>
+                  <button
+                    onClick={handleShareWA}
+                    aria-label="Bagikan hasil ke WhatsApp"
+                    className="h-11 rounded-xl bg-[#25D366] text-white font-bold text-sm flex items-center justify-center gap-1.5 hover:brightness-95 shadow-md active:scale-[0.98] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <MessageCircle size={15} aria-hidden="true" /> WhatsApp
+                  </button>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={handleCopyText} aria-label="Salin teks hasil ke clipboard"
                     className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
@@ -669,6 +760,9 @@ export default function Index() {
                       <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("16:9"); }} aria-label="Simpan gambar rasio 16:9 untuk Twitter atau Web" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
                         <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
                       </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handlePrint(); }} aria-label="Cetak halaman" className="cursor-pointer focus:bg-accent focus:text-accent-foreground border-t mt-1 pt-2">
+                        <div className="flex items-center gap-2"><Printer size={13} aria-hidden="true" /><span className="font-semibold text-xs">Cetak halaman</span></div>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -687,12 +781,20 @@ export default function Index() {
                   <p className="text-xs sm:text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
                   <p className="text-xs sm:text-sm font-bold text-result text-center">= {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} program MBG</p>
                 </Section>
-                <button
-                  onClick={handleShare} disabled={!bothCompare} aria-label="Bagikan perbandingan"
-                  className="w-full h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Share2 size={15} aria-hidden="true" /> Bagikan
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleShare} disabled={!bothCompare} aria-label="Bagikan perbandingan"
+                    className="h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <Share2 size={15} aria-hidden="true" /> Bagikan
+                  </button>
+                  <button
+                    onClick={handleShareWA} disabled={!bothCompare} aria-label="Bagikan perbandingan ke WhatsApp"
+                    className="h-11 rounded-xl bg-[#25D366] text-white font-bold text-sm flex items-center justify-center gap-1.5 hover:brightness-95 shadow-md active:scale-[0.98] transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <MessageCircle size={15} aria-hidden="true" /> WhatsApp
+                  </button>
+                </div>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={handleCopyCompare} aria-label="Salin teks perbandingan ke clipboard" disabled={!bothCompare}
                     className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50">
@@ -803,26 +905,12 @@ export default function Index() {
                 <Code2 size={11} aria-hidden="true" /> Sematkan
               </button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle>Sematkan Kalkulator MBG</DialogTitle>
-                <DialogDescription>Salin snippet di bawah ke halaman/blog Anda.</DialogDescription>
+                <DialogDescription>Sesuaikan tampilan, salin snippet, tempel ke halaman/blog Anda.</DialogDescription>
               </DialogHeader>
-              {(() => {
-                const params = new URLSearchParams();
-                if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
-                const snippet = `<iframe src="${SITE_URL}${EMBED_PATH}${params.toString() ? "?" + params.toString() : ""}" width="440" height="560" style="border:0;border-radius:16px;max-width:100%" loading="lazy" title="Kalkulator MBG"></iframe>`;
-                return (
-                  <div className="space-y-2">
-                    <pre className="text-[10px] sm:text-xs bg-muted p-3 rounded-lg overflow-x-auto whitespace-pre-wrap break-all">{snippet}</pre>
-                    <button
-                      onClick={() => { navigator.clipboard.writeText(snippet); track("copy_embed"); toast.success("Snippet disalin!"); }}
-                      aria-label="Salin snippet iframe sematkan ke clipboard"
-                      className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >Salin snippet</button>
-                  </div>
-                );
-              })()}
+              <EmbedBuilder amount={debouncedRupiah} compareAmount={compareMode ? debouncedRupiah2 : 0} />
             </DialogContent>
           </Dialog>
         </div>
