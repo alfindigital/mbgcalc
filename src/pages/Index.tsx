@@ -651,11 +651,33 @@ export default function Index() {
                     <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick2} onSelect={handleQuick2} compact disabled={!compareMode} />
                   </div>
                 </div>
+
+                {/* Preset pasangan — VS langsung */}
+                <div className="mt-3">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Bandingkan cepat</p>
+                  <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1 snap-x">
+                    {PRESET_PAIRS.map((pair) => (
+                      <button
+                        key={pair.label}
+                        onClick={() => {
+                          setActiveQuick(null); setActiveQuick2(null);
+                          setRawInput(formatRupiah(pair.a.value));
+                          setRawInput2(formatRupiah(pair.b.value));
+                          track("preset_pair_click", { label: pair.label });
+                        }}
+                        className="shrink-0 snap-start h-8 px-3 rounded-lg border border-accent/40 bg-card text-[11px] font-bold text-accent hover:bg-accent/5 active:scale-[0.96] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        disabled={!compareMode}
+                      >
+                        {pair.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Reverse mode input */}
-            <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-40" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
+            <div className={`${modeTransition} ${reverseMode ? "opacity-100 translate-y-0 max-h-64" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`} aria-hidden={!reverseMode}>
               <div className="flex gap-2">
                 <div className="relative flex-1 flex items-center group">
                   <input
@@ -672,6 +694,19 @@ export default function Index() {
                 >
                   {UNITS.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
                 </select>
+              </div>
+              {/* Quick chips utk mode Balik */}
+              <div className="mt-2 flex gap-1.5 flex-wrap">
+                {REVERSE_QUICK.map((q) => (
+                  <button
+                    key={q.label}
+                    onClick={() => { setReverseValue(q.value); setReverseUnit(q.unit); track("reverse_quick", { label: q.label }); }}
+                    tabIndex={reverseMode ? 0 : -1}
+                    className="h-8 px-3 rounded-lg border border-primary/25 bg-card text-[11px] font-bold text-primary hover:bg-primary/5 active:scale-[0.96] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {q.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
