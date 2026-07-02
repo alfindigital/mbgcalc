@@ -759,6 +759,9 @@ export default function Index() {
                       <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("16:9"); }} aria-label="Simpan gambar rasio 16:9 untuk Twitter atau Web" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
                         <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
                       </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handlePrint(); }} aria-label="Cetak halaman" className="cursor-pointer focus:bg-accent focus:text-accent-foreground border-t mt-1 pt-2">
+                        <div className="flex items-center gap-2"><Printer size={13} aria-hidden="true" /><span className="font-semibold text-xs">Cetak halaman</span></div>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
