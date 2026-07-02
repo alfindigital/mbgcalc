@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { useSearchParams, Link } from "react-router-dom";
-import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Code2, Link2, History, Share2 } from "lucide-react";
+import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Code2, Link2, History, Share2, MessageCircle, Printer } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
@@ -20,6 +20,8 @@ import {
   sliderToRupiah, rupiahToSlider, niceRound,
 } from "@/lib/units";
 import { terbilang } from "@/lib/terbilang";
+import { getAnalogy } from "@/lib/analogies";
+import { PRESETS, PRESET_PAIRS } from "@/lib/presets";
 
 import { track } from "@/lib/analytics";
 import { SITE_URL, EMBED_PATH } from "@/lib/site";
@@ -30,6 +32,14 @@ const QUICK_AMOUNTS = [
   { label: "1 Jt", value: 1_000_000 },
   { label: "10 Jt", value: 10_000_000 },
   { label: "100 Jt", value: 100_000_000 },
+];
+
+/** Preset waktu utk mode Balik — pintasan yang paling sering dipakai. */
+const REVERSE_QUICK = [
+  { label: "1 hari", value: "1", unit: "hari" },
+  { label: "1 minggu", value: "7", unit: "hari" },
+  { label: "1 bulan", value: "1", unit: "bulan" },
+  { label: "1 tahun", value: "1", unit: "tahun" },
 ];
 
 const MODES = [
