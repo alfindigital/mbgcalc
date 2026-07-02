@@ -24,7 +24,7 @@ import { getAnalogy } from "@/lib/analogies";
 import { PRESETS, PRESET_PAIRS } from "@/lib/presets";
 
 import { track } from "@/lib/analytics";
-import { SITE_URL, EMBED_PATH } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
 import { EmbedBuilder } from "@/components/EmbedBuilder";
 
 const SITE_HOST = new URL(SITE_URL).host;
