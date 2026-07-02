@@ -100,6 +100,12 @@ const ResultCard = React.memo(function ResultCard({
         </p>
       )}
 
+      {!compact && rupiah > 0 && getAnalogy(rupiah) && (
+        <p className="mt-3 pt-3 border-t border-border text-center text-xs sm:text-sm font-semibold text-accent leading-snug">
+          {getAnalogy(rupiah)}
+        </p>
+      )}
+
       {rupiah > Number.MAX_SAFE_INTEGER && (
         <p className="text-[10px] text-destructive mt-2 text-center">⚠ Melebihi batas presisi</p>
       )}
