@@ -904,26 +904,12 @@ export default function Index() {
                 <Code2 size={11} aria-hidden="true" /> Sematkan
               </button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-lg">
               <DialogHeader>
                 <DialogTitle>Sematkan Kalkulator MBG</DialogTitle>
-                <DialogDescription>Salin snippet di bawah ke halaman/blog Anda.</DialogDescription>
+                <DialogDescription>Sesuaikan tampilan, salin snippet, tempel ke halaman/blog Anda.</DialogDescription>
               </DialogHeader>
-              {(() => {
-                const params = new URLSearchParams();
-                if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
-                const snippet = `<iframe src="${SITE_URL}${EMBED_PATH}${params.toString() ? "?" + params.toString() : ""}" width="440" height="560" style="border:0;border-radius:16px;max-width:100%" loading="lazy" title="Kalkulator MBG"></iframe>`;
-                return (
-                  <div className="space-y-2">
-                    <pre className="text-[10px] sm:text-xs bg-muted p-3 rounded-lg overflow-x-auto whitespace-pre-wrap break-all">{snippet}</pre>
-                    <button
-                      onClick={() => { navigator.clipboard.writeText(snippet); track("copy_embed"); toast.success("Snippet disalin!"); }}
-                      aria-label="Salin snippet iframe sematkan ke clipboard"
-                      className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-accent transition-colors active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                    >Salin snippet</button>
-                  </div>
-                );
-              })()}
+              <EmbedBuilder amount={debouncedRupiah} compareAmount={compareMode ? debouncedRupiah2 : 0} />
             </DialogContent>
           </Dialog>
         </div>
