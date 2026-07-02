@@ -8,6 +8,8 @@ import {
 } from "@/lib/mbg-constants";
 import { formatRupiah } from "@/lib/units";
 import { SITE_URL } from "@/lib/site";
+import { LiveMbgCounter } from "@/components/LiveMbgCounter";
+import { BudgetChart } from "@/components/BudgetChart";
 
 const FAQ = [
   {
@@ -30,7 +32,36 @@ const FAQ = [
     q: "Apa maksud “porsi makan gratis”?",
     a: `Setiap Rp ${formatRupiah(MBG_COST_PER_PORSI)} setara satu porsi standar BGN, kira-kira jatah makan satu anak untuk satu hari.`,
   },
+  {
+    q: "Bisakah saya menyematkan kalkulator ini di situs saya?",
+    a: "Bisa. Buka halaman utama, tekan tombol “Sematkan” di footer, salin snippet iframe, lalu tempel ke halaman/blog Anda. Bebas biaya dan tanpa akun.",
+  },
 ];
+
+const TIMELINE = [
+  { year: "2024", value: "Rp 0", note: "Program diluncurkan (masa transisi)" },
+  { year: "2025", value: "Rp 71 T", note: "Anggaran perdana MBG" },
+  { year: "2026", value: "Rp 335 T", note: "Naik ~4,7× (pagu 268 T + standby 67 T)" },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Kalkulator MBG", item: `${SITE_URL}/` },
+    { "@type": "ListItem", position: 2, name: "Tentang", item: `${SITE_URL}/tentang` },
+  ],
+};
 
 export default function Tentang() {
   return (
@@ -45,6 +76,8 @@ export default function Tentang() {
         <meta property="og:url" content={`${SITE_URL}/tentang`} />
         <meta property="og:title" content="Tentang Kalkulator MBG — Metodologi, FAQ & Sumber Data" />
         <meta property="og:description" content="Metodologi, sumber data, dan pertanyaan yang sering diajukan tentang Kalkulator MBG." />
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
       </Helmet>
 
       <header className="border-b-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--header-bg))" }}>
@@ -70,6 +103,8 @@ export default function Tentang() {
             </p>
           </header>
 
+          <LiveMbgCounter />
+
           <section className="card-elevated rounded-2xl border-2 border-border p-5 sm:p-6">
             <h2 className="text-lg font-extrabold mb-3">Metodologi singkat</h2>
             <ul className="text-sm text-muted-foreground leading-relaxed space-y-2">
@@ -78,6 +113,27 @@ export default function Tentang() {
               <li>• Per porsi: <strong className="text-foreground">Rp {formatRupiah(MBG_COST_PER_PORSI)}</strong> (standar BGN)</li>
               <li>• Target penerima: <strong className="text-foreground">{formatRupiah(MBG_RECIPIENTS)}</strong> orang</li>
             </ul>
+          </section>
+
+          <section className="card-elevated rounded-2xl border-2 border-border p-5 sm:p-6">
+            <h2 className="text-lg font-extrabold mb-4">MBG vs pos APBN lain (2026)</h2>
+            <BudgetChart />
+          </section>
+
+          <section className="card-elevated rounded-2xl border-2 border-border p-5 sm:p-6">
+            <h2 className="text-lg font-extrabold mb-4">Perjalanan anggaran MBG</h2>
+            <ol className="relative border-l-2 border-primary/20 ml-2 space-y-4">
+              {TIMELINE.map((t) => (
+                <li key={t.year} className="pl-4">
+                  <span className="absolute -left-[7px] w-3 h-3 rounded-full bg-primary" aria-hidden="true" />
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <span className="text-sm font-bold text-primary">{t.year}</span>
+                    <span className="text-base font-extrabold">{t.value}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{t.note}</p>
+                </li>
+              ))}
+            </ol>
           </section>
 
           <section>
