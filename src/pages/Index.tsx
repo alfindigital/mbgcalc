@@ -390,22 +390,23 @@ export default function Index() {
     toast.success("Tautan disalin!");
   }, [buildShareUrl, currentMode]);
 
-  const handleShare = useCallback(async () => {
-    const url = buildShareUrl();
-    let text: string;
+  /** Punch-line text — 1-2 baris, siap-tweet, dengan analogi. */
+  const buildShareText = useCallback(() => {
     if (compareMode) {
       const p1 = getPrimaryResult(totalMs);
       const p2 = getPrimaryResult(totalMs2);
       const pd = getPrimaryResult(diffMs);
-      text =
-        `Bandingkan di Kalkulator MBG:\n` +
-        `• Rp ${formatRupiah(debouncedRupiah)} = ${p1.value} ${p1.unit}\n` +
-        `• Rp ${formatRupiah(debouncedRupiah2)} = ${p2.value} ${p2.unit}\n` +
-        `Selisih: ${pd.value} ${pd.unit} program MBG`;
-    } else {
-      const p = getPrimaryResult(totalMs);
-      text = `Rp ${formatRupiah(debouncedRupiah)} = ${p.value} ${p.unit} program MBG (≈ ${formatCompact(rupiahToPorsi(debouncedRupiah))} porsi makan gratis).`;
+      return `Rp ${formatRupiah(debouncedRupiah)} = ${p1.value} ${p1.unit} MBG. Rp ${formatRupiah(debouncedRupiah2)} = ${p2.value} ${p2.unit}. Selisih ${pd.value} ${pd.unit}.`;
     }
+    const p = getPrimaryResult(totalMs);
+    const analogy = getAnalogy(debouncedRupiah);
+    const base = `Rp ${formatRupiah(debouncedRupiah)} = ${p.value} ${p.unit} program MBG (≈ ${formatCompact(rupiahToPorsi(debouncedRupiah))} porsi makan gratis).`;
+    return analogy ? `${base} ${analogy}.` : base;
+  }, [compareMode, totalMs, totalMs2, diffMs, debouncedRupiah, debouncedRupiah2]);
+
+  const handleShare = useCallback(async () => {
+    const url = buildShareUrl();
+    const text = buildShareText();
     track("share", { mode: currentMode, native: typeof navigator.share === "function" });
     if (typeof navigator.share === "function") {
       try { await navigator.share({ title: "Kalkulator MBG", text, url }); }
@@ -414,7 +415,18 @@ export default function Index() {
       try { await navigator.clipboard.writeText(`${text}\n${url}`); toast.success("Disalin — siap dibagikan!"); }
       catch { toast.error("Gagal menyalin"); }
     }
-  }, [buildShareUrl, compareMode, totalMs, totalMs2, diffMs, debouncedRupiah, debouncedRupiah2, currentMode]);
+  }, [buildShareUrl, buildShareText, currentMode]);
+
+  const handleShareWA = useCallback(() => {
+    const text = `${buildShareText()}\n${buildShareUrl()}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+    track("share_wa", { mode: currentMode });
+  }, [buildShareText, buildShareUrl, currentMode]);
+
+  const handlePrint = useCallback(() => {
+    track("print", { mode: currentMode });
+    window.print();
+  }, [currentMode]);
 
   const handleCopyText = useCallback(() => {
     const p = getPrimaryResult(totalMs);
