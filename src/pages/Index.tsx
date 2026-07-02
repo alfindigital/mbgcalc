@@ -590,6 +590,24 @@ export default function Index() {
                   </div>
                   <QuickButtons amounts={QUICK_AMOUNTS} active={activeQuick} onSelect={handleQuick} disabled={compareMode} />
 
+                  {/* Preset trending — angka publik yang lagi dibahas */}
+                  <div className="pt-1">
+                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                      <span aria-hidden="true">🔥</span> Coba angka publik
+                    </p>
+                    <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1 snap-x">
+                      {PRESETS.filter((p) => p.trending).map((p) => (
+                        <button
+                          key={p.label}
+                          onClick={() => { setActiveQuick(null); setRawInput(formatRupiah(p.value)); track("preset_click", { label: p.short }); }}
+                          className="shrink-0 snap-start h-8 px-3 rounded-lg border border-primary/25 bg-card text-[11px] font-bold text-primary hover:bg-primary/5 active:scale-[0.96] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          title={p.label}
+                        >
+                          {p.short}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
               </div>
