@@ -391,38 +391,6 @@ export default function Index() {
     toast.success("Tautan disalin!");
   }, [buildShareUrl, currentMode]);
 
-  /** Punch-line text — 1-2 baris, siap-tweet, dengan analogi. */
-  const buildShareText = useCallback(() => {
-    if (compareMode) {
-      const p1 = getPrimaryResult(totalMs);
-      const p2 = getPrimaryResult(totalMs2);
-      const pd = getPrimaryResult(diffMs);
-      return `Rp ${formatRupiah(debouncedRupiah)} = ${p1.value} ${p1.unit} MBG. Rp ${formatRupiah(debouncedRupiah2)} = ${p2.value} ${p2.unit}. Selisih ${pd.value} ${pd.unit}.`;
-    }
-    const p = getPrimaryResult(totalMs);
-    const analogy = getAnalogy(debouncedRupiah);
-    const base = `Rp ${formatRupiah(debouncedRupiah)} = ${p.value} ${p.unit} program MBG (≈ ${formatCompact(rupiahToPorsi(debouncedRupiah))} porsi makan gratis).`;
-    return analogy ? `${base} ${analogy}.` : base;
-  }, [compareMode, totalMs, totalMs2, diffMs, debouncedRupiah, debouncedRupiah2]);
-
-  const handleShare = useCallback(async () => {
-    const url = buildShareUrl();
-    const text = buildShareText();
-    track("share", { mode: currentMode, native: typeof navigator.share === "function" });
-    if (typeof navigator.share === "function") {
-      try { await navigator.share({ title: "Kalkulator MBG", text, url }); }
-      catch { /* user batal */ }
-    } else {
-      try { await navigator.clipboard.writeText(`${text}\n${url}`); toast.success("Disalin — siap dibagikan!"); }
-      catch { toast.error("Gagal menyalin"); }
-    }
-  }, [buildShareUrl, buildShareText, currentMode]);
-
-  const handleShareWA = useCallback(() => {
-    const text = `${buildShareText()}\n${buildShareUrl()}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
-    track("share_wa", { mode: currentMode });
-  }, [buildShareText, buildShareUrl, currentMode]);
 
   const handlePrint = useCallback(() => {
     track("print", { mode: currentMode });
@@ -700,21 +668,37 @@ export default function Index() {
             <div className={`${modeTransition} ${!compareMode && !reverseMode ? "opacity-100 translate-y-0 max-h-[600px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
               <div className="space-y-2.5 sm:space-y-3">
                 <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} />
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={handleShare}
-                    aria-label="Bagikan hasil"
-                    className="h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <Share2 size={15} aria-hidden="true" /> Bagikan
+                <div className="grid grid-cols-3 gap-2">
+                  <button onClick={handleCopyText} aria-label="Salin teks hasil ke clipboard"
+                    className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                    <Copy size={13} aria-hidden="true" /> Teks
                   </button>
-                  <button
-                    onClick={handleShareWA}
-                    aria-label="Bagikan hasil ke WhatsApp"
-                    className="h-11 rounded-xl bg-[#25D366] text-white font-bold text-sm flex items-center justify-center gap-1.5 hover:brightness-95 shadow-md active:scale-[0.98] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <MessageCircle size={15} aria-hidden="true" /> WhatsApp
+                  <button onClick={handleCopyLink} aria-label="Salin tautan hasil ke clipboard"
+                    className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                    <Link2 size={13} aria-hidden="true" /> Link
                   </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button disabled={saving} aria-label="Simpan hasil sebagai gambar, pilih rasio"
+                        className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+                        <Download size={13} aria-hidden="true" /> {saving ? "..." : "PNG"} <ChevronDown size={11} className="opacity-70" aria-hidden="true" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44" loop>
+                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("1:1"); }} aria-label="Simpan gambar rasio 1:1 untuk Instagram Feed" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                        <div className="flex flex-col"><span className="font-semibold text-xs">1:1 — IG Feed</span><span className="text-[10px] text-muted-foreground">1080 × 1080</span></div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("9:16"); }} aria-label="Simpan gambar rasio 9:16 untuk Story atau Reels" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                        <div className="flex flex-col"><span className="font-semibold text-xs">9:16 — Story / Reels</span><span className="text-[10px] text-muted-foreground">1080 × 1920</span></div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("16:9"); }} aria-label="Simpan gambar rasio 16:9 untuk Twitter atau Web" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
+                        <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handlePrint(); }} aria-label="Cetak halaman" className="cursor-pointer focus:bg-accent focus:text-accent-foreground border-t mt-1 pt-2">
+                        <div className="flex items-center gap-2"><Printer size={13} aria-hidden="true" /><span className="font-semibold text-xs">Cetak halaman</span></div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={handleCopyText} aria-label="Salin teks hasil ke clipboard"
@@ -763,20 +747,6 @@ export default function Index() {
                   <p className="text-xs sm:text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
                   <p className="text-xs sm:text-sm font-bold text-result text-center">= {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} program MBG</p>
                 </Section>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={handleShare} disabled={!bothCompare} aria-label="Bagikan perbandingan"
-                    className="h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <Share2 size={15} aria-hidden="true" /> Bagikan
-                  </button>
-                  <button
-                    onClick={handleShareWA} disabled={!bothCompare} aria-label="Bagikan perbandingan ke WhatsApp"
-                    className="h-11 rounded-xl bg-[#25D366] text-white font-bold text-sm flex items-center justify-center gap-1.5 hover:brightness-95 shadow-md active:scale-[0.98] transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <MessageCircle size={15} aria-hidden="true" /> WhatsApp
-                  </button>
-                </div>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={handleCopyCompare} aria-label="Salin teks perbandingan ke clipboard" disabled={!bothCompare}
                     className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50">
@@ -879,22 +849,6 @@ export default function Index() {
           >
             <Info size={11} aria-hidden="true" /> Tentang
           </Link>
-          <span className="text-muted-foreground">·</span>
-          <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
-            <DialogTrigger asChild>
-              <button aria-label="Buka dialog snippet sematkan iframe kalkulator"
-                className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                <Code2 size={11} aria-hidden="true" /> Sematkan
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Sematkan Kalkulator MBG</DialogTitle>
-                <DialogDescription>Sesuaikan tampilan, salin snippet, tempel ke halaman/blog Anda.</DialogDescription>
-              </DialogHeader>
-              <EmbedBuilder amount={debouncedRupiah} compareAmount={compareMode ? debouncedRupiah2 : 0} />
-            </DialogContent>
-          </Dialog>
         </div>
       </footer>
 
