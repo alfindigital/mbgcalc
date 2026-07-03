@@ -221,8 +221,22 @@ export default function Index() {
   });
   const [activeQuick2, setActiveQuick2] = useState<number | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [pendingClear, setPendingClear] = useState(false);
+  const clearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { history, addToHistory, clearHistory } = useHistory();
+
+  const handleClearClick = useCallback(() => {
+    if (pendingClear) {
+      if (clearTimeoutRef.current) clearTimeout(clearTimeoutRef.current);
+      clearHistory();
+      setPendingClear(false);
+      toast.success("Riwayat dihapus");
+    } else {
+      setPendingClear(true);
+      clearTimeoutRef.current = setTimeout(() => setPendingClear(false), 3000);
+    }
+  }, [pendingClear, clearHistory]);
 
   useEffect(() => { if (!rawInput) inputRef.current?.focus(); }, []);
 
@@ -293,6 +307,10 @@ export default function Index() {
       }
     }
   }, [debouncedRupiah]);
+
+  useEffect(() => {
+    return () => { if (clearTimeoutRef.current) clearTimeout(clearTimeoutRef.current); };
+  }, []);
 
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "");
@@ -770,9 +788,11 @@ export default function Index() {
               <DialogDescription className="sr-only">Daftar perhitungan terakhir Anda</DialogDescription>
             </DialogHeader>
             {history.length > 0 && (
-              <button onClick={clearHistory} aria-label="Hapus semua riwayat"
-                className="absolute right-11 top-4 inline-flex items-center justify-center rounded-sm text-muted-foreground hover:text-destructive opacity-70 hover:opacity-100 transition-opacity focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+              <button onClick={handleClearClick}
+                aria-label={pendingClear ? "Klik lagi untuk menghapus semua riwayat" : "Hapus semua riwayat"}
+                className={`absolute right-11 top-4 inline-flex items-center justify-center rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${pendingClear ? "text-destructive" : "text-muted-foreground hover:text-destructive opacity-70 hover:opacity-100"}`}>
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
+                {pendingClear && <span className="sr-only">Klik lagi untuk konfirmasi</span>}
               </button>
             )}
             {history.length > 0 ? (
