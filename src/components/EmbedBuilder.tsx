@@ -61,7 +61,7 @@ export function EmbedBuilder({ amount, compareAmount }: { amount: number; compar
         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Preview</p>
         <div className="rounded-lg overflow-hidden border-2 border-border bg-background">
           <iframe
-            src={url} title="Preview embed Kalkulator MBG"
+            src={previewUrl} title="Preview embed Kalkulator MBG"
             width="100%" height={Math.min(height, 380)}
             style={{ border: 0, display: "block" }} loading="lazy"
           />
