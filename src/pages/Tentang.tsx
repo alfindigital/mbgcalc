@@ -81,14 +81,13 @@ export default function Tentang() {
       </Helmet>
 
       <header className="border-b-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--header-bg))" }}>
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
+        <div className="max-w-3xl mx-auto">
           <Link
             to="/"
             className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:text-accent transition-colors"
           >
             <ArrowLeft size={16} aria-hidden="true" /> Kalkulator
           </Link>
-          <span className="text-xs text-muted-foreground font-medium">Tentang</span>
         </div>
       </header>
 
