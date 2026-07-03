@@ -13,35 +13,35 @@ import { BudgetChart } from "@/components/BudgetChart";
 
 const FAQ = [
   {
-    q: "Apa itu program Makan Bergizi Gratis (MBG)?",
-    a: `Program pemerintah yang memberi makan bergizi gratis untuk siswa, ibu hamil, dan balita. Pada ${MBG_BUDGET_YEAR} ditargetkan menjangkau ${formatRupiah(MBG_RECIPIENTS)} penerima manfaat dengan anggaran ${MBG_ANNUAL_LABEL}.`,
+    q: "Apa itu program MBG?",
+    a: `Program pemerintah yang memberi makan bergizi gratis untuk siswa, ibu hamil, dan balita. Target ${MBG_BUDGET_YEAR}: ${formatRupiah(MBG_RECIPIENTS)} penerima, anggaran ${MBG_ANNUAL_LABEL}.`,
   },
   {
     q: "Bagaimana kalkulator ini menghitung?",
-    a: `Nominal yang Anda masukkan dibandingkan dengan biaya program MBG: ${MBG_DAILY_LABEL}/hari (anggaran tahunan ÷ 365) untuk satuan waktu, dan Rp ${formatRupiah(MBG_COST_PER_PORSI)}/porsi untuk jumlah porsi makan.`,
+    a: `Nominal Anda dibagi ${MBG_DAILY_LABEL}/hari (anggaran tahunan ÷ 365) untuk satuan waktu, dan Rp ${formatRupiah(MBG_COST_PER_PORSI)}/porsi untuk jumlah porsi.`,
   },
   {
     q: `Dari mana angka ${MBG_ANNUAL_LABEL}?`,
-    a: "Dari APBN 2026 (pagu Rp 268 triliun + dana standby Rp 67 triliun). Tautan sumber lengkap ada di bagian “Sumber data” di bawah.",
+    a: "APBN 2026: pagu Rp 268 T + standby Rp 67 T. Sumber lengkap ada di bawah.",
   },
   {
-    q: "Apakah hasilnya angka resmi pemerintah?",
-    a: "Bukan. Ini alat edukasi independen untuk membantu membayangkan skala sebuah angka. Tidak berafiliasi dengan BGN/pemerintah — selalu rujuk sumber resmi untuk angka pasti.",
+    q: "Apakah ini angka resmi pemerintah?",
+    a: "Bukan. Alat edukasi independen, tidak berafiliasi dengan BGN/pemerintah. Rujuk sumber resmi untuk angka pasti.",
   },
   {
     q: "Apa maksud “porsi makan gratis”?",
-    a: `Setiap Rp ${formatRupiah(MBG_COST_PER_PORSI)} setara satu porsi standar BGN, kira-kira jatah makan satu anak untuk satu hari.`,
+    a: `Setiap Rp ${formatRupiah(MBG_COST_PER_PORSI)} setara satu porsi standar BGN — kira-kira jatah makan satu anak per hari.`,
   },
   {
-    q: "Bisakah saya menyematkan kalkulator ini di situs saya?",
-    a: "Bisa. Buka halaman utama, tekan tombol “Sematkan” di footer, salin snippet iframe, lalu tempel ke halaman/blog Anda. Bebas biaya dan tanpa akun.",
+    q: "Bisa disematkan di situs saya?",
+    a: "Bisa. Buka halaman utama, klik “Sematkan” di footer, salin iframe. Gratis, tanpa akun.",
   },
 ];
 
 const TIMELINE = [
-  { year: "2024", value: "Rp 0", note: "Program diluncurkan (masa transisi)" },
-  { year: "2025", value: "Rp 71 T", note: "Anggaran perdana MBG" },
-  { year: "2026", value: "Rp 335 T", note: "Naik ~4,7× (pagu 268 T + standby 67 T)" },
+  { year: "2024", value: "Rp 0", note: "Masa transisi program" },
+  { year: "2025", value: "Rp 71 T", note: "Anggaran perdana" },
+  { year: "2026", value: "Rp 335 T", note: "Naik ~4,7× (268 T pagu + 67 T standby)" },
 ];
 
 const faqJsonLd = {
