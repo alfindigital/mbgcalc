@@ -167,7 +167,7 @@ export default function Tentang() {
               ))}
             </ul>
             <p className="text-[11px] text-muted-foreground mt-4 leading-relaxed">
-              Diperbarui {MBG_DATA_UPDATED}. Alat edukasi independen — bukan afiliasi resmi BGN/pemerintah.
+              Diperbarui {MBG_DATA_UPDATED}. Independen — bukan afiliasi BGN/pemerintah.
             </p>
           </section>
 
