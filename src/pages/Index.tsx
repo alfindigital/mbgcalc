@@ -265,6 +265,21 @@ export default function Index() {
 
   const currentMode: ModeKey = reverseMode ? "balik" : compareMode ? "selisih" : "hitung";
 
+  // Sinkronkan URL dengan input (share address bar langsung enak). replaceState → tidak spam history.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (reverseMode) return; // mode balik tidak punya representasi query stabil
+    const params = new URLSearchParams();
+    if (debouncedRupiah > 0) params.set("amount", String(debouncedRupiah));
+    if (compareMode && debouncedRupiah2 > 0) params.set("compare", String(debouncedRupiah2));
+    const qs = params.toString();
+    const next = `/${qs ? "?" + qs : ""}`;
+    if (window.location.pathname === "/" && window.location.search !== (qs ? "?" + qs : "")) {
+      window.history.replaceState(null, "", next);
+    }
+  }, [debouncedRupiah, debouncedRupiah2, compareMode, reverseMode]);
+
+
   const setMode = useCallback((m: ModeKey) => {
     setCompareMode(m === "selisih");
     setReverseMode(m === "balik");
