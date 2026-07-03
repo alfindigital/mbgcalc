@@ -308,6 +308,10 @@ export default function Index() {
     }
   }, [debouncedRupiah]);
 
+  useEffect(() => {
+    return () => { if (clearTimeoutRef.current) clearTimeout(clearTimeoutRef.current); };
+  }, []);
+
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "");
     setActiveQuick(null);
