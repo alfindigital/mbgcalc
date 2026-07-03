@@ -532,10 +532,10 @@ export default function Index() {
         {/* Hero */}
         <section className="text-center mb-5 sm:mb-7 max-w-2xl mx-auto">
           <h1 className="text-xl sm:text-2xl lg:text-[1.75rem] font-extrabold text-foreground tracking-tight text-balance leading-tight">
-            Berapa lama uang segini bisa menjalankan program <span className="text-primary">Makan Bergizi Gratis</span>?
+            Berapa lama uangmu menjalankan <span className="text-primary">Makan Bergizi Gratis</span>?
           </h1>
           <p className="mt-2 text-sm sm:text-base text-muted-foreground">
-            Ketik nominal apa pun — lihat setaranya dalam waktu program MBG dan jumlah porsi makan gratis.
+            Ketik nominal — lihat durasi program dan jumlah porsi gratis.
           </p>
         </section>
 
