@@ -11,15 +11,17 @@ export function EmbedBuilder({ amount, compareAmount }: { amount: number; compar
   const [height, setHeight] = useState(560);
   const [minimal, setMinimal] = useState(false);
 
-  const url = useMemo(() => {
+  const qs = useMemo(() => {
     const p = new URLSearchParams();
     if (amount > 0) p.set("amount", String(amount));
     if (compareAmount > 0) p.set("compare", String(compareAmount));
     if (theme !== "auto") p.set("theme", theme);
     if (minimal) p.set("minimal", "1");
-    const qs = p.toString();
-    return `${SITE_URL}${EMBED_PATH}${qs ? "?" + qs : ""}`;
+    return p.toString();
   }, [amount, compareAmount, theme, minimal]);
+
+  const url = `${SITE_URL}${EMBED_PATH}${qs ? "?" + qs : ""}`;
+  const previewUrl = `${EMBED_PATH}${qs ? "?" + qs : ""}`;
 
   const snippet = `<iframe src="${url}" width="440" height="${height}" style="border:0;border-radius:16px;max-width:100%" loading="lazy" title="Kalkulator MBG"></iframe>`;
 
@@ -59,7 +61,7 @@ export function EmbedBuilder({ amount, compareAmount }: { amount: number; compar
         <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Preview</p>
         <div className="rounded-lg overflow-hidden border-2 border-border bg-background">
           <iframe
-            src={url} title="Preview embed Kalkulator MBG"
+            src={previewUrl} title="Preview embed Kalkulator MBG"
             width="100%" height={Math.min(height, 380)}
             style={{ border: 0, display: "block" }} loading="lazy"
           />

@@ -38,8 +38,20 @@ export default function Embed() {
   const compareMode = amount2 !== null;
 
   useEffect(() => {
-    if (theme === "dark") document.documentElement.classList.add("dark");
-    else if (theme === "light") document.documentElement.classList.remove("dark");
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else if (theme === "light") {
+      document.documentElement.classList.remove("dark");
+    } else {
+      const mql = window.matchMedia("(prefers-color-scheme: dark)");
+      const apply = () => {
+        if (mql.matches) document.documentElement.classList.add("dark");
+        else document.documentElement.classList.remove("dark");
+      };
+      apply();
+      mql.addEventListener("change", apply);
+      return () => mql.removeEventListener("change", apply);
+    }
   }, [theme]);
 
   const linkUrl = `${SITE_URL}/?amount=${amount}${compareMode ? `&compare=${amount2}` : ""}`;
