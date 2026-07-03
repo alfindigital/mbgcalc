@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { useSearchParams, Link } from "react-router-dom";
-import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Link2, History } from "lucide-react";
+import { Sun, Moon, X, Copy, Download, Upload, ChevronDown, Trash2, Calculator, Info, Link2, History } from "lucide-react";
+import {
+  MBG_ANNUAL_BUDGET, MBG_ANNUAL_LABEL, MBG_DAILY_LABEL, MBG_BUDGET_YEAR, MBG_DATA_UPDATED,
+} from "@/lib/mbg-constants";
 import { Slider } from "@/components/ui/slider";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
