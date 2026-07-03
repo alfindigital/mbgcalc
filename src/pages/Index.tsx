@@ -470,8 +470,30 @@ export default function Index() {
   const modeTransition = "transition-all duration-300 ease-out will-change-[opacity,transform]";
   const bothCompare = debouncedRupiah > 0 && debouncedRupiah2 > 0;
 
+  // Meta dinamis per-URL untuk crawler yang menjalankan JS (Googlebot, Bingbot).
+  // Social crawler (WhatsApp/FB/LinkedIn) tetap membaca fallback statis di index.html.
+  const dynamicMeta = useMemo(() => {
+    if (reverseMode || compareMode || debouncedRupiah <= 0) return null;
+    const p = getPrimaryResult(totalMs);
+    const porsi = rupiahToPorsi(debouncedRupiah);
+    const rpLabel = formatCompact(debouncedRupiah);
+    return {
+      title: `Rp ${rpLabel} = ${p.value} ${p.unit} program MBG · Kalkulator MBG`,
+      description: `Rp ${formatRupiah(debouncedRupiah)} setara dengan ${p.value} ${p.unit} biaya operasional program Makan Bergizi Gratis (MBG), atau sekitar ${formatCompact(porsi)} porsi makan gratis.`,
+      url: `${SITE_URL}/?amount=${debouncedRupiah}`,
+    };
+  }, [reverseMode, compareMode, debouncedRupiah, totalMs]);
+
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col">
+      <Helmet>
+        <link rel="canonical" href={dynamicMeta ? dynamicMeta.url : `${SITE_URL}/`} />
+        {dynamicMeta && <title>{dynamicMeta.title}</title>}
+        {dynamicMeta && <meta name="description" content={dynamicMeta.description} />}
+        {dynamicMeta && <meta property="og:title" content={dynamicMeta.title} />}
+        {dynamicMeta && <meta property="og:description" content={dynamicMeta.description} />}
+        <meta property="og:url" content={dynamicMeta ? dynamicMeta.url : `${SITE_URL}/`} />
+      </Helmet>
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-border/60" style={{ background: "hsl(var(--header-bg))", backdropFilter: "blur(12px)" }}>
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between">
