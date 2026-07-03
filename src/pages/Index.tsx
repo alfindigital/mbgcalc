@@ -700,38 +700,6 @@ export default function Index() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <button onClick={handleCopyText} aria-label="Salin teks hasil ke clipboard"
-                    className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                    <Copy size={13} aria-hidden="true" /> Teks
-                  </button>
-                  <button onClick={handleCopyLink} aria-label="Salin tautan hasil ke clipboard"
-                    className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                    <Link2 size={13} aria-hidden="true" /> Link
-                  </button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button disabled={saving} aria-label="Simpan hasil sebagai gambar, pilih rasio"
-                        className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                        <Download size={13} aria-hidden="true" /> {saving ? "..." : "PNG"} <ChevronDown size={11} className="opacity-70" aria-hidden="true" />
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44" loop>
-                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("1:1"); }} aria-label="Simpan gambar rasio 1:1 untuk Instagram Feed" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
-                        <div className="flex flex-col"><span className="font-semibold text-xs">1:1 — IG Feed</span><span className="text-[10px] text-muted-foreground">1080 × 1080</span></div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("9:16"); }} aria-label="Simpan gambar rasio 9:16 untuk Story atau Reels" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
-                        <div className="flex flex-col"><span className="font-semibold text-xs">9:16 — Story / Reels</span><span className="text-[10px] text-muted-foreground">1080 × 1920</span></div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("16:9"); }} aria-label="Simpan gambar rasio 16:9 untuk Twitter atau Web" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
-                        <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handlePrint(); }} aria-label="Cetak halaman" className="cursor-pointer focus:bg-accent focus:text-accent-foreground border-t mt-1 pt-2">
-                        <div className="flex items-center gap-2"><Printer size={13} aria-hidden="true" /><span className="font-semibold text-xs">Cetak halaman</span></div>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
               </div>
             </div>
 
