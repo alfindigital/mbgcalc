@@ -32,11 +32,8 @@ const FAQ = [
     q: "Apa maksud “porsi makan gratis”?",
     a: `Setiap Rp ${formatRupiah(MBG_COST_PER_PORSI)} setara satu porsi standar BGN — kira-kira jatah makan satu anak per hari.`,
   },
-  {
-    q: "Bisa disematkan di situs saya?",
-    a: "Bisa. Buka halaman utama, klik “Sematkan” di footer, salin iframe. Gratis, tanpa akun.",
-  },
 ];
+
 
 const TIMELINE = [
   { year: "2024", value: "Rp 0", note: "Masa transisi program" },

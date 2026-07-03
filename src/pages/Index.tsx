@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { useSearchParams, Link } from "react-router-dom";
-import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Link2, History } from "lucide-react";
+import { Sun, Moon, X, Copy, Download, Upload, ChevronDown, Trash2, Calculator, Info, Link2, History } from "lucide-react";
+import {
+  MBG_ANNUAL_BUDGET, MBG_ANNUAL_LABEL, MBG_DAILY_LABEL, MBG_BUDGET_YEAR, MBG_DATA_UPDATED,
+} from "@/lib/mbg-constants";
 import { Slider } from "@/components/ui/slider";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -10,9 +14,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
 import { useHistory } from "@/hooks/useHistory";
 import { getStorage, setStorage } from "@/lib/storage";
-import {
-  MBG_ANNUAL_BUDGET, MBG_ANNUAL_LABEL, MBG_DAILY_LABEL, MBG_BUDGET_YEAR,
-} from "@/lib/mbg-constants";
 import {
   UNITS, SLIDER_MAX,
   rupiahToMs, msToRupiah, rupiahToPorsi, getPrimaryResult,
@@ -224,7 +225,19 @@ export default function Index() {
   const [pendingClear, setPendingClear] = useState(false);
   const clearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { history, addToHistory, clearHistory } = useHistory();
+  const { history, addToHistory, clearHistory, exportHistory, importHistory } = useHistory();
+  const importInputRef = useRef<HTMLInputElement | null>(null);
+  const handleImportFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const added = await importHistory(file);
+      toast.success(added > 0 ? `${added} entri riwayat diimpor` : "Tidak ada entri baru");
+    } catch {
+      toast.error("File tidak valid");
+    }
+  }, [importHistory]);
 
   const handleClearClick = useCallback(() => {
     if (pendingClear) {
@@ -457,8 +470,30 @@ export default function Index() {
   const modeTransition = "transition-all duration-300 ease-out will-change-[opacity,transform]";
   const bothCompare = debouncedRupiah > 0 && debouncedRupiah2 > 0;
 
+  // Meta dinamis per-URL untuk crawler yang menjalankan JS (Googlebot, Bingbot).
+  // Social crawler (WhatsApp/FB/LinkedIn) tetap membaca fallback statis di index.html.
+  const dynamicMeta = useMemo(() => {
+    if (reverseMode || compareMode || debouncedRupiah <= 0) return null;
+    const p = getPrimaryResult(totalMs);
+    const porsi = rupiahToPorsi(debouncedRupiah);
+    const rpLabel = formatCompact(debouncedRupiah);
+    return {
+      title: `Rp ${rpLabel} = ${p.value} ${p.unit} program MBG · Kalkulator MBG`,
+      description: `Rp ${formatRupiah(debouncedRupiah)} setara dengan ${p.value} ${p.unit} biaya operasional program Makan Bergizi Gratis (MBG), atau sekitar ${formatCompact(porsi)} porsi makan gratis.`,
+      url: `${SITE_URL}/?amount=${debouncedRupiah}`,
+    };
+  }, [reverseMode, compareMode, debouncedRupiah, totalMs]);
+
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col">
+      <Helmet>
+        <link rel="canonical" href={dynamicMeta ? dynamicMeta.url : `${SITE_URL}/`} />
+        {dynamicMeta && <title>{dynamicMeta.title}</title>}
+        {dynamicMeta && <meta name="description" content={dynamicMeta.description} />}
+        {dynamicMeta && <meta property="og:title" content={dynamicMeta.title} />}
+        {dynamicMeta && <meta property="og:description" content={dynamicMeta.description} />}
+        <meta property="og:url" content={dynamicMeta ? dynamicMeta.url : `${SITE_URL}/`} />
+      </Helmet>
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-border/60" style={{ background: "hsl(var(--header-bg))", backdropFilter: "blur(12px)" }}>
         <div className="w-full max-w-5xl mx-auto px-4 sm:px-5 py-3 sm:py-4 flex items-center justify-between">
@@ -793,6 +828,34 @@ export default function Index() {
             ) : (
               <p className="text-sm text-muted-foreground text-center py-6">Belum ada riwayat</p>
             )}
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              onChange={handleImportFile}
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            <div className="flex gap-2 pt-2 border-t border-border">
+              <button
+                type="button"
+                onClick={() => importInputRef.current?.click()}
+                className="flex-1 h-9 rounded-lg border-2 border-border bg-card hover:bg-muted text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label="Impor riwayat dari file JSON"
+              >
+                <Upload size={13} aria-hidden="true" /> Impor
+              </button>
+              <button
+                type="button"
+                onClick={() => { exportHistory(); toast.success("Riwayat diekspor"); }}
+                disabled={history.length === 0}
+                className="flex-1 h-9 rounded-lg border-2 border-border bg-card hover:bg-muted text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label="Ekspor riwayat sebagai file JSON"
+              >
+                <Download size={13} aria-hidden="true" /> Ekspor
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
       </main>
@@ -801,6 +864,8 @@ export default function Index() {
       <footer className="border-t-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
         <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
           <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
+          <span className="text-muted-foreground">·</span>
+          <span title="Tanggal data anggaran MBG terakhir diperbarui">Data {MBG_DATA_UPDATED}</span>
           <span className="text-muted-foreground">·</span>
           <Link
             to="/tentang"
