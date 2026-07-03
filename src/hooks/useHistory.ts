@@ -36,7 +36,7 @@ function loadHistory(): HistoryEntry[] {
         : [];
     return items
       .filter(isValidEntry)
-      .map((e) => ({ ...e, type: e.type === "compare" ? "compare" : "single" }))
+      .map((e) => ({ ...e, type: (e.type === "compare" ? "compare" : "single") as "single" | "compare" }))
       .slice(0, MAX_ENTRIES);
   } catch {
     return [];
