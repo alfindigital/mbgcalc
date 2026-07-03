@@ -23,14 +23,14 @@ export function LiveMbgCounter() {
 
   return (
     <div className="card-elevated rounded-2xl border-2 border-border p-5 sm:p-6 text-center">
-      <p className="text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-        Sejak halaman ini dibuka, MBG sudah menghabiskan
+      <p className="text-xs font-semibold text-muted-foreground">
+        MBG sudah menghabiskan sejak halaman dibuka
       </p>
       <p className="mt-2 text-2xl sm:text-3xl font-extrabold text-result-glow tabular-nums tracking-tight" aria-live="off">
         Rp {formatRupiah(Math.round(spent))}
       </p>
       <p className="mt-1 text-[11px] text-muted-foreground">
-        estimasi berdasar Rp 917,8 M/hari · ~Rp {formatRupiah(Math.round(PER_SEC))} setiap detik
+        ~Rp {formatRupiah(Math.round(PER_SEC))}/detik · basis Rp 917,8 M/hari
       </p>
     </div>
   );
