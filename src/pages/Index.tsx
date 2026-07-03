@@ -806,6 +806,34 @@ export default function Index() {
             ) : (
               <p className="text-sm text-muted-foreground text-center py-6">Belum ada riwayat</p>
             )}
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              onChange={handleImportFile}
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            <div className="flex gap-2 pt-2 border-t border-border">
+              <button
+                type="button"
+                onClick={() => importInputRef.current?.click()}
+                className="flex-1 h-9 rounded-lg border-2 border-border bg-card hover:bg-muted text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label="Impor riwayat dari file JSON"
+              >
+                <Upload size={13} aria-hidden="true" /> Impor
+              </button>
+              <button
+                type="button"
+                onClick={() => { exportHistory(); toast.success("Riwayat diekspor"); }}
+                disabled={history.length === 0}
+                className="flex-1 h-9 rounded-lg border-2 border-border bg-card hover:bg-muted text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                aria-label="Ekspor riwayat sebagai file JSON"
+              >
+                <Download size={13} aria-hidden="true" /> Ekspor
+              </button>
+            </div>
           </DialogContent>
         </Dialog>
       </main>
