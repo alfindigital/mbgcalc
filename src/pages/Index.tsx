@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { useSearchParams, Link } from "react-router-dom";
-import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Code2, Link2, History, Share2, MessageCircle, Printer } from "lucide-react";
+import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Link2, History, Printer } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
@@ -25,7 +25,7 @@ import { PRESET_PAIRS } from "@/lib/presets";
 
 import { track } from "@/lib/analytics";
 import { SITE_URL } from "@/lib/site";
-import { EmbedBuilder } from "@/components/EmbedBuilder";
+
 
 const SITE_HOST = new URL(SITE_URL).host;
 
@@ -209,7 +209,7 @@ export default function Index() {
   const [reverseUnit, setReverseUnit] = useState("detik");
   const [saving, setSaving] = useState(false);
   const [saveRatio, setSaveRatio] = useState<"1:1" | "9:16" | "16:9">("1:1");
-  const [embedOpen, setEmbedOpen] = useState(false);
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const captureRef = useRef<HTMLDivElement>(null);
   const modeRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -391,38 +391,6 @@ export default function Index() {
     toast.success("Tautan disalin!");
   }, [buildShareUrl, currentMode]);
 
-  /** Punch-line text — 1-2 baris, siap-tweet, dengan analogi. */
-  const buildShareText = useCallback(() => {
-    if (compareMode) {
-      const p1 = getPrimaryResult(totalMs);
-      const p2 = getPrimaryResult(totalMs2);
-      const pd = getPrimaryResult(diffMs);
-      return `Rp ${formatRupiah(debouncedRupiah)} = ${p1.value} ${p1.unit} MBG. Rp ${formatRupiah(debouncedRupiah2)} = ${p2.value} ${p2.unit}. Selisih ${pd.value} ${pd.unit}.`;
-    }
-    const p = getPrimaryResult(totalMs);
-    const analogy = getAnalogy(debouncedRupiah);
-    const base = `Rp ${formatRupiah(debouncedRupiah)} = ${p.value} ${p.unit} program MBG (≈ ${formatCompact(rupiahToPorsi(debouncedRupiah))} porsi makan gratis).`;
-    return analogy ? `${base} ${analogy}.` : base;
-  }, [compareMode, totalMs, totalMs2, diffMs, debouncedRupiah, debouncedRupiah2]);
-
-  const handleShare = useCallback(async () => {
-    const url = buildShareUrl();
-    const text = buildShareText();
-    track("share", { mode: currentMode, native: typeof navigator.share === "function" });
-    if (typeof navigator.share === "function") {
-      try { await navigator.share({ title: "Kalkulator MBG", text, url }); }
-      catch { /* user batal */ }
-    } else {
-      try { await navigator.clipboard.writeText(`${text}\n${url}`); toast.success("Disalin — siap dibagikan!"); }
-      catch { toast.error("Gagal menyalin"); }
-    }
-  }, [buildShareUrl, buildShareText, currentMode]);
-
-  const handleShareWA = useCallback(() => {
-    const text = `${buildShareText()}\n${buildShareUrl()}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
-    track("share_wa", { mode: currentMode });
-  }, [buildShareText, buildShareUrl, currentMode]);
 
   const handlePrint = useCallback(() => {
     track("print", { mode: currentMode });
@@ -700,22 +668,6 @@ export default function Index() {
             <div className={`${modeTransition} ${!compareMode && !reverseMode ? "opacity-100 translate-y-0 max-h-[600px]" : "opacity-0 max-h-0 overflow-hidden pointer-events-none"}`}>
               <div className="space-y-2.5 sm:space-y-3">
                 <ResultCard rupiah={debouncedRupiah} totalMs={totalMs} />
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={handleShare}
-                    aria-label="Bagikan hasil"
-                    className="h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <Share2 size={15} aria-hidden="true" /> Bagikan
-                  </button>
-                  <button
-                    onClick={handleShareWA}
-                    aria-label="Bagikan hasil ke WhatsApp"
-                    className="h-11 rounded-xl bg-[#25D366] text-white font-bold text-sm flex items-center justify-center gap-1.5 hover:brightness-95 shadow-md active:scale-[0.98] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <MessageCircle size={15} aria-hidden="true" /> WhatsApp
-                  </button>
-                </div>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={handleCopyText} aria-label="Salin teks hasil ke clipboard"
                     className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
@@ -763,20 +715,6 @@ export default function Index() {
                   <p className="text-xs sm:text-sm font-extrabold text-center">Rp {formatRupiah(Math.round(diffRupiah))}</p>
                   <p className="text-xs sm:text-sm font-bold text-result text-center">= {getPrimaryResult(diffMs).value} {getPrimaryResult(diffMs).unit} program MBG</p>
                 </Section>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={handleShare} disabled={!bothCompare} aria-label="Bagikan perbandingan"
-                    className="h-11 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex items-center justify-center gap-1.5 hover:bg-accent shadow-md shadow-primary/15 active:scale-[0.98] transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <Share2 size={15} aria-hidden="true" /> Bagikan
-                  </button>
-                  <button
-                    onClick={handleShareWA} disabled={!bothCompare} aria-label="Bagikan perbandingan ke WhatsApp"
-                    className="h-11 rounded-xl bg-[#25D366] text-white font-bold text-sm flex items-center justify-center gap-1.5 hover:brightness-95 shadow-md active:scale-[0.98] transition disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <MessageCircle size={15} aria-hidden="true" /> WhatsApp
-                  </button>
-                </div>
                 <div className="grid grid-cols-3 gap-2">
                   <button onClick={handleCopyCompare} aria-label="Salin teks perbandingan ke clipboard" disabled={!bothCompare}
                     className="h-10 sm:h-11 rounded-xl border-2 border-primary/20 text-primary font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 hover:border-primary/40 hover:bg-primary/5 active:scale-[0.97] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50">
@@ -879,22 +817,6 @@ export default function Index() {
           >
             <Info size={11} aria-hidden="true" /> Tentang
           </Link>
-          <span className="text-muted-foreground">·</span>
-          <Dialog open={embedOpen} onOpenChange={setEmbedOpen}>
-            <DialogTrigger asChild>
-              <button aria-label="Buka dialog snippet sematkan iframe kalkulator"
-                className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                <Code2 size={11} aria-hidden="true" /> Sematkan
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Sematkan Kalkulator MBG</DialogTitle>
-                <DialogDescription>Sesuaikan tampilan, salin snippet, tempel ke halaman/blog Anda.</DialogDescription>
-              </DialogHeader>
-              <EmbedBuilder amount={debouncedRupiah} compareAmount={compareMode ? debouncedRupiah2 : 0} />
-            </DialogContent>
-          </Dialog>
         </div>
       </footer>
 

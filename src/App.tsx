@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index.tsx";
-import Embed from "./pages/Embed.tsx";
 import Tentang from "./pages/Tentang.tsx";
 import SlugRedirect from "./pages/SlugRedirect.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -21,7 +20,6 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/embed" element={<Embed />} />
             <Route path="/tentang" element={<Tentang />} />
             {/* Slug pendek: /500m, /1t, /2jt → redirect ke /?amount=… */}
             <Route path="/:slug" element={<SlugRedirect />} />
