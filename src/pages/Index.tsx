@@ -865,6 +865,8 @@ export default function Index() {
         <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
           <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
           <span className="text-muted-foreground">·</span>
+          <span title="Tanggal data anggaran MBG terakhir diperbarui">Data {MBG_DATA_UPDATED}</span>
+          <span className="text-muted-foreground">·</span>
           <Link
             to="/tentang"
             aria-label="Halaman tentang: metodologi, FAQ, dan sumber data"
