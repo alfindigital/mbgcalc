@@ -1,13 +1,16 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import Index from "./Index";
 
 function renderPage() {
   return render(
-    <BrowserRouter>
-      <Index />
-    </BrowserRouter>,
+    <HelmetProvider>
+      <BrowserRouter>
+        <Index />
+      </BrowserRouter>
+    </HelmetProvider>,
   );
 }
 
