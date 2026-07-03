@@ -224,7 +224,19 @@ export default function Index() {
   const [pendingClear, setPendingClear] = useState(false);
   const clearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { history, addToHistory, clearHistory } = useHistory();
+  const { history, addToHistory, clearHistory, exportHistory, importHistory } = useHistory();
+  const importInputRef = useRef<HTMLInputElement | null>(null);
+  const handleImportFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      const added = await importHistory(file);
+      toast.success(added > 0 ? `${added} entri riwayat diimpor` : "Tidak ada entri baru");
+    } catch {
+      toast.error("File tidak valid");
+    }
+  }, [importHistory]);
 
   const handleClearClick = useCallback(() => {
     if (pendingClear) {
