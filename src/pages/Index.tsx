@@ -221,8 +221,22 @@ export default function Index() {
   });
   const [activeQuick2, setActiveQuick2] = useState<number | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [pendingClear, setPendingClear] = useState(false);
+  const clearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { history, addToHistory, clearHistory } = useHistory();
+
+  const handleClearClick = useCallback(() => {
+    if (pendingClear) {
+      if (clearTimeoutRef.current) clearTimeout(clearTimeoutRef.current);
+      clearHistory();
+      setPendingClear(false);
+      toast.success("Riwayat dihapus");
+    } else {
+      setPendingClear(true);
+      clearTimeoutRef.current = setTimeout(() => setPendingClear(false), 3000);
+    }
+  }, [pendingClear, clearHistory]);
 
   useEffect(() => { if (!rawInput) inputRef.current?.focus(); }, []);
 
