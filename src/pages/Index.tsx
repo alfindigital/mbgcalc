@@ -603,27 +603,6 @@ export default function Index() {
                   </div>
                 </div>
 
-                {/* Preset pasangan — VS langsung */}
-                <div className="mt-3">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1.5">Bandingkan cepat</p>
-                  <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1 snap-x">
-                    {PRESET_PAIRS.map((pair) => (
-                      <button
-                        key={pair.label}
-                        onClick={() => {
-                          setActiveQuick(null); setActiveQuick2(null);
-                          setRawInput(formatRupiah(pair.a.value));
-                          setRawInput2(formatRupiah(pair.b.value));
-                          track("preset_pair_click", { label: pair.label });
-                        }}
-                        className="shrink-0 snap-start h-8 px-3 rounded-lg border border-accent/40 bg-card text-[11px] font-bold text-accent hover:bg-accent/5 active:scale-[0.96] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        disabled={!compareMode}
-                      >
-                        {pair.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
 
