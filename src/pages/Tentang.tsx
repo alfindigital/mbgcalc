@@ -97,31 +97,30 @@ export default function Tentang() {
           <header>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Tentang Kalkulator MBG</h1>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-              Alat edukasi independen untuk mengubah nominal Rupiah jadi gambaran konkret: berapa lama uang itu bisa
+              Alat edukasi independen yang mengubah nominal Rupiah jadi gambaran konkret: berapa lama
               membiayai program Makan Bergizi Gratis, dan setara berapa <strong className="text-foreground">porsi makan gratis</strong>.
-              Cocok untuk memahami skala anggaran, belanja, atau angka berita.
             </p>
           </header>
 
           <LiveMbgCounter />
 
           <section className="card-elevated rounded-2xl border-2 border-border p-5 sm:p-6">
-            <h2 className="text-lg font-extrabold mb-3">Metodologi singkat</h2>
+            <h2 className="text-lg font-extrabold mb-3">Metodologi</h2>
             <ul className="text-sm text-muted-foreground leading-relaxed space-y-2">
-              <li>• Anggaran MBG {MBG_BUDGET_YEAR}: <strong className="text-foreground">{MBG_ANNUAL_LABEL}</strong></li>
-              <li>• Biaya harian: {MBG_ANNUAL_LABEL} ÷ 365 = <strong className="text-foreground">{MBG_DAILY_LABEL}/hari</strong></li>
+              <li>• Anggaran {MBG_BUDGET_YEAR}: <strong className="text-foreground">{MBG_ANNUAL_LABEL}</strong></li>
+              <li>• Biaya harian: <strong className="text-foreground">{MBG_DAILY_LABEL}/hari</strong> (÷ 365)</li>
               <li>• Per porsi: <strong className="text-foreground">Rp {formatRupiah(MBG_COST_PER_PORSI)}</strong> (standar BGN)</li>
-              <li>• Target penerima: <strong className="text-foreground">{formatRupiah(MBG_RECIPIENTS)}</strong> orang</li>
+              <li>• Penerima: <strong className="text-foreground">{formatRupiah(MBG_RECIPIENTS)}</strong> orang</li>
             </ul>
           </section>
 
           <section className="card-elevated rounded-2xl border-2 border-border p-5 sm:p-6">
-            <h2 className="text-lg font-extrabold mb-4">MBG vs pos APBN lain (2026)</h2>
+            <h2 className="text-lg font-extrabold mb-4">MBG vs pos APBN 2026</h2>
             <BudgetChart />
           </section>
 
           <section className="card-elevated rounded-2xl border-2 border-border p-5 sm:p-6">
-            <h2 className="text-lg font-extrabold mb-4">Perjalanan anggaran MBG</h2>
+            <h2 className="text-lg font-extrabold mb-4">Perjalanan anggaran</h2>
             <ol className="relative border-l-2 border-primary/20 ml-2 space-y-4">
               {TIMELINE.map((t) => (
                 <li key={t.year} className="pl-4">
@@ -137,11 +136,11 @@ export default function Tentang() {
           </section>
 
           <section>
-            <h2 className="text-lg sm:text-xl font-extrabold mb-3">Pertanyaan yang sering diajukan</h2>
+            <h2 className="text-lg font-extrabold mb-3">Pertanyaan umum</h2>
             <Accordion type="single" collapsible className="w-full">
               {FAQ.map((item, i) => (
                 <AccordionItem key={i} value={`faq-${i}`}>
-                  <AccordionTrigger className="text-left text-sm sm:text-base font-bold">{item.q}</AccordionTrigger>
+                  <AccordionTrigger className="text-left text-sm font-bold">{item.q}</AccordionTrigger>
                   <AccordionContent className="text-sm text-muted-foreground leading-relaxed">{item.a}</AccordionContent>
                 </AccordionItem>
               ))}
