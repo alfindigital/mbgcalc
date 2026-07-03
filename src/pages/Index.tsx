@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { useSearchParams, Link } from "react-router-dom";
-import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Link2, History, Printer } from "lucide-react";
+import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Link2, History } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -410,10 +410,6 @@ export default function Index() {
   }, [buildShareUrl, currentMode]);
 
 
-  const handlePrint = useCallback(() => {
-    track("print", { mode: currentMode });
-    window.print();
-  }, [currentMode]);
 
   const handleCopyText = useCallback(() => {
     const p = getPrimaryResult(totalMs);
@@ -690,9 +686,6 @@ export default function Index() {
                       </DropdownMenuItem>
                       <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleSaveImage("16:9"); }} aria-label="Simpan gambar rasio 16:9 untuk Twitter atau Web" className="cursor-pointer focus:bg-accent focus:text-accent-foreground">
                         <div className="flex flex-col"><span className="font-semibold text-xs">16:9 — Twitter / Web</span><span className="text-[10px] text-muted-foreground">1920 × 1080</span></div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handlePrint(); }} aria-label="Cetak halaman" className="cursor-pointer focus:bg-accent focus:text-accent-foreground border-t mt-1 pt-2">
-                        <div className="flex items-center gap-2"><Printer size={13} aria-hidden="true" /><span className="font-semibold text-xs">Cetak halaman</span></div>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
