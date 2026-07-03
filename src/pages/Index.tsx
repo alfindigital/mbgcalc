@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { useSearchParams, Link } from "react-router-dom";
-import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Code2, Link2, History, Share2, MessageCircle, Printer } from "lucide-react";
+import { Sun, Moon, X, Copy, Download, ChevronDown, Trash2, Calculator, Info, Link2, History, Printer } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber";
@@ -25,7 +25,7 @@ import { PRESET_PAIRS } from "@/lib/presets";
 
 import { track } from "@/lib/analytics";
 import { SITE_URL } from "@/lib/site";
-import { EmbedBuilder } from "@/components/EmbedBuilder";
+
 
 const SITE_HOST = new URL(SITE_URL).host;
 
@@ -209,7 +209,7 @@ export default function Index() {
   const [reverseUnit, setReverseUnit] = useState("detik");
   const [saving, setSaving] = useState(false);
   const [saveRatio, setSaveRatio] = useState<"1:1" | "9:16" | "16:9">("1:1");
-  const [embedOpen, setEmbedOpen] = useState(false);
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const captureRef = useRef<HTMLDivElement>(null);
   const modeRefs = useRef<(HTMLButtonElement | null)[]>([]);
