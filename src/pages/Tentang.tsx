@@ -67,7 +67,7 @@ export default function Tentang() {
         <title>Tentang Kalkulator MBG — Metodologi, FAQ & Sumber Data</title>
         <meta
           name="description"
-          content={`Penjelasan Kalkulator MBG: metodologi konversi Rupiah ke waktu & porsi program Makan Bergizi Gratis. Anggaran ${MBG_BUDGET_YEAR} ${MBG_ANNUAL_LABEL}, ${MBG_DAILY_LABEL}/hari, Rp ${formatRupiah(MBG_COST_PER_PORSI)}/porsi.`}
+          content={`Metodologi & sumber data Kalkulator MBG: konversi Rupiah ke waktu & porsi program Makan Bergizi Gratis. Anggaran ${MBG_BUDGET_YEAR} Rp 335 T, Rp ${formatRupiah(MBG_COST_PER_PORSI)}/porsi.`}
         />
         <link rel="canonical" href={`${SITE_URL}/tentang`} />
         <meta property="og:url" content={`${SITE_URL}/tentang`} />
