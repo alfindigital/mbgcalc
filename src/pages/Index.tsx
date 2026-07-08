@@ -529,6 +529,14 @@ export default function Index() {
                 <History size={17} className="text-muted-foreground" aria-hidden="true" />
               </button>
             )}
+            <Link
+              to="/tentang"
+              aria-label="Halaman tentang: metodologi, FAQ, dan sumber data"
+              title="Tentang"
+              className="p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <Info size={17} className="text-muted-foreground" aria-hidden="true" />
+            </Link>
             <button
               onClick={toggleDark}
               type="button"
@@ -878,14 +886,6 @@ export default function Index() {
           <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
           <span className="text-muted-foreground">·</span>
           <span title="Tanggal data anggaran MBG terakhir diperbarui">Data {MBG_DATA_UPDATED}</span>
-          <span className="text-muted-foreground">·</span>
-          <Link
-            to="/tentang"
-            aria-label="Halaman tentang: metodologi, FAQ, dan sumber data"
-            className="inline-flex items-center gap-1 hover:text-primary transition-colors font-semibold underline underline-offset-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            <Info size={11} aria-hidden="true" /> Tentang
-          </Link>
         </div>
       </footer>
 
