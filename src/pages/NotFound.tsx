@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { SITE_URL } from "@/lib/site";
 
 const NotFound = () => {
   const location = useLocation();
@@ -8,7 +9,7 @@ const NotFound = () => {
     if (import.meta.env.DEV) console.error("404 Error: User attempted to access non-existent route:", location.pathname);
 
     const prevTitle = document.title;
-    const url = `https://mbgcal.lovable.app${location.pathname}`;
+    const url = `${SITE_URL}${location.pathname}`;
     const title = "404 — Halaman Tidak Ditemukan | Kalkulator MBG";
     const description =
       "Halaman yang Anda cari tidak ditemukan. Kembali ke beranda Kalkulator MBG untuk konversi Rupiah ke waktu MBG.";
