@@ -180,7 +180,7 @@ export default function Tentang() {
 
       <footer className="border-t-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
         <p className="text-center text-[11px] text-muted-foreground font-medium">
-          made by <span className="font-bold text-primary">M. Alfin</span>
+          Open Source · MIT License
         </p>
       </footer>
     </div>

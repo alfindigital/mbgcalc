@@ -12,7 +12,28 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Environment — JANGAN pernah commit file env
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Secrets & keys
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+vault/
+
+# Supabase local dev
+supabase/.env
+supabase/functions/.env
+
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -22,3 +43,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AI agent folders (lokal, tidak perlu masuk repo)
+.agents/
+.gemini/
+.claude/
+.cursor/
+.lovable/

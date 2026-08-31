@@ -1,7 +1,25 @@
 {
-  "name": "vite_react_shadcn_ts",
-  "private": true,
-  "version": "0.0.0",
+  "name": "mbgcalc",
+  "version": "1.0.0",
+  "description": "Kalkulator MBG — konversi nominal Rupiah ke waktu & porsi program Makan Bergizi Gratis (MBG). Educational open-source SPA built with React + Vite + TypeScript.",
+  "homepage": "https://github.com/alfindigital/mbgcalc",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alfindigital/mbgcalc.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "mbg",
+    "makan-bergizi-gratis",
+    "kalkulator",
+    "indonesia",
+    "apbn",
+    "react",
+    "typescript",
+    "vite",
+    "pwa"
+  ],
+  "private": false,
   "type": "module",
   "scripts": {
     "predev": "bunx tsx scripts/generate-sitemap.ts",

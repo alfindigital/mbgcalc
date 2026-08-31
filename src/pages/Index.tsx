@@ -883,9 +883,9 @@ export default function Index() {
       {/* Footer */}
       <footer className="border-t-2 border-primary/15 py-3 px-4" style={{ background: "hsl(var(--footer-bg))" }}>
         <div className="flex items-center justify-center gap-2 flex-wrap text-[10px] sm:text-[11px] text-muted-foreground font-medium">
-          <span>made by <span className="font-bold text-primary">M. Alfin</span></span>
-          <span className="text-muted-foreground">·</span>
           <span title="Tanggal data anggaran MBG terakhir diperbarui">Data {MBG_DATA_UPDATED}</span>
+          <span className="text-muted-foreground">·</span>
+          <span>Open Source · MIT</span>
         </div>
       </footer>
 
@@ -949,7 +949,6 @@ export default function Index() {
               <div style={{ opacity: 0.9 }}>Anggaran MBG {MBG_BUDGET_YEAR}: {MBG_ANNUAL_LABEL} (≈ {MBG_DAILY_LABEL}/hari)</div>
               <div style={{ opacity: 0.6, marginTop: 4, fontSize: 12 }}>Sumber: APBN {MBG_BUDGET_YEAR} · BGN</div>
             </div>
-            <div style={{ position: "absolute", bottom: 24, right: 40, color: "white", fontSize: 13, opacity: 0.7 }}>made by M. Alfin</div>
             <div style={{ position: "absolute", bottom: 12, left: "50%", transform: "translateX(-50%)", color: "white", fontSize: 11, opacity: 0.4 }}>{SITE_HOST}</div>
           </div>
         );
