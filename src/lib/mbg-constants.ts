@@ -1,6 +1,6 @@
 /**
  * Konstanta program MBG (Makan Bergizi Gratis).
- * Update terakhir: Juni 2026.
+ * Update terakhir: Agustus 2026.
  *
  * METODOLOGI (transparan & konsisten):
  * - Anggaran MBG 2026 = Rp 335 triliun (pagu Rp 268 T + dana standby Rp 67 T),
@@ -27,7 +27,7 @@ export const MBG_COST_PER_PORSI = 10_000;
 /** Target penerima manfaat (orang). */
 export const MBG_RECIPIENTS = 82_900_000;
 
-export const MBG_DATA_UPDATED = "Juni 2026";
+export const MBG_DATA_UPDATED = "Agustus 2026";
 
 /** Label siap-pakai untuk UI (agar tidak ada angka ter-hardcode di banyak tempat). */
 export const MBG_ANNUAL_LABEL = "Rp 335 triliun";

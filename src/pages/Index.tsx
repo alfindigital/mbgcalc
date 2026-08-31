@@ -533,10 +533,9 @@ export default function Index() {
               to="/tentang"
               aria-label="Halaman tentang: metodologi, FAQ, dan sumber data"
               title="Tentang — metodologi, FAQ & sumber data"
-              className="inline-flex items-center gap-1.5 p-2 sm:px-3 sm:py-2 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex items-center p-2 sm:p-2.5 rounded-xl border-2 border-border bg-card hover:bg-muted transition-colors active:scale-95 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               <Info size={17} className="text-muted-foreground" aria-hidden="true" />
-              <span className="hidden sm:inline text-xs font-bold text-muted-foreground">Tentang</span>
             </Link>
             <button
               onClick={toggleDark}
